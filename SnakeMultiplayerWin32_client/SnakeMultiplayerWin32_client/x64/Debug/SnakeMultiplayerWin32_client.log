@@ -1,0 +1,42 @@
+﻿Build started 02-05-2017 20:58:48.
+     1>Project "D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_client\SnakeMultiplayerWin32_client\SnakeMultiplayerWin32_client.vcxproj" on node 2 (Build target(s)).
+       Project file contains ToolsVersion="14.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="4.0". For more information, please see http://go.microsoft.com/fwlink/?LinkId=291333.
+     1>ClCompile:
+         D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc110.pdb" /Gd /TC /errorReport:prompt SnakeClient.c
+         SnakeClient.c
+     1>SnakeClient.c(27): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>SnakeClient.c(111): error C2275: 'HANDLE' : illegal use of this type as an expression
+                 C:\Program Files (x86)\Windows Kits\8.0\Include\um\winnt.h(529) : see declaration of 'HANDLE'
+     1>SnakeClient.c(111): error C2146: syntax error : missing ';' before identifier 'WriteReady'
+     1>SnakeClient.c(111): error C2065: 'WriteReady' : undeclared identifier
+     1>SnakeClient.c(112): error C2275: 'OVERLAPPED' : illegal use of this type as an expression
+                 C:\Program Files (x86)\Windows Kits\8.0\Include\um\minwinbase.h(63) : see declaration of 'OVERLAPPED'
+     1>SnakeClient.c(112): error C2146: syntax error : missing ';' before identifier 'overLapped'
+     1>SnakeClient.c(112): error C2065: 'overLapped' : undeclared identifier
+     1>SnakeClient.c(112): error C2059: syntax error : '{'
+     1>SnakeClient.c(114): error C2065: 'WriteReady' : undeclared identifier
+     1>SnakeClient.c(118): warning C4047: '=' : 'int' differs in levels of indirection from 'HANDLE'
+     1>SnakeClient.c(120): error C2065: 'WriteReady' : undeclared identifier
+     1>SnakeClient.c(120): warning C4047: '==' : 'int' differs in levels of indirection from 'void *'
+     1>SnakeClient.c(136): error C2065: 'overLapped' : undeclared identifier
+     1>SnakeClient.c(137): error C2065: 'WriteReady' : undeclared identifier
+     1>SnakeClient.c(137): warning C4022: 'ResetEvent' : pointer mismatch for actual parameter 1
+     1>SnakeClient.c(138): error C2065: 'overLapped' : undeclared identifier
+     1>SnakeClient.c(138): error C2224: left of '.hEvent' must have struct/union type
+     1>SnakeClient.c(138): error C2065: 'WriteReady' : undeclared identifier
+     1>SnakeClient.c(145): error C2065: 'overLapped' : undeclared identifier
+     1>SnakeClient.c(145): warning C4133: 'function' : incompatible types - from 'int *' to 'LPOVERLAPPED'
+     1>SnakeClient.c(147): error C2065: 'WriteReady' : undeclared identifier
+     1>SnakeClient.c(147): warning C4022: 'WaitForSingleObject' : pointer mismatch for actual parameter 1
+     1>SnakeClient.c(150): error C2065: 'overLapped' : undeclared identifier
+     1>SnakeClient.c(150): warning C4133: 'function' : incompatible types - from 'int *' to 'LPOVERLAPPED'
+     1>SnakeClient.c(156): warning C4002: too many actual parameters for macro 'TEXT'
+     1>SnakeClient.c(169): error C2065: 'WriteReady' : undeclared identifier
+     1>SnakeClient.c(169): warning C4022: 'CloseHandle' : pointer mismatch for actual parameter 1
+     1>SnakeClient.c(221): warning C4047: 'function' : 'BOOL' differs in levels of indirection from 'void *'
+     1>SnakeClient.c(221): warning C4024: 'GetOverlappedResult' : different types for formal and actual parameter 4
+     1>Done Building Project "D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_client\SnakeMultiplayerWin32_client\SnakeMultiplayerWin32_client.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:01.09
