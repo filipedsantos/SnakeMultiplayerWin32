@@ -56,7 +56,6 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	while (1) {
 		// Open pipe with flag - File_Flag_OVERLAPPED
-
 		hPipe = CreateFile(
 			lpszPipename,								// name of pipe
 			GENERIC_READ | GENERIC_WRITE,				// read & write access

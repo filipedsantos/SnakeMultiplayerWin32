@@ -113,9 +113,9 @@ int _tmain(void){
 	#endif
 
 	WriteReady = CreateEvent(NULL, TRUE, FALSE, NULL);
-	if(WriteReady != NULL){
-		_tprintf(TEXT("\n Error creating event write - %d"), GetLastError());
-		return;
+	if(WriteReady == NULL){
+		_tprintf(TEXT("\n Error creating event write - %d\n"), GetLastError());
+		return -1;
 	}	
 
 

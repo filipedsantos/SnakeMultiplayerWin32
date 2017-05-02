@@ -7,5 +7,6 @@ c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_cli
   c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(156): note: the missing variadic argument 1 is required by format string '%d'
 c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(221): warning C4047: 'function': 'BOOL' differs in levels of indirection from 'void *'
 c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(221): warning C4024: 'GetOverlappedResult': different types for formal and actual parameter 4
+  LINK : C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_client\Debug\SnakeMultiplayerWin32_client.exe not found or not built by the last incremental link; performing full link
   SnakeMultiplayerWin32_client.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_client\Debug\SnakeMultiplayerWin32_client.exe
   SnakeMultiplayerWin32_client.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_client\Debug\SnakeMultiplayerWin32_client.pdb (Full PDB)
