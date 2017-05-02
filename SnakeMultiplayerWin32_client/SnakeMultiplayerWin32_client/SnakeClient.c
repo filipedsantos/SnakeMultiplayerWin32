@@ -65,10 +65,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 			0 | FILE_FLAG_OVERLAPPED,					// default
 			NULL);
 
-		if (hPipe != INVALID_HANDLE_VALUE) {
-			_tprintf(TEXT("[ERROR] NAMEDPIPE FAILED...(%d)\n"), GetLastError());
-			return -1;
-		}
+		if (hPipe != INVALID_HANDLE_VALUE)
+			break;
 
 		if (GetLastError() != ERROR_PIPE_BUSY) {
 			_tprintf(TEXT("[ERROR] Create file error and not BUSY...(%d)\n"), GetLastError());

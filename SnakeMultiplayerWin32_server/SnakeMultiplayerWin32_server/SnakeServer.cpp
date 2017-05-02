@@ -26,7 +26,6 @@ DWORD WINAPI listenClient(LPVOID params);
 HANDLE clients[MAXCLIENTS];
 
 HANDLE WriteReady;
-HANDLE ReadReady;
 
 void readTChars(TCHAR *p, int maxChars){
 	int len;
@@ -122,16 +121,10 @@ int _tmain(void){
 	#endif
 
 	WriteReady = CreateEvent(NULL, TRUE, FALSE, NULL);
-<<<<<<< HEAD
-	if(WriteReady == NULL){
+	if (WriteReady == NULL) {
 		_tprintf(TEXT("\n Error creating event write - %d\n"), GetLastError());
-=======
-
-	if(WriteReady == NULL){
-		_tprintf(TEXT("\n Error creating event write - %d"), GetLastError());
->>>>>>> 0dc83cf91f3af25378593ec5da456d6d6c9e14d1
 		return -1;
-	}	
+	}
 
 
 	//////MAIN CYCLE OF PROGRAM
@@ -201,6 +194,8 @@ DWORD WINAPI listenClient (LPVOID param){
 
 	HANDLE hPipe = (HANDLE) param; //param received is a handle of the pipe
 	OVERLAPPED overLapped = { 0 };
+
+	HANDLE ReadReady;
 
 	//TEST PIPE RECEIVED
 	if(hPipe == NULL){
