@@ -28,6 +28,13 @@ HANDLE clients[MAXCLIENTS];
 HANDLE WriteReady;
 HANDLE ReadReady;
 
+void readTChars(TCHAR *p, int maxChars){
+	int len;
+	_fgetts(p, maxChars, stdin);
+	len = _tcslen(p);
+	if(p[len -1] == TEXT('\n'));
+		p[len-1] = TEXT('\0');
+}
 
 //START ALL CLIENTS WITH NULL
 void startClients(){
@@ -82,6 +89,8 @@ void writeClients(HANDLE client, data dataReply){
 				structSize, 
 				&cbWritten,
 				&overLapped);
+	
+	WaitForSingleObject(WriteReady, INFINITE);
 
 	GetOverlappedResult(client, &overLapped, &cbWritten, FALSE);
 	if(cbWritten < structSize)
@@ -113,9 +122,10 @@ int _tmain(void){
 	#endif
 
 	WriteReady = CreateEvent(NULL, TRUE, FALSE, NULL);
-	if(WriteReady != NULL){
+
+	if(WriteReady == NULL){
 		_tprintf(TEXT("\n Error creating event write - %d"), GetLastError());
-		return;
+		return -1;
 	}	
 
 
@@ -216,14 +226,16 @@ DWORD WINAPI listenClient (LPVOID param){
 					&cbBytesRead,
 					&overLapped);
 
+		WaitForSingleObject(ReadReady, INFINITE);
+
 		GetOverlappedResult(hPipe, &overLapped, &cbBytesRead, FALSE);
-		if(!success || cbBytesRead < structSize){
+		if(cbBytesRead < structSize){
 			_tprintf(TEXT("\n[THREAD] ReadFile does not read all - %d"), GetLastError());
 		}
 
 		///////////////////////////////////////
 
-		_tprintf(TEXT("[%s] : [s]"), request.who, request.command);
+		_tprintf(TEXT("[%s] : [%s]"), request.who, request.command);
 
 		_tcscpy(reply.command, TEXT("Something, I don't care"));
 		broadcastClients(reply);

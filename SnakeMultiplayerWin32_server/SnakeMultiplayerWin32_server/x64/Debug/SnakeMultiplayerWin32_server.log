@@ -1,12 +1,14 @@
-﻿Build started 02-05-2017 20:11:12.
+﻿Build started 02-05-2017 20:55:45.
      1>Project "D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\SnakeMultiplayerWin32_server\SnakeMultiplayerWin32_server.vcxproj" on node 2 (Build target(s)).
        Project file contains ToolsVersion="14.0". This toolset may be unknown or missing, in which case you may be able to resolve this by installing the appropriate version of MSBuild, or the build may have been forced to a particular ToolsVersion for policy reasons. Treating the project as if it had ToolsVersion="4.0". For more information, please see http://go.microsoft.com/fwlink/?LinkId=291333.
      1>ClCompile:
          D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /Od /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc110.pdb" /Gd /TP /errorReport:prompt SnakeServer.cpp
          SnakeServer.cpp
-     1>SnakeServer.cpp(185): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\string.h(288) : see declaration of 'wcscpy'
+     1>SnakeServer.cpp(34): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
+     1>SnakeServer.cpp(36): warning C4390: ';' : empty controlled statement found; is this the intent?
      1>SnakeServer.cpp(212): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\string.h(288) : see declaration of 'wcscpy'
+     1>SnakeServer.cpp(240): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\string.h(288) : see declaration of 'wcscpy'
        Link:
          D:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\x64\Debug\SnakeMultiplayerWin32_server.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\x64\Debug\SnakeMultiplayerWin32_server.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\x64\Debug\SnakeMultiplayerWin32_server.lib" /MACHINE:X64 x64\Debug\SnakeServer.obj
@@ -15,4 +17,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.95
+Time Elapsed 00:00:01.72
