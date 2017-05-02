@@ -80,7 +80,6 @@ int _tmain(int argc, LPTSTR argv[]) {
 	}
 
 	dwMode = PIPE_READMODE_MESSAGE;
-
 	fSucess = SetNamedPipeHandleState(
 		hPipe,		// pipe handle
 		&dwMode,	// pipe new mode type
@@ -122,7 +121,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 	_tprintf(TEXT("\nConnected... \"exit\" to stop..."));
 	while (1) {
 		_tprintf(TEXT("\n%s > "), dataToSend.sender);
-		readTChars(dataToSend.command, COMMANDSIZE);
+		readTChars(dataToSend.command, structSize);
 
 		if (_tcscmp(TEXT("exit"), dataToSend.command) == 0)
 			break;
@@ -153,7 +152,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 			_tprintf(TEXT("\nWrite File failed... (%d)", GetLastError()));
 		}
 
-		_tprintf(TEXT("\n Message send..."));
+		_tprintf(TEXT("\nMessage send..."));
 	}
 	_tprintf(TEXT("\n End listener thread..."));
 	mayContinue = 0;	// end readerThread
@@ -172,7 +171,7 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 	data fromServer;
 
 	DWORD cbBytesRead = 0;
-	BOOL fSuccess = 0;
+	BOOL fSuccess = FALSE;
 	HANDLE hPipe = (HANDLE)PARAMS;	// a info enviada é o handle
 	
 	HANDLE ReadReady;
@@ -215,7 +214,7 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 		_tprintf(TEXT("\nRead success..."));
 
 		if (!fSuccess || cbBytesRead < structSize) {
-			GetOverlappedResult(hPipe, &overLapped, &cbBytesRead, NULL); // No wait
+			GetOverlappedResult(hPipe, &overLapped, &cbBytesRead, FALSE); // No wait
 			if (cbBytesRead < structSize) {
 				_tprintf(TEXT("[ERROR] Read file failed... (%d)"), GetLastError());
 			}

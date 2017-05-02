@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SnakeServer.cpp" />
+    <ClCompile Include="SnakeServer.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3E15578D-8C20-472B-97E8-0A826CE7DB44}</ProjectGuid>
