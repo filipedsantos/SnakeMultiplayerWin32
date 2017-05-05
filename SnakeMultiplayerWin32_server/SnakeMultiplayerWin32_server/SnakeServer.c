@@ -16,89 +16,6 @@ HANDLE hMapFile;
 HANDLE hThreadSharedMemory;
 HANDLE CommandEvent;
 
-data command;	// variable to save the list of commands received
-
-void readTChars(TCHAR *p, int maxChars){
-	int len;
-	_fgetts(p, maxChars, stdin);
-	len = _tcslen(p);
-	if(p[len -1] == TEXT('\n'));
-		p[len-1] = TEXT('\0');
-}
-
-//START ALL CLIENTS WITH NULL
-void startClients(){
-	int i = 0;
-	
-	for(i; i<MAXCLIENTS; i++){
-		clients[i] = NULL;
-	}
-
-}
-
-//CREATE A NEW CLIENT
-void addClient(HANDLE hPipe){
-	int i = 0;
-	for(i; i<MAXCLIENTS; i++){
-
-		if(clients[i] == NULL){
-
-			clients[i] = hPipe;
-			return;
-		}
-	}
-}
-
-//REMOVE CLIENT
-void removeClients(HANDLE hPipe){
-
-	int i = 0;
-	for(i; i < MAXCLIENTS; i++){
-	
-		if(clients[i] == hPipe){
-			clients[i] = NULL;
-			return;
-		}
-	}
-}
-
-//CREATE A MESSAGE TO CLIENT
-void writeClients(HANDLE client, data dataReply){
-	DWORD cbWritten = 0;
-	BOOL  success = FALSE;
-
-	OVERLAPPED overLapped = { 0 };
-
-	ZeroMemory(&overLapped, sizeof(overLapped));
-	ResetEvent(WriteReady);
-	overLapped.hEvent = WriteReady;
-
-	success = WriteFile(
-				client,	
-				&dataReply,
-				dataSize,
-				&cbWritten,
-				&overLapped);
-	
-	WaitForSingleObject(WriteReady, INFINITE);
-
-	GetOverlappedResult(client, &overLapped, &cbWritten, FALSE);
-	if(cbWritten < dataSize)
-		_tprintf(TEXT("\nIncomplete data... Error: %d"), GetLastError());
-
-}
-
-//SEND TO EVERYCLIENT THE SAME MESSAGE
-void broadcastClients(data dataReply){
-	int i = 0;
-	for (i; i < MAXCLIENTS; i++) {
-		if (clients[i] != 0) {
-			writeClients(clients[i], dataReply);
-		}
-	}
-}
-
-
 /////////////MAIN 
 int _tmain(void){
 
@@ -113,9 +30,104 @@ int _tmain(void){
 	return 0;
 }
 
+// Functions ------------------------------------------------------------------------------------
+
+//START ALL CLIENTS WITH NULL
+void startClients() {
+	int i = 0;
+
+	for (i; i<MAXCLIENTS; i++) {
+		clients[i] = NULL;
+	}
+
+}
+
+//CREATE A NEW CLIENT
+void addClient(HANDLE hPipe) {
+	int i = 0;
+	for (i; i<MAXCLIENTS; i++) {
+
+		if (clients[i] == NULL) {
+
+			clients[i] = hPipe;
+			return;
+		}
+	}
+}
+
+//REMOVE CLIENT
+void removeClients(HANDLE hPipe) {
+
+	int i = 0;
+	for (i; i < MAXCLIENTS; i++) {
+
+		if (clients[i] == hPipe) {
+			clients[i] = NULL;
+			return;
+		}
+	}
+}
+
+//CREATE A MESSAGE TO CLIENT
+void writeClients(HANDLE client, data dataReply) {
+	DWORD cbWritten = 0;
+	BOOL  success = FALSE;
+
+	OVERLAPPED overLapped = { 0 };
+
+	ZeroMemory(&overLapped, sizeof(overLapped));
+	ResetEvent(WriteReady);
+	overLapped.hEvent = WriteReady;
+
+	success = WriteFile(
+		client,
+		&dataReply,
+		dataSize,
+		&cbWritten,
+		&overLapped);
+
+	WaitForSingleObject(WriteReady, INFINITE);
+
+	GetOverlappedResult(client, &overLapped, &cbWritten, FALSE);
+	if (cbWritten < dataSize)
+		_tprintf(TEXT("\nIncomplete data... Error: %d"), GetLastError());
+
+}
+
+//SEND TO EVERYCLIENT THE SAME MESSAGE
+void broadcastClients(data dataReply) {
+	int i = 0;
+	for (i; i < MAXCLIENTS; i++) {
+		if (clients[i] != 0) {
+			writeClients(clients[i], dataReply);
+		}
+	}
+}
+
 void initializeServer() {
+
+	HINSTANCE hSnakeDll;
+	int(*ptr)();
+
+	// Try to load SnakeDll
+	hSnakeDll = LoadLibraryEx(TEXT("SnakeMultiplayerWin32_dll.dll"), NULL, 0);
+	if (hSnakeDll == NULL) {
+		_tprintf(TEXT("[ERROR] Dll not available... (%d)\n"), GetLastError());
+		return;
+	}
+
+	ptr = (int(*)(int)) GetProcAddress(hSnakeDll, "snakeFunction");
+	if (ptr == NULL) {
+		_tprintf(TEXT(">> GetProcAddress\n"));
+		return;
+	}
+
+	_tprintf(TEXT("WORKk?? >> %d\n"), ptr());
+
 	initializeSharedMemory();
 	initializeNamedPipes();
+
+	FreeLibrary(hSnakeDll);
 }
 
 void initializeSharedMemory() {

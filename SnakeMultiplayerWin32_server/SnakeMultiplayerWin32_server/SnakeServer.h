@@ -21,7 +21,11 @@ typedef struct data {
 
 
 // Functions
-
+void startClients();
+void addClient(HANDLE hPipe);
+void removeClients(HANDLE hPipe);
+void writeClients(HANDLE client, data dataReply);
+void broadcastClients(data dataReply);
 void initializeServer();
 void initializeNamedPipes();
 void initializeSharedMemory();
