@@ -5,20 +5,9 @@
 #include <fcntl.h>
 #include <time.h>
 
-#define BUFFSIZE 1024
-#define WHOS 60
-#define COMMANDSIZE 60
+#include "SnakeClient.h"
 
-typedef struct data {
-	TCHAR sender[WHOS];
-	TCHAR command[COMMANDSIZE];
 
-} data;
-
-#define structSize sizeof(data)
-
-int mayContinue = 1;
-int readerAlive = 0;
 
 // função auxiliar para ler do caracteres (jduraes)
 void readTChars(TCHAR * p, int maxchars) {
@@ -30,12 +19,84 @@ void readTChars(TCHAR * p, int maxchars) {
 	}
 }
 
-DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
-
-
 ///////////////////////////////////// MAIN
 int _tmain(int argc, LPTSTR argv[]) {
 
+	#ifdef UNICODE
+		_setmode(_fileno(stdin), _O_WTEXT);
+		_setmode(_fileno(stdout), _O_WTEXT);
+	#endif
+
+	askTypeClient();
+
+	switch (typeClient) {
+		case LOCALCLIENT:
+			startLocalClient();
+			break;
+		case REMOTECLIENT:
+			startRemoteClient();
+			break;
+		default:
+			break;
+	}
+
+	
+	return 0;
+}
+
+void askTypeClient() {
+
+	_tprintf(TEXT("Welcome !!\n\n0 - local\n1 - remote\n\n>> "));
+	_tscanf(TEXT("%d"), &typeClient);
+}
+
+void startLocalClient() {
+	_tprintf(TEXT("> LOCAL CLIENT\n\n"));
+	gameMenu();
+
+}
+
+void gameMenu() {
+	int op;
+
+	_tprintf(TEXT("------ SnakeMultiplayer ------\n\n"));
+	_tprintf(TEXT("1 - Create game\n"));
+	_tprintf(TEXT("2 - Join game\n"));
+	_tprintf(TEXT("3 - Scores\n"));
+	_tprintf(TEXT("4 - Settings\n"));
+	_tprintf(TEXT("0 - Exit\n"));
+	_tprintf(TEXT("\n\n>> "));
+
+	do {
+		_tscanf(TEXT("%d"), &op);
+	} while (op < 0 || op > 4);
+
+	system("cls");
+
+	switch (op) {
+		case 0:
+			break;
+		case 1:
+			createGame();
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+		case 4:
+			break;
+		default:
+			break;
+	}
+}
+
+void createGame() {
+	_tprintf(TEXT("Create New Game\n\n"));
+	_tprintf(TEXT("Create New Game\n\n"));
+
+}
+
+void startRemoteClient() {
 	HANDLE hPipe;
 	BOOL fSucess = FALSE;
 	DWORD cbWritten, dwMode;
@@ -44,12 +105,6 @@ int _tmain(int argc, LPTSTR argv[]) {
 	data dataToSend;
 	HANDLE hThread;
 	DWORD dwThreadId = 0;
-
-
-	#ifdef UNICODE
-		_setmode(_fileno(stdin), _O_WTEXT);
-		_setmode(_fileno(stdout), _O_WTEXT);
-	#endif
 
 	_tprintf(TEXT("Write your name > "));
 	readTChars(dataToSend.sender, WHOS);
@@ -127,7 +182,7 @@ int _tmain(int argc, LPTSTR argv[]) {
 			break;
 
 		_tprintf(TEXT("\n Sending %d bytes: \"%s\""), structSize, dataToSend.command);
-	
+
 
 		ZeroMemory(&overLapped, sizeof(overLapped));
 		ResetEvent(WriteReady);
@@ -164,7 +219,6 @@ int _tmain(int argc, LPTSTR argv[]) {
 
 	CloseHandle(WriteReady);
 	CloseHandle(hPipe);
-	return 0;
 }
 
 DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {

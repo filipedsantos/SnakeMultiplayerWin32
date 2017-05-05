@@ -1,9 +1,16 @@
 ﻿  SnakeClient.c
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(152): warning C4002: too many actual parameters for macro 'TEXT'
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(77): warning C4474: 'wprintf' : too many arguments passed for format string
-  c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(77): note: placeholders and their parameters expect 0 variadic arguments, but 1 were provided
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(152): warning C4473: 'wprintf' : not enough arguments passed for format string
-  c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(152): note: placeholders and their parameters expect 1 variadic arguments, but 0 were provided
-  c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(152): note: the missing variadic argument 1 is required by format string '%d'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(75): warning C4996: 'wscanf': This function or variable may be unsafe. Consider using wscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstdio.h(928): note: see declaration of 'wscanf'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(113): warning C4098: 'startRemoteClient': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(118): warning C4098: 'startRemoteClient': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(131): warning C4098: 'startRemoteClient': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(144): warning C4098: 'startRemoteClient': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(158): warning C4098: 'startRemoteClient': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(192): warning C4002: too many actual parameters for macro 'TEXT'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(117): warning C4474: 'wprintf' : too many arguments passed for format string
+  c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(117): note: placeholders and their parameters expect 0 variadic arguments, but 1 were provided
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(192): warning C4473: 'wprintf' : not enough arguments passed for format string
+  c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(192): note: placeholders and their parameters expect 1 variadic arguments, but 0 were provided
+  c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_client\snakemultiplayerwin32_client\snakeclient.c(192): note: the missing variadic argument 1 is required by format string '%d'
   SnakeMultiplayerWin32_client.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_client\Debug\SnakeMultiplayerWin32_client.exe
   SnakeMultiplayerWin32_client.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_client\Debug\SnakeMultiplayerWin32_client.pdb (Full PDB)
