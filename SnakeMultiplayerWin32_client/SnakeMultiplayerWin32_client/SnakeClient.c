@@ -7,7 +7,10 @@
 
 #include "SnakeClient.h"
 
+TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 
+HANDLE hMapFile;
+HANDLE CommandEvent;
 
 // função auxiliar para ler do caracteres (jduraes)
 void readTChars(TCHAR * p, int maxchars) {
@@ -51,12 +54,40 @@ void askTypeClient() {
 }
 
 void startLocalClient() {
+	data * dataPointer;
+
 	_tprintf(TEXT("> LOCAL CLIENT\n\n"));
-	gameMenu();
+
+	CommandEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\cenasfixes"));
+
+	hMapFile = OpenFileMapping(
+		FILE_MAP_ALL_ACCESS,
+		FALSE,
+		readWriteMapName
+	);
+	if (hMapFile == NULL) {
+		_tprintf(TEXT("[ERROR] Cannot Open File Mapping... (%d)"), GetLastError());
+		return;
+	}
+
+	dataPointer = MapViewOfFile(
+		hMapFile,
+		FILE_MAP_ALL_ACCESS,
+		0,
+		0,
+		BUFFSIZE
+	);
+	if (dataPointer == NULL) {
+		_tprintf(TEXT("[ERROR] Cannot Read File Mapping... (%d)"), GetLastError());
+		CloseHandle(hMapFile);
+		return;
+	}
+
+	gameMenu(dataPointer);
 
 }
 
-void gameMenu() {
+void gameMenu(pData p) {
 	int op;
 
 	_tprintf(TEXT("------ SnakeMultiplayer ------\n\n"));
@@ -77,7 +108,8 @@ void gameMenu() {
 		case 0:
 			break;
 		case 1:
-			createGame();
+			//createGame();
+			p->op = 1;
 			break;
 		case 2:
 			break;
@@ -88,12 +120,12 @@ void gameMenu() {
 		default:
 			break;
 	}
+
+	SetEvent(CommandEvent);
 }
 
 void createGame() {
 	_tprintf(TEXT("Create New Game\n\n"));
-	_tprintf(TEXT("Create New Game\n\n"));
-
 }
 
 void startRemoteClient() {
@@ -176,12 +208,12 @@ void startRemoteClient() {
 	_tprintf(TEXT("\nConnected... \"exit\" to stop..."));
 	while (1) {
 		_tprintf(TEXT("\n%s > "), dataToSend.sender);
-		readTChars(dataToSend.command, structSize);
+		readTChars(dataToSend.command, dataSize);
 
 		if (_tcscmp(TEXT("exit"), dataToSend.command) == 0)
 			break;
 
-		_tprintf(TEXT("\n Sending %d bytes: \"%s\""), structSize, dataToSend.command);
+		_tprintf(TEXT("\n Sending %d bytes: \"%s\""), dataSize, dataToSend.command);
 
 
 		ZeroMemory(&overLapped, sizeof(overLapped));
@@ -191,7 +223,7 @@ void startRemoteClient() {
 		fSucess = WriteFile(
 			hPipe,				// pipe handle
 			&dataToSend,		// message
-			structSize,			// message size
+			dataSize,			// message size
 			&cbWritten,			// ptr to save number of written bytes
 			&overLapped);		// not nul -> not overlapped I/O
 
@@ -199,7 +231,7 @@ void startRemoteClient() {
 		_tprintf(TEXT("\nWrite sucess.."));
 
 		GetOverlappedResult(hPipe, &overLapped, &cbWritten, FALSE); // no wait
-		if (cbWritten < structSize) {
+		if (cbWritten < dataSize) {
 			_tprintf(TEXT("[ERROR] Write File failed... (%d)"), GetLastError());
 		}
 
@@ -260,16 +292,16 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 		fSuccess = ReadFile(
 			hPipe,			// pipe handle (params)
 			&fromServer,	// read bytes buffer
-			structSize,		// msg size
+			dataSize,		// msg size
 			&cbBytesRead,	// msg size to read
 			&overLapped);	// not null -> not overlapped
 
 		WaitForSingleObject(ReadReady, INFINITE);
 		_tprintf(TEXT("\nRead success..."));
 
-		if (!fSuccess || cbBytesRead < structSize) {
+		if (!fSuccess || cbBytesRead < dataSize) {
 			GetOverlappedResult(hPipe, &overLapped, &cbBytesRead, FALSE); // No wait
-			if (cbBytesRead < structSize) {
+			if (cbBytesRead < dataSize) {
 				_tprintf(TEXT("[ERROR] Read file failed... (%d)"), GetLastError());
 			}
 		}

@@ -6,26 +6,17 @@
 #include <io.h>
 #include <fcntl.h>
 
+#include "SnakeServer.h"
 
-#define BUFFSIZE 1024
+TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 
-#define WHOS		60
-#define COMMANDSIZE 60
-#define MAXCLIENTS  20
-
-typedef struct data {
-
-	TCHAR who[WHOS];
-	TCHAR command[COMMANDSIZE];
-
-} data;
-
-#define structSize sizeof(data)
-
-DWORD WINAPI listenClient(LPVOID params);
 HANDLE clients[MAXCLIENTS];
-
 HANDLE WriteReady;
+HANDLE hMapFile;
+HANDLE hThreadSharedMemory;
+HANDLE CommandEvent;
+
+data command;	// variable to save the list of commands received
 
 void readTChars(TCHAR *p, int maxChars){
 	int len;
@@ -85,14 +76,14 @@ void writeClients(HANDLE client, data dataReply){
 	success = WriteFile(
 				client,	
 				&dataReply,
-				structSize, 
+				dataSize,
 				&cbWritten,
 				&overLapped);
 	
 	WaitForSingleObject(WriteReady, INFINITE);
 
 	GetOverlappedResult(client, &overLapped, &cbWritten, FALSE);
-	if(cbWritten < structSize)
+	if(cbWritten < dataSize)
 		_tprintf(TEXT("\nIncomplete data... Error: %d"), GetLastError());
 
 }
@@ -111,16 +102,80 @@ void broadcastClients(data dataReply){
 /////////////MAIN 
 int _tmain(void){
 
+	#ifdef UNICODE
+		 _setmode(_fileno(stdin), _O_WTEXT);
+		_setmode(_fileno(stdout), _O_WTEXT);
+	#endif
+		
+	initializeServer();
+		
+
+	return 0;
+}
+
+void initializeServer() {
+	initializeSharedMemory();
+	initializeNamedPipes();
+}
+
+void initializeSharedMemory() {
+	data * dataPointer;
+
+	hMapFile = CreateFileMapping(
+		INVALID_HANDLE_VALUE,
+		NULL,
+		PAGE_READWRITE,
+		0,
+		BUFFSIZE,
+		readWriteMapName
+	);
+
+	if (hMapFile == NULL) {
+		_tprintf(TEXT("[ERROR] Creating File Map Object... (%d)"), GetLastError());
+		return;
+	}
+
+	dataPointer = (pData)MapViewOfFile(
+		hMapFile,
+		FILE_MAP_ALL_ACCESS,
+		0,
+		0,
+		BUFFSIZE
+	);
+
+	if (dataPointer == NULL) {
+		CloseHandle(hMapFile);
+		_tprintf(TEXT("[ERROR] Accessing File Map Object... (%d)"), GetLastError());
+
+	}
+
+	hThreadSharedMemory = CreateThread(
+		NULL,
+		0,
+		listenClientSharedMemory,
+		(LPVOID)dataPointer,
+		0,
+		0
+	);
+
+	if (hThreadSharedMemory == NULL) {
+		_tprintf(TEXT("[ERROR] Creating Shared Memory Thread... (%d)"), GetLastError());
+		return;
+	}
+
+	_tprintf(TEXT("Shared Memory initialised\n"));
+
+
+}
+
+void initializeNamedPipes() {
 	BOOL fconnected = FALSE;
 	DWORD dwThreadID = 0;
 	HANDLE hPipe = INVALID_HANDLE_VALUE;
 	HANDLE hThread = NULL;
 	LPTSTR lpszPipeName = TEXT("\\\\.\\pipe\\SnakeMultiplayerPipe");
 
-	#ifdef UNICODE
-		 _setmode(_fileno(stdin), _O_WTEXT);
-		_setmode(_fileno(stdout), _O_WTEXT);
-	#endif
+
 
 	WriteReady = CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (WriteReady == NULL) {
@@ -134,22 +189,22 @@ int _tmain(void){
 	startClients();
 	//////-----CREATE NAMEPIPE THEN CREATE THREAD FOR USER
 
-	while(1){
+	while (1) {
 		hPipe = CreateNamedPipe(
 			lpszPipeName,			 //name
-			PIPE_ACCESS_DUPLEX  |
+			PIPE_ACCESS_DUPLEX |
 			FILE_FLAG_OVERLAPPED,
-			PIPE_TYPE_MESSAGE    |
-			PIPE_READMODE_MESSAGE|
+			PIPE_TYPE_MESSAGE |
+			PIPE_READMODE_MESSAGE |
 			PIPE_WAIT,				 //mode message-read, blocked
 			PIPE_UNLIMITED_INSTANCES,//255 instances
 			BUFFSIZE,
-			BUFFSIZE, 
+			BUFFSIZE,
 			5000,					 //TIMEOUT
 			NULL);					 //DEFAULT SECURITY	
 
 
-		if(hPipe == INVALID_HANDLE_VALUE){
+		if (hPipe == INVALID_HANDLE_VALUE) {
 			_tprintf(TEXT("NAMEDPIPED FAILED.... ERROR: %d\n"), GetLastError());
 			return -1;
 		}
@@ -160,37 +215,35 @@ int _tmain(void){
 
 
 		//IF THE CONNECTION HAS BEEN DONE
-		if(fconnected){
-		
+		if (fconnected) {
+
 			hThread = CreateThread(
 				NULL,
 				0,
-				listenClient,	
+				listenClientNamedPipes,
 				(LPVOID)hPipe, //PARAM PASSED
 				0,
 				&dwThreadID);  //ID
 
 
-			if(hThread == NULL){
+			if (hThread == NULL) {
 				_tprintf(TEXT("\n Error creating a new thread : %d"), GetLastError());
 				return -1;
 			}
 			else
 				CloseHandle(hThread); //HANDLE IS NOT NECESSARY
-		
-		}else{
-		
+
+		}
+		else {
+
 			_tprintf(TEXT("\nClient didn't connect"));
 			CloseHandle(hPipe);
 		}
 	}
-		
-
-	return 0;
 }
 
 //ATTEND CLIENT
-DWORD WINAPI listenClient (LPVOID param){
+DWORD WINAPI listenClientNamedPipes (LPVOID param){
 	data request, reply;
 	BOOL success = FALSE;
 	DWORD cbBytesRead  = 0;
@@ -226,14 +279,14 @@ DWORD WINAPI listenClient (LPVOID param){
 		success = ReadFile (
 					hPipe,		 //READ CHANNEL
 					&request,	 //BUFFER OF READING DATA
-					structSize,  //SIZE OF STRUCT
+					dataSize,  //SIZE OF STRUCT
 					&cbBytesRead,
 					&overLapped);
 
 		WaitForSingleObject(ReadReady, INFINITE);
 
 		GetOverlappedResult(hPipe, &overLapped, &cbBytesRead, FALSE);
-		if(cbBytesRead < structSize){
+		if(cbBytesRead < dataSize){
 			_tprintf(TEXT("\n[THREAD] ReadFile does not read all - %d"), GetLastError());
 		}
 
@@ -254,5 +307,30 @@ DWORD WINAPI listenClient (LPVOID param){
 
 	_tprintf(TEXT("\n Thread terminated...."));
 	return 0;
+}
+
+DWORD WINAPI listenClientSharedMemory(LPVOID params) {
+
+	data * dataPointer = (pData)params;
+
+	CommandEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\cenasfixes"));
+
+	while (1) {
+
+		WaitForSingleObject(CommandEvent, INFINITE);
+		FlushFileBuffers(dataPointer);
+
+		system("cls");
+
+		if (dataPointer->op == 1) {
+			_tprintf(TEXT("Yeeeeeeeeeeeeeeeee"));
+		}
+		else {
+			_tprintf(TEXT("noooooooooooooooooooooooo"));
+		}
+
+		ResetEvent(CommandEvent);
+	}
+	
 }
 

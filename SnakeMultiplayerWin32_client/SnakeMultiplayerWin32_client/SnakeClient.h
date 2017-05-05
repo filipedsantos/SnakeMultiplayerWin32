@@ -10,10 +10,10 @@
 typedef struct data {
 	TCHAR sender[WHOS];
 	TCHAR command[COMMANDSIZE];
+	int op;
+} data, * pData;
 
-} data;
-
-#define structSize sizeof(data)
+#define dataSize sizeof(data)
 
 int typeClient = -1;
 
@@ -21,6 +21,7 @@ void askTypeClient();
 void startLocalClient();
 void startRemoteClient();
 void createGame();
+void gameMenu();
 
 DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
 
