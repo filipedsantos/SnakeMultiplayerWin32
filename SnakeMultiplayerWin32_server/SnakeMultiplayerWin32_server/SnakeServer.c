@@ -28,7 +28,7 @@ int _tmain(void){
 		
 
 	return 0;
-}
+}	// END MAIN
 
 // Functions ------------------------------------------------------------------------------------
 
@@ -328,21 +328,64 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 	CommandEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\cenasfixes"));
 
 	while (1) {
+		HANDLE hGameThread;
 
 		WaitForSingleObject(CommandEvent, INFINITE);
 		FlushFileBuffers(dataPointer);
 
 		system("cls");
 
-		if (dataPointer->op == 1) {
-			_tprintf(TEXT("Yeeeeeeeeeeeeeeeee"));
-		}
-		else {
-			_tprintf(TEXT("noooooooooooooooooooooooo"));
+		// Code Here
+		switch (dataPointer->op) {
+			case EXIT:
+				_tprintf(TEXT("Goodbye.."));
+				break;
+			case CREATE_GAME:
+				hGameThread = CreateThread(
+					NULL,
+					0,
+					gameThread,
+					(LPVOID)dataPointer,
+					0,
+					0
+				);
+				if (hGameThread == NULL) {
+					_tprintf(TEXT("[ERROR] Impossible to create gameThread... (%d)"), GetLastError());
+					return -1;
+				}
+				break;
+			case JOIN_GAME:
+				break;
+			case SCORES:
+				break;
+			default:
+				break;
 		}
 
 		ResetEvent(CommandEvent);
 	}
 	
+}
+
+// Game Thread 
+DWORD WINAPI gameThread(LPVOID params) {
+	Snake snake;
+
+	snake.coords[0].posX = 5;
+	snake.coords[0].posY = 5;
+
+	snake.coords[2].posX = 4;
+	snake.coords[2].posY = 5;
+
+	snake.coords[3].posX = 3;
+	snake.coords[3].posY = 4;
+
+	snake.draw = '*';
+
+	for (int l = 0; l < 10; l++) {
+		for (int c = 0; c < 10; c++) {
+			_tprintf(TEXT(" "));
+		}
+	}
 }
 

@@ -19,9 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Snake.c" />
     <ClCompile Include="SnakeServer.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Coords.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="Snake.h" />
     <ClInclude Include="SnakeServer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
