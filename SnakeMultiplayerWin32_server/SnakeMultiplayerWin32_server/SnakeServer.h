@@ -5,7 +5,7 @@
 // Defines
 #define BUFFSIZE 1024
 
-#define WHOS		60
+#define WHO 		60
 #define COMMANDSIZE 60
 #define MAXCLIENTS  20
 
@@ -16,7 +16,7 @@
 
 
 typedef struct data {
-	TCHAR who[WHOS];
+	TCHAR who[WHO];
 	TCHAR command[COMMANDSIZE];
 	int op;			// Option 
 	int nPlayers;	// Number of players to join the created game

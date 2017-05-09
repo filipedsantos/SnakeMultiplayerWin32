@@ -10,7 +10,7 @@
 TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 
 HANDLE hMapFile;
-HANDLE CommandEvent;
+HANDLE eWriteToServerSHM;
 
 // função auxiliar para ler do caracteres (jduraes)
 void readTChars(TCHAR * p, int maxchars) {
@@ -47,6 +47,10 @@ int _tmain(int argc, LPTSTR argv[]) {
 	return 0;
 }
 
+////////////////
+//functions	////
+////////////////
+
 void askTypeClient() {
 
 	_tprintf(TEXT("Welcome !!\n\n0 - local\n1 - remote\n\n>> "));
@@ -54,34 +58,64 @@ void askTypeClient() {
 }
 
 void startLocalClient() {
-	data * dataPointer;
+
+	pData dataPointer;
+	HANDLE hSnakeDll;
+	HANDLE(*openFileMap)();
+	pData(*getPointerData)(HANDLE);
+
+	int(*ptr)();
 
 	_tprintf(TEXT("> LOCAL CLIENT\n\n"));
 
-	CommandEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\cenasfixes"));
+	//LOADING SnakeDll
+	hSnakeDll = LoadLibraryEx(TEXT("SnakeMultiplayerWin32_dll.dll"), NULL, 0);
+	if (hSnakeDll == NULL) {
+		_tprintf(TEXT("[ERROR] Dll not available... (%d)\n"), GetLastError());
+		return;
+	}
 
-	hMapFile = OpenFileMapping(
-		FILE_MAP_ALL_ACCESS,
-		FALSE,
-		readWriteMapName
-	);
+	//CHECK DLL FUNCTION
+	ptr = (int(*)()) GetProcAddress(hSnakeDll, "snakeFunction");
+	if (ptr == NULL) {
+		_tprintf(TEXT(">>[SHM ERROR] GetProcAddress\n"));
+		return;
+	}
+	if (ptr() == 111)
+		_tprintf(TEXT("DLL correctly Loaded >> ...............%d\n"), ptr());
+
+
+
+	//OPENFILEMAP
+	openFileMap = (HANDLE(*)()) GetProcAddress(hSnakeDll, "openFileMapping");
+	if (openFileMap == NULL) {
+		_tprintf(TEXT("[SHM ERROR] Loading createFileMapping function from DLL (%d)\n"), GetLastError());
+		return;
+	}
+
+	hMapFile = openFileMap();
 	if (hMapFile == NULL) {
-		_tprintf(TEXT("[ERROR] Cannot Open File Mapping... (%d)"), GetLastError());
+		_tprintf(TEXT("[SHM ERROR] Opening File Map Object... (%d)\n"), GetLastError());
 		return;
 	}
 
-	dataPointer = MapViewOfFile(
-		hMapFile,
-		FILE_MAP_ALL_ACCESS,
-		0,
-		0,
-		BUFFSIZE
-	);
-	if (dataPointer == NULL) {
-		_tprintf(TEXT("[ERROR] Cannot Read File Mapping... (%d)"), GetLastError());
-		CloseHandle(hMapFile);
+
+	//"OPEN" CONTENT OF FILEMAP
+	getPointerData = (pData(*)(HANDLE)) GetProcAddress(hSnakeDll, "getSHM");
+	if (getPointerData == NULL) {
+		_tprintf(TEXT("[SHM ERROR] Loading getSHM function from DLL (%d)\n"), GetLastError());
 		return;
 	}
+
+	dataPointer = getPointerData(hMapFile);
+	if (dataPointer == NULL) {
+		CloseHandle(hMapFile);
+		_tprintf(TEXT("[ERROR] Accessing File Map Object... (%d)"), GetLastError());
+
+	}
+
+
+	eWriteToServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
 
 	gameMenu(dataPointer);
 
@@ -108,8 +142,8 @@ void gameMenu(pData p) {
 		case 0:
 			break;
 		case 1:
-			//createGame();
 			p->op = 1;
+			_tprintf(TEXT("THIS IS SPARTA %d"), p->op);
 			break;
 		case 2:
 			break;
@@ -121,7 +155,7 @@ void gameMenu(pData p) {
 			break;
 	}
 
-	SetEvent(CommandEvent);
+	SetEvent(eWriteToServerSHM);
 }
 
 void createGame() {
@@ -191,16 +225,16 @@ void startRemoteClient() {
 		return -1;
 	}
 
-	HANDLE WriteReady;	// HANDLE para o evento leitura
+	HANDLE eWriteToServerNP;	// HANDLE para o evento leitura
 	OVERLAPPED overLapped = { 0 };
 
-	WriteReady = CreateEvent(
+	eWriteToServerNP = CreateEvent(
 		NULL,		// default security
 		TRUE,		// manual reset
 		FALSE,		// not signaled
 		NULL);		// nao precisa de nome, interno ao processo
 
-	if (WriteReady == NULL) {
+	if (eWriteToServerNP == NULL) {
 		_tprintf(TEXT("[ERROR] Create Event failed... (%d)"), GetLastError());
 		return -1;
 	}
@@ -217,8 +251,8 @@ void startRemoteClient() {
 
 
 		ZeroMemory(&overLapped, sizeof(overLapped));
-		ResetEvent(WriteReady);
-		overLapped.hEvent = WriteReady;
+		ResetEvent(eWriteToServerNP);
+		overLapped.hEvent = eWriteToServerNP;
 
 		fSucess = WriteFile(
 			hPipe,				// pipe handle
@@ -227,7 +261,7 @@ void startRemoteClient() {
 			&cbWritten,			// ptr to save number of written bytes
 			&overLapped);		// not nul -> not overlapped I/O
 
-		WaitForSingleObject(WriteReady, INFINITE);
+		WaitForSingleObject(eWriteToServerNP, INFINITE);
 		_tprintf(TEXT("\nWrite sucess.."));
 
 		GetOverlappedResult(hPipe, &overLapped, &cbWritten, FALSE); // no wait
@@ -249,9 +283,18 @@ void startRemoteClient() {
 	}
 	_tprintf(TEXT("Client Close Connection and leave..."));
 
-	CloseHandle(WriteReady);
+	CloseHandle(eWriteToServerNP);
 	CloseHandle(hPipe);
 }
+
+
+////////////////
+//THREADS	////
+////////////////
+
+//-------------------------------------------------------------
+// THREAD RESPONSABLE FOR COMUNICATE WITH SERVER BY NAMEDPIPES
+//--------------------------------------------------------------
 
 DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 	data fromServer;
@@ -260,7 +303,7 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 	BOOL fSuccess = FALSE;
 	HANDLE hPipe = (HANDLE)PARAMS;	// a info enviada é o handle
 	
-	HANDLE ReadReady;
+	HANDLE eReadFromServerNP;
 	OVERLAPPED overLapped = { 0 };
 
 	if (hPipe == NULL) {
@@ -268,13 +311,13 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 		return -1;
 	}
 
-	ReadReady = CreateEvent(
+	eReadFromServerNP = CreateEvent(
 		NULL,		// defalt security
 		TRUE,		// resetEvent -> requisito do Overlapped I/O
 		FALSE,		// not signaled
 		NULL);		// name not needed
 
-	if (ReadReady == NULL) {
+	if (eReadFromServerNP == NULL) {
 		_tprintf(TEXT("[ERROR] Client - read event cannot be created..."));
 		return -1;
 	}
@@ -286,8 +329,8 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 
 		// prepare ReadReady event
 		ZeroMemory(&overLapped, sizeof(overLapped));
-		overLapped.hEvent = ReadReady;
-		ResetEvent(ReadReady);
+		overLapped.hEvent = eReadFromServerNP;
+		ResetEvent(eReadFromServerNP);
 
 		fSuccess = ReadFile(
 			hPipe,			// pipe handle (params)
@@ -296,7 +339,7 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 			&cbBytesRead,	// msg size to read
 			&overLapped);	// not null -> not overlapped
 
-		WaitForSingleObject(ReadReady, INFINITE);
+		WaitForSingleObject(eReadFromServerNP, INFINITE);
 		_tprintf(TEXT("\nRead success..."));
 
 		if (!fSuccess || cbBytesRead < dataSize) {

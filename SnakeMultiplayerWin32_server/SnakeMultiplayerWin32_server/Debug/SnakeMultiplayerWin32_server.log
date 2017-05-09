@@ -1,12 +1,13 @@
 ﻿  SnakeServer.c
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(195): warning C4098: 'initializeNamedPipes': 'void' function returning a value
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(221): warning C4098: 'initializeNamedPipes': 'void' function returning a value
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(241): warning C4098: 'initializeNamedPipes': 'void' function returning a value
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(279): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(156): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(184): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(204): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(330): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(307): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(358): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(326): warning C4129: 'c': unrecognized character escape sequence
-c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(388): warning C4716: 'gameThread': must return a value
-  SnakeMultiplayerWin32_server.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.exe
-  SnakeMultiplayerWin32_server.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.pdb (Full PDB)
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(382): warning C4129: 's': unrecognized character escape sequence
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(429): warning C4101: 'snake': unreferenced local variable
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(440): warning C4716: 'gameThread': must return a value
+  SnakeMultiplayerWin32_server.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.exe
+  SnakeMultiplayerWin32_server.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.pdb (Full PDB)

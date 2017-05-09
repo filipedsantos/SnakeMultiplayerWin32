@@ -4,20 +4,23 @@
 // Defines
 #define BUFFSIZE 1024
 
-#define WHOS		60
+#define WHO 		60
 #define COMMANDSIZE 60
 
 TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 
-
 typedef struct data {
-	TCHAR who[WHOS];
+	TCHAR who[WHO];
 	TCHAR command[COMMANDSIZE];
 	int op;			// Option 
 	int nPlayers;	// Number of players to join the created game
 	int nLines;
 	int nColumns;
 } data, *pData;
+
+//Circular Buffer
+data listOfGames[];
+int pull, push;
 
 _declspec(dllexport) int snakeFunction();
 
