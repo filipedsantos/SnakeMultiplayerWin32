@@ -23,7 +23,7 @@ int _tmain(void){
 		 _setmode(_fileno(stdin), _O_WTEXT);
 		_setmode(_fileno(stdout), _O_WTEXT);
 	#endif
-		
+	
 	initializeServer();
 		
 
@@ -221,13 +221,11 @@ void initializeNamedPipes() {
 			return -1;
 		}
 
-		_tprintf(TEXT("WAIT CLIENT.....\n"));
-
 		fconnected = ConnectNamedPipe(hPipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
-
 
 		//IF THE CONNECTION HAS BEEN DONE
 		if (fconnected) {
+			_tprintf(TEXT("New Client Connected...\n"));
 
 			hThread = CreateThread(
 				NULL,
@@ -268,7 +266,7 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 
 	//TEST PIPE RECEIVED
 	if(hPipe == NULL){
-		_tprintf(TEXT("\n [THREAD]: Handle is null %d"), GetLastError());
+		_tprintf(TEXT("\n[THREAD]: Handle is null %d"), GetLastError());
 		return -1;
 	}
 
@@ -331,9 +329,6 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 		HANDLE hGameThread;
 
 		WaitForSingleObject(CommandEvent, INFINITE);
-		FlushFileBuffers(dataPointer);
-
-		system("cls");
 
 		// Code Here
 		switch (dataPointer->op) {
