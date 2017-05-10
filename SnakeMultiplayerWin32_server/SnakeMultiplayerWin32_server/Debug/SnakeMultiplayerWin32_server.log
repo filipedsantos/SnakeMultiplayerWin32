@@ -1,13 +1,16 @@
 ﻿  SnakeServer.c
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(141): warning C4098: 'initializeNamedPipes': 'void' function returning a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(169): warning C4098: 'initializeNamedPipes': 'void' function returning a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(189): warning C4098: 'initializeNamedPipes': 'void' function returning a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(314): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(138): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(166): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(186): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(311): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(342): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(339): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(366): warning C4129: 's': unrecognized character escape sequence
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(413): warning C4101: 'snake': unreferenced local variable
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(424): warning C4716: 'gameThread': must return a value
-  SnakeMultiplayerWin32_server.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.exe
-  SnakeMultiplayerWin32_server.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.pdb (Full PDB)
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(363): warning C4129: 's': unrecognized character escape sequence
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(410): warning C4101: 'snake': unreferenced local variable
+  Snake.c
+  Generating Code...
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(421): warning C4716: 'gameThread': must return a value
+  LINK : C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.exe not found or not built by the last incremental link; performing full link
+  SnakeMultiplayerWin32_server.vcxproj -> C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.exe
+  SnakeMultiplayerWin32_server.vcxproj -> C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.pdb (Full PDB)

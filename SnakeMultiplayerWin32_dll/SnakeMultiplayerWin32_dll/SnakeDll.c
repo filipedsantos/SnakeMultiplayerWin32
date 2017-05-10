@@ -92,12 +92,12 @@ pCircularBuff createNewCircularBuffer(pCircularBuff cb) {
 	cb->pull = 0;
 	cb->push = 0;
 
-	_tprintf(TEXT("pull %d"), cb->pull);
-
 	return cb;
 }
 
-void setDataSHM(pData data) {
+void setDataSHM(pCircularBuff cb, data data) {
+
+	cb->circularBuffer[cb->push] = data;
 
 }
 

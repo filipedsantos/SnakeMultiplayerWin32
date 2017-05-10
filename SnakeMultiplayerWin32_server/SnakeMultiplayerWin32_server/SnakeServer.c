@@ -48,7 +48,7 @@ void initializeServer() {
 	int(*ptr)();
 
 	//LOADING SnakeDll
-	hSnakeDll = LoadLibraryEx(TEXT("SnakeMultiplayerWin32_dll.dll"), NULL, 0);
+	hSnakeDll = LoadLibraryEx(TEXT("..\\..\\SnakeMultiplayerWin32_dll\\Debug\\SnakeMultiplayerWin32_dll.dll"), NULL, 0);
 	if (hSnakeDll == NULL) {
 		_tprintf(TEXT("[ERROR] Dll not available... (%d)\n"), GetLastError());
 		return;
@@ -96,9 +96,6 @@ void initializeSharedMemory() {
 		_tprintf(TEXT("[SHM ERROR] Creating File Map Object... (%d)"), GetLastError());
 		return;
 	}
-
-
-	circularBufferPointer->pull = 43;
 
 	//CREATE A THREAD RESPONSABLE FOR SHM ONLY
 	hThreadSharedMemory = CreateThread(

@@ -38,6 +38,6 @@ _declspec(dllexport) pCircularBuff getSHM(HANDLE hMapFile, BOOL createNewStruct)
 
 pCircularBuff createNewCircularBuffer(pCircularBuff cb);
 
-_declspec(dllexport) void setDataSHM(pData data);
+_declspec(dllexport) void setDataSHM(pCircularBuff cb, data data);
 
 _declspec(dllexport) void getDataSHM(pData data);

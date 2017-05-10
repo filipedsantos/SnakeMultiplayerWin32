@@ -12,6 +12,8 @@ TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 HANDLE hMapFile;
 HANDLE eWriteToServerSHM;
 
+HANDLE hSnakeDll;
+
 data newData;
 
 // função auxiliar para ler do caracteres (jduraes)
@@ -62,7 +64,6 @@ void askTypeClient() {
 void startLocalClient() {
 
 	pCircularBuff circularBufferPointer;
-	HANDLE hSnakeDll;
 	pCircularBuff(*openFileMap)();
 
 	int(*ptr)();
@@ -70,7 +71,7 @@ void startLocalClient() {
 	_tprintf(TEXT("> LOCAL CLIENT\n\n"));
 
 	//LOADING SnakeDll
-	hSnakeDll = LoadLibraryEx(TEXT("SnakeMultiplayerWin32_dll.dll"), NULL, 0);
+	hSnakeDll = LoadLibraryEx(TEXT("..\\..\\SnakeMultiplayerWin32_dll\\Debug\\SnakeMultiplayerWin32_dll.dll"), NULL, 0);
 	if (hSnakeDll == NULL) {
 		_tprintf(TEXT("[ERROR] Dll not available... (%d)\n"), GetLastError());
 		return;
@@ -111,6 +112,9 @@ void startLocalClient() {
 void gameMenu(pCircularBuff p) {
 	int op;
 
+	// DLL FUNCTIONS - FUNCTION POINTERS
+	void(*setDataSHM)(pCircularBuff, data);
+
 	_tprintf(TEXT("------ SnakeMultiplayer ------\n\n"));
 	_tprintf(TEXT("1 - Create game\n"));
 	_tprintf(TEXT("2 - Join game\n"));
@@ -123,15 +127,24 @@ void gameMenu(pCircularBuff p) {
 		_tscanf(TEXT("%d"), &op);
 	} while (op < 0 || op > 4);
 
-	newData.op = op;
 	system("cls");
 
 	switch (op) {
 		case 0:
 			break;
 		case 1:
-			p->circularBuffer[p->push] = newData;	
-			break;
+			newData.op = op;
+
+			// GET DLL FUNCTION - setSHM
+			setDataSHM = (void(*)(pCircularBuff, data)) GetProcAddress(hSnakeDll, "setDataSHM");
+			if (setDataSHM == NULL) {
+				_tscanf(TEXT("[SHM ERROR] GetProcAddress - setDataSHM()\n"));
+				return;
+			}
+
+			// CALL DLL FUNCTION
+			setDataSHM(p, newData);
+			Sbreak;
 		case 2:
 			break;
 		case 3:
