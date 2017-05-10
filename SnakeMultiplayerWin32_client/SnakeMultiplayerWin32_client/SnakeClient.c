@@ -135,6 +135,8 @@ void gameMenu(pCircularBuff p) {
 		case 1:
 			newData.op = op;
 
+			WaitForSingleObject();
+
 			// GET DLL FUNCTION - setSHM
 			setDataSHM = (void(*)(pCircularBuff, data)) GetProcAddress(hSnakeDll, "setDataSHM");
 			if (setDataSHM == NULL) {
@@ -144,7 +146,7 @@ void gameMenu(pCircularBuff p) {
 
 			// CALL DLL FUNCTION
 			setDataSHM(p, newData);
-			Sbreak;
+			break;
 		case 2:
 			break;
 		case 3:
@@ -155,7 +157,6 @@ void gameMenu(pCircularBuff p) {
 			break;
 	}
 
-	p->push = (p->push + 1) % SIZECIRCULARBUFFER;
 	SetEvent(eWriteToServerSHM);
 }
 

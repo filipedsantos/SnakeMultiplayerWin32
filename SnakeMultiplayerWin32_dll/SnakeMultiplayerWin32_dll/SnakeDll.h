@@ -26,6 +26,8 @@ typedef struct sCircularBuffer {
 	int push;
 } sCircularBuffer, *pCircularBuff;
 
+// VARIABLES
+
 #define BuffsizeCircularBuff sizeof(sCircularBuffer)
 
 _declspec(dllexport) int snakeFunction();
@@ -36,8 +38,9 @@ _declspec(dllexport) pCircularBuff openFileMapping();
 
 _declspec(dllexport) pCircularBuff getSHM(HANDLE hMapFile, BOOL createNewStruct);
 
-pCircularBuff createNewCircularBuffer(pCircularBuff cb);
-
 _declspec(dllexport) void setDataSHM(pCircularBuff cb, data data);
 
 _declspec(dllexport) void getDataSHM(pData data);
+
+
+pCircularBuff createNewCircularBuffer(pCircularBuff cb);

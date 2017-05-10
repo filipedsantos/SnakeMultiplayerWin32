@@ -97,7 +97,11 @@ pCircularBuff createNewCircularBuffer(pCircularBuff cb) {
 
 void setDataSHM(pCircularBuff cb, data data) {
 
+	// Write on SHM
 	cb->circularBuffer[cb->push] = data;
+
+	// INC PUSH
+	cb->push = (cb->push + 1) % SIZECIRCULARBUFFER;
 
 }
 
