@@ -38,9 +38,10 @@ _declspec(dllexport) pCircularBuff openFileMapping();
 
 _declspec(dllexport) pCircularBuff getSHM(HANDLE hMapFile, BOOL createNewStruct);
 
-_declspec(dllexport) void setDataSHM(pCircularBuff cb, data data);
+_declspec(dllexport) void setDataSHM(pCircularBuff cb, data data, HANDLE mClient, HANDLE semaphoreWrite);
 
 _declspec(dllexport) void getDataSHM(pData data);
 
+void releaseSyncHandles(HANDLE mClient, HANDLE semaphoreWrite);
 
 pCircularBuff createNewCircularBuffer(pCircularBuff cb);

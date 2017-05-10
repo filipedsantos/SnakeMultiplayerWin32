@@ -95,7 +95,10 @@ pCircularBuff createNewCircularBuffer(pCircularBuff cb) {
 	return cb;
 }
 
-void setDataSHM(pCircularBuff cb, data data) {
+void setDataSHM(pCircularBuff cb, data data, HANDLE mClient, HANDLE semaphoreWrite) {
+
+	WaitForSingleObject(mClient, INFINITE);
+	WaitForSingleObject(semaphoreWrite, INFINITE);
 
 	// Write on SHM
 	cb->circularBuffer[cb->push] = data;
@@ -103,8 +106,16 @@ void setDataSHM(pCircularBuff cb, data data) {
 	// INC PUSH
 	cb->push = (cb->push + 1) % SIZECIRCULARBUFFER;
 
+	releaseSyncHandles(mClient, semaphoreWrite);
 }
 
 void getDataSHM(pData data) {
 
+}
+
+void releaseSyncHandles(HANDLE mClient, HANDLE semaphoreWrite) {
+
+	ReleaseMutex(mClient);
+	ReleaseSemaphore(semaphoreWrite, 1, NULL);
+	
 }

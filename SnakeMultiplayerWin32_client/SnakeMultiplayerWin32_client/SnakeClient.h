@@ -31,8 +31,11 @@ int typeClient = -1;
 void askTypeClient();
 void startLocalClient();
 void startRemoteClient();
+void releaseSyncHandles();
+void startSyncHandles();
 void createGame();
-void gameMenu();
+void gameMenu(pCircularBuff p);
+
 
 DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
 

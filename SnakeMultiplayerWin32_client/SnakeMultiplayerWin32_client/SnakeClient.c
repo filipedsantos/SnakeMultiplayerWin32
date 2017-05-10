@@ -16,6 +16,11 @@ HANDLE hSnakeDll;
 
 data newData;
 
+//SYNC HANDLES
+HANDLE semaphoreWrite;
+HANDLE mClient;
+
+
 // função auxiliar para ler do caracteres (jduraes)
 void readTChars(TCHAR * p, int maxchars) {
 	int len;
@@ -85,8 +90,8 @@ void startLocalClient() {
 	}
 	if (ptr() == 111)
 		_tprintf(TEXT("DLL correctly Loaded >> ...............%d\n"), ptr());
-
-
+	else
+		_tprintf(TEXT("[ERROR] SERVER probably is not online :(.....\n"));
 
 	//OPENFILEMAP
 	openFileMap = (pCircularBuff(*)()) GetProcAddress(hSnakeDll, "openFileMapping");
@@ -113,7 +118,7 @@ void gameMenu(pCircularBuff p) {
 	int op;
 
 	// DLL FUNCTIONS - FUNCTION POINTERS
-	void(*setDataSHM)(pCircularBuff, data);
+	void(*setDataSHM)(pCircularBuff, data, HANDLE, HANDLE);
 
 	_tprintf(TEXT("------ SnakeMultiplayer ------\n\n"));
 	_tprintf(TEXT("1 - Create game\n"));
@@ -135,17 +140,15 @@ void gameMenu(pCircularBuff p) {
 		case 1:
 			newData.op = op;
 
-			WaitForSingleObject();
-
 			// GET DLL FUNCTION - setSHM
-			setDataSHM = (void(*)(pCircularBuff, data)) GetProcAddress(hSnakeDll, "setDataSHM");
+			setDataSHM = (void(*)(pCircularBuff, data, HANDLE, HANDLE)) GetProcAddress(hSnakeDll, "setDataSHM");
 			if (setDataSHM == NULL) {
 				_tscanf(TEXT("[SHM ERROR] GetProcAddress - setDataSHM()\n"));
 				return;
 			}
 
 			// CALL DLL FUNCTION
-			setDataSHM(p, newData);
+			setDataSHM(p, newData, mClient, semaphoreWrite);
 			break;
 		case 2:
 			break;
@@ -289,6 +292,30 @@ void startRemoteClient() {
 	CloseHandle(hPipe);
 }
 
+//STARTING SYNCHRONIZATION
+void startSyncHandles() {
+
+	//CREATE AND TEST SEMAPHORE
+	semaphoreWrite = CreateSemaphore(
+		NULL,
+		0,
+		SIZECIRCULARBUFFER,
+		NULL);
+
+	if (semaphoreWrite == NULL) {
+		_tprintf(TEXT("[ERROR] semaphore wasn't created... %d"), GetLastError());
+		return;
+	}
+
+	//CREATE AND TEST MULTIPLE EXCLUSION
+	mClient = CreateMutex(NULL, FALSE, NULL);
+	if (mClient == NULL) {
+		_tprintf(TEXT("[ERROR] semaphore wasn't created... %d"), GetLastError());
+		return;
+	}
+
+
+}
 
 ////////////////
 //THREADS	////
