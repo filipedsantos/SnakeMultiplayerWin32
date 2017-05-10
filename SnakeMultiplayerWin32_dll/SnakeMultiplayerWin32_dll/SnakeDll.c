@@ -7,7 +7,8 @@ int snakeFunction() {
 	return 111;
 }
 
-HANDLE createFileMapping() {
+//Function used by server to create a file map
+pCircularBuff createFileMapping() {
 	HANDLE hMapFile;
 
 	hMapFile = CreateFileMapping(
@@ -15,20 +16,24 @@ HANDLE createFileMapping() {
 		NULL,
 		PAGE_READWRITE,
 		0,
-		BUFFSIZE,
+		BuffsizeCircularBuff,
 		readWriteMapName
 	);
 
 	if (hMapFile == NULL) {
 		_tprintf(TEXT("[DLL - ERROR] Creating File Map Object... (%d)\n"), GetLastError());
 		CloseHandle(hMapFile);
-		return NULL;
+		return;
 	}
 
-	return hMapFile;
+	if(hMapFile == INVALID_HANDLE_VALUE)
+		_tprintf(TEXT("[DLL - ERROR] dsfaasdfasdfsadfasdfsadfasdfasdf... (%d)\n"), GetLastError());
+
+	return getSHM(hMapFile, TRUE);
 }
 
-HANDLE openFileMapping() {
+//Fuction used by users to access the file map
+pCircularBuff openFileMapping() {
 	HANDLE hMapFile;
 
 	hMapFile = OpenFileMapping(
@@ -40,28 +45,62 @@ HANDLE openFileMapping() {
 	if (hMapFile == NULL) {
 		_tprintf(TEXT("[DLL - ERROR] Cannot Open File Mapping... (%d)\n"), GetLastError());
 		CloseHandle(hMapFile);
-		return NULL;
+		return;
 	}
 
-	return hMapFile;
+	return getSHM(hMapFile, FALSE);
 }
 
-pData getSHM(HANDLE hMapFile) {
-	pData dataPointer;
-
-	dataPointer = (pData)MapViewOfFile(
+//DO MAPFILE OF VIEW AND HIS VERIFICATIONS
+pCircularBuff getSHM(HANDLE hMapFile, BOOL createNewStruct) {
+	pCircularBuff circularBuffPointer;
+	circularBuffPointer = (pCircularBuff) MapViewOfFile(
 		hMapFile,
 		FILE_MAP_ALL_ACCESS,
 		0,
 		0,
-		BUFFSIZE
+		BuffsizeCircularBuff
 	);
 
-	if (dataPointer == NULL) {
+	if (circularBuffPointer == NULL) {
 		_tprintf(TEXT("[DLL - ERROR] Accessing File Map Object... (%d)\n"), GetLastError());
 		CloseHandle(hMapFile);
-		return NULL;
+		return;
 	}
 
-	return dataPointer;
+	if (createNewStruct)
+		return createNewCircularBuffer(circularBuffPointer);
+
+
+	return circularBuffPointer;
+}
+
+
+
+pCircularBuff createNewCircularBuffer(pCircularBuff cb) {
+	
+	int i = 0;
+	data nullData;
+
+	nullData.op = 0;
+	nullData.command[10] = TEXT("fdasfsad");
+
+	for (i; i < SIZECIRCULARBUFFER; i++) {
+		cb->circularBuffer[i] = nullData;
+	}
+
+	cb->pull = 0;
+	cb->push = 0;
+
+	_tprintf(TEXT("pull %d"), cb->pull);
+
+	return cb;
+}
+
+void setDataSHM(pData data) {
+
+}
+
+void getDataSHM(pData data) {
+
 }

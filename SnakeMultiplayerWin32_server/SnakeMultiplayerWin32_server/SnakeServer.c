@@ -21,7 +21,6 @@ HANDLE hThreadSharedMemory;
 
 HINSTANCE hSnakeDll;
 
-
 //MAIN 
 
 int _tmain(void){
@@ -79,48 +78,34 @@ void initializeServer() {
 //between client & server and launch thread related to sh memory
 
 void initializeSharedMemory() {
-	pData dataPointer;
-	HANDLE hMapFile;
 
-	HANDLE(*createFileMap)();
-	pData(*getPointerData)(HANDLE);
+	pCircularBuff circularBufferPointer;
+	pCircularBuff(*createFileMap)();
 
 	_tprintf(TEXT("STARTING SHARED MEMORY....................\n"));
 
 	//CREATEFILEMAP
-	createFileMap = (HANDLE(*)()) GetProcAddress(hSnakeDll, "createFileMapping");
+	createFileMap = (pCircularBuff(*)()) GetProcAddress(hSnakeDll, "createFileMapping");
 	if (createFileMap == NULL) {
 		_tprintf(TEXT("[SHM ERROR] Loading createFileMapping function from DLL (%d)\n"), GetLastError());
 		return;
 	}
 
-	hMapFile = createFileMap();
-	if (hMapFile == NULL) {
+	circularBufferPointer = createFileMap();
+	if (circularBufferPointer == NULL) {
 		_tprintf(TEXT("[SHM ERROR] Creating File Map Object... (%d)"), GetLastError());
 		return;
 	}
 
-	//"OPEN" CONTENT OF FILEMAP
 
-	getPointerData = (pData(*)(HANDLE)) GetProcAddress(hSnakeDll, "getSHM");
-	if (getPointerData == NULL) {
-		_tprintf(TEXT("[SHM ERROR] Loading getSHM function from DLL (%d)\n"), GetLastError());
-		return;
-	}
-
-	dataPointer = getPointerData(hMapFile);
-	if (dataPointer == NULL) {
-		CloseHandle(hMapFile);
-		_tprintf(TEXT("[ERROR] Accessing File Map Object... (%d)"), GetLastError());
-
-	}
+	circularBufferPointer->pull = 43;
 
 	//CREATE A THREAD RESPONSABLE FOR SHM ONLY
 	hThreadSharedMemory = CreateThread(
 		NULL,
 		0,
 		listenClientSharedMemory,
-		(LPVOID)dataPointer,
+		(LPVOID)circularBufferPointer,
 		0,
 		0);
 
@@ -294,7 +279,6 @@ void startClients() {
 }
 
 
-
 ////////////////
 //THREADS	////
 ////////////////
@@ -377,7 +361,7 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 
 DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 
-	data * dataPointer = (pData)params;
+	sCircularBuffer * circularBufferPointer = (pCircularBuff)params;
 
 	eReadFromClientSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
 
@@ -388,7 +372,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 		//Wait for any client trigger the event by typing any option
 		WaitForSingleObject(eReadFromClientSHM, INFINITE);
 
-		switch (dataPointer->op) {
+		switch (circularBufferPointer->circularBuffer[circularBufferPointer->pull].op) {
 			case EXIT:
 				_tprintf(TEXT("Goodbye.."));
 				break;
@@ -397,7 +381,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 					NULL,
 					0,
 					gameThread,
-					(LPVOID)dataPointer,
+					(LPVOID)circularBufferPointer,
 					0,
 					0
 				);
@@ -414,7 +398,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 				break;
 		}
 
-
+		circularBufferPointer->pull = (circularBufferPointer->pull+1)%SIZECIRCULARBUFFER;
 		ResetEvent(eReadFromClientSHM);
 	}
 	

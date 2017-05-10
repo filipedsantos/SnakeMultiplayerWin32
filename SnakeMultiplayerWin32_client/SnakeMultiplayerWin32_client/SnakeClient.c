@@ -12,6 +12,8 @@ TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 HANDLE hMapFile;
 HANDLE eWriteToServerSHM;
 
+data newData;
+
 // função auxiliar para ler do caracteres (jduraes)
 void readTChars(TCHAR * p, int maxchars) {
 	int len;
@@ -59,10 +61,9 @@ void askTypeClient() {
 
 void startLocalClient() {
 
-	pData dataPointer;
+	pCircularBuff circularBufferPointer;
 	HANDLE hSnakeDll;
-	HANDLE(*openFileMap)();
-	pData(*getPointerData)(HANDLE);
+	pCircularBuff(*openFileMap)();
 
 	int(*ptr)();
 
@@ -87,41 +88,27 @@ void startLocalClient() {
 
 
 	//OPENFILEMAP
-	openFileMap = (HANDLE(*)()) GetProcAddress(hSnakeDll, "openFileMapping");
+	openFileMap = (pCircularBuff(*)()) GetProcAddress(hSnakeDll, "openFileMapping");
 	if (openFileMap == NULL) {
 		_tprintf(TEXT("[SHM ERROR] Loading createFileMapping function from DLL (%d)\n"), GetLastError());
 		return;
 	}
 
-	hMapFile = openFileMap();
-	if (hMapFile == NULL) {
+	circularBufferPointer = openFileMap();
+	if (circularBufferPointer == NULL) {
 		_tprintf(TEXT("[SHM ERROR] Opening File Map Object... (%d)\n"), GetLastError());
 		return;
 	}
 
-
-	//"OPEN" CONTENT OF FILEMAP
-	getPointerData = (pData(*)(HANDLE)) GetProcAddress(hSnakeDll, "getSHM");
-	if (getPointerData == NULL) {
-		_tprintf(TEXT("[SHM ERROR] Loading getSHM function from DLL (%d)\n"), GetLastError());
-		return;
-	}
-
-	dataPointer = getPointerData(hMapFile);
-	if (dataPointer == NULL) {
-		CloseHandle(hMapFile);
-		_tprintf(TEXT("[ERROR] Accessing File Map Object... (%d)"), GetLastError());
-
-	}
-
-
 	eWriteToServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
 
-	gameMenu(dataPointer);
+	newData.op = 0;
+
+	gameMenu(circularBufferPointer);
 
 }
 
-void gameMenu(pData p) {
+void gameMenu(pCircularBuff p) {
 	int op;
 
 	_tprintf(TEXT("------ SnakeMultiplayer ------\n\n"));
@@ -136,14 +123,14 @@ void gameMenu(pData p) {
 		_tscanf(TEXT("%d"), &op);
 	} while (op < 0 || op > 4);
 
+	newData.op = op;
 	system("cls");
 
 	switch (op) {
 		case 0:
 			break;
 		case 1:
-			p->op = 1;
-			_tprintf(TEXT("THIS IS SPARTA %d"), p->op);
+			p->circularBuffer[p->push] = newData;	
 			break;
 		case 2:
 			break;
@@ -155,6 +142,7 @@ void gameMenu(pData p) {
 			break;
 	}
 
+	p->push = (p->push + 1) % SIZECIRCULARBUFFER;
 	SetEvent(eWriteToServerSHM);
 }
 
@@ -173,7 +161,7 @@ void startRemoteClient() {
 	DWORD dwThreadId = 0;
 
 	_tprintf(TEXT("Write your name > "));
-	readTChars(dataToSend.sender, WHOS);
+	//readTChars(dataToSend.sender, WHO);
 
 	while (1) {
 		// Open pipe with flag - File_Flag_OVERLAPPED
@@ -241,7 +229,7 @@ void startRemoteClient() {
 
 	_tprintf(TEXT("\nConnected... \"exit\" to stop..."));
 	while (1) {
-		_tprintf(TEXT("\n%s > "), dataToSend.sender);
+		//_tprintf(TEXT("\n%s > "), dataToSend.sender);
 		readTChars(dataToSend.command, dataSize);
 
 		if (_tcscmp(TEXT("exit"), dataToSend.command) == 0)

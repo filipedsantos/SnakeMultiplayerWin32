@@ -5,6 +5,7 @@
 // Defines
 #define BUFFSIZE 1024
 
+
 #define WHO 		60
 #define COMMANDSIZE 60
 #define MAXCLIENTS  20
@@ -14,6 +15,7 @@
 #define JOIN_GAME 2
 #define SCORES 3
 
+#define SIZECIRCULARBUFFER 20
 
 typedef struct data {
 	TCHAR who[WHO];
@@ -34,10 +36,13 @@ typedef struct Game {
 	Snake snakes;
 } Game, *pGame;
 
+typedef struct sCircularBuffer {
+	data circularBuffer[SIZECIRCULARBUFFER];
+	int pull;
+	int push;
+} sCircularBuffer, *pCircularBuff;
 
 #define dataSize sizeof(data)
-
-
 
 // Functions
 void startClients();
@@ -48,6 +53,7 @@ void broadcastClients(data dataReply);
 void initializeServer();
 void initializeNamedPipes();
 void initializeSharedMemory();
+
 
 // Threads
 DWORD WINAPI listenClientNamedPipes(LPVOID params);
