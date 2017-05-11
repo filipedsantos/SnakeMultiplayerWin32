@@ -72,6 +72,8 @@ void startLocalClient() {
 	pCircularBuff(*openFileMap)();
 
 	int(*ptr)();
+	HANDLE(*startSyncMutex)();
+	HANDLE(*startSyncSemaphore)(BOOL);
 
 	_tprintf(TEXT("> LOCAL CLIENT\n\n"));
 
@@ -106,6 +108,24 @@ void startLocalClient() {
 		return;
 	}
 
+	
+	//CREATE SYNC HANDLES
+	startSyncMutex = (HANDLE(*)()) GetProcAddress(hSnakeDll, "startSyncMutex");
+	if (startSyncMutex == NULL) {
+		_tprintf(TEXT(">>[ERROR] INVALID MUTEX\n"));
+		return;
+	}
+
+	startSyncSemaphore = (HANDLE(*)(BOOL)) GetProcAddress(hSnakeDll, "startSyncSemaphore");
+	if (startSyncSemaphore == NULL) {
+		_tprintf(TEXT(">>[ERROR] INVALID SEMAPHORE\n"));
+		return;
+	}
+
+	semaphoreWrite = startSyncSemaphore(TRUE);
+	mClient = startSyncMutex();
+
+	//EVENT TO INFORM SERVER THAT SOMETHING WAS CHANGED
 	eWriteToServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
 
 	newData.op = 0;
@@ -136,6 +156,7 @@ void gameMenu(pCircularBuff p) {
 
 	switch (op) {
 		case 0:
+			_tprintf(TEXT("OPTION 0 - EXIT\n"));
 			break;
 		case 1:
 			newData.op = op;
@@ -149,6 +170,7 @@ void gameMenu(pCircularBuff p) {
 
 			// CALL DLL FUNCTION
 			setDataSHM(p, newData, mClient, semaphoreWrite);
+			_tprintf(TEXT("OPTION 1 - CREATE GAME\n"));
 			break;
 		case 2:
 			break;
@@ -290,31 +312,6 @@ void startRemoteClient() {
 
 	CloseHandle(eWriteToServerNP);
 	CloseHandle(hPipe);
-}
-
-//STARTING SYNCHRONIZATION
-void startSyncHandles() {
-
-	//CREATE AND TEST SEMAPHORE
-	semaphoreWrite = CreateSemaphore(
-		NULL,
-		0,
-		SIZECIRCULARBUFFER,
-		NULL);
-
-	if (semaphoreWrite == NULL) {
-		_tprintf(TEXT("[ERROR] semaphore wasn't created... %d"), GetLastError());
-		return;
-	}
-
-	//CREATE AND TEST MULTIPLE EXCLUSION
-	mClient = CreateMutex(NULL, FALSE, NULL);
-	if (mClient == NULL) {
-		_tprintf(TEXT("[ERROR] semaphore wasn't created... %d"), GetLastError());
-		return;
-	}
-
-
 }
 
 ////////////////

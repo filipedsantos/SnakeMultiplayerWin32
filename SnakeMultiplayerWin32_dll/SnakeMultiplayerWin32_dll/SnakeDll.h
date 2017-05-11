@@ -40,7 +40,11 @@ _declspec(dllexport) pCircularBuff getSHM(HANDLE hMapFile, BOOL createNewStruct)
 
 _declspec(dllexport) void setDataSHM(pCircularBuff cb, data data, HANDLE mClient, HANDLE semaphoreWrite);
 
-_declspec(dllexport) void getDataSHM(pData data);
+_declspec(dllexport) data getDataSHM(pCircularBuff pCirucularBuff, HANDLE mServer, HANDLE semaphoreRead);
+
+_declspec(dllexport) HANDLE startSyncSemaphore(BOOL writer);
+
+_declspec(dllexport) HANDLE startSyncMutex();
 
 void releaseSyncHandles(HANDLE mClient, HANDLE semaphoreWrite);
 

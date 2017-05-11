@@ -95,6 +95,8 @@ pCircularBuff createNewCircularBuffer(pCircularBuff cb) {
 	return cb;
 }
 
+
+//SYNCHRONIZED FUCTION USED TO WRITE ON SHARED MEMORY
 void setDataSHM(pCircularBuff cb, data data, HANDLE mClient, HANDLE semaphoreWrite) {
 
 	WaitForSingleObject(mClient, INFINITE);
@@ -109,13 +111,64 @@ void setDataSHM(pCircularBuff cb, data data, HANDLE mClient, HANDLE semaphoreWri
 	releaseSyncHandles(mClient, semaphoreWrite);
 }
 
-void getDataSHM(pData data) {
+//SYNCHRONIZED FUCTION USED TO GETDATA FROM SHARED MEMORY
+ data getDataSHM(pCircularBuff pCircularBuff, HANDLE mServer, HANDLE semaphoreRead) {
+	 data getData;
 
+	 WaitForSingleObject(mServer, INFINITE);
+	 WaitForSingleObject(semaphoreRead, INFINITE);
+
+	 getData = pCircularBuff->circularBuffer[pCircularBuff->pull];
+
+	 pCircularBuff->pull = (pCircularBuff->pull + 1) % SIZECIRCULARBUFFER;
+
+	 releaseSyncHandles(mServer, semaphoreRead);
+
+	 return getData;
 }
 
-void releaseSyncHandles(HANDLE mClient, HANDLE semaphoreWrite) {
 
-	ReleaseMutex(mClient);
-	ReleaseSemaphore(semaphoreWrite, 1, NULL);
+ //STARTING MUTEX
+HANDLE startSyncMutex() {
+	HANDLE mutex;
+
+	 mutex = CreateMutex(NULL, FALSE, NULL);
+	 if (mutex == NULL) {
+		 _tprintf(TEXT("[ERROR] semaphore wasn't created... %d"), GetLastError());
+		 return NULL;
+	 }
+
+	 return mutex;
+ }
+
+ //STARTING SYNCHRONIZATION
+HANDLE startSyncSemaphore(BOOL writer) {
+
+	HANDLE semaphore;
+	int startSize = SIZECIRCULARBUFFER;
+
+	if (!writer) {
+		startSize = 0;
+	}
+
+	semaphore = CreateSemaphore(
+		 NULL,
+		 startSize,
+		 SIZECIRCULARBUFFER,
+		 NULL);
+
+	 if (semaphore == NULL) {
+		 _tprintf(TEXT("[ERROR] semaphore wasn't created... %d"), GetLastError());
+		 return NULL;
+	 }
+
+	 return semaphore;
+ }
+
+ //RELEASE SYNCHRONIZATION
+void releaseSyncHandles(HANDLE mutex, HANDLE semaphore) {
+
+	ReleaseMutex(mutex);
+	ReleaseSemaphore(semaphore, 1, NULL);
 	
 }

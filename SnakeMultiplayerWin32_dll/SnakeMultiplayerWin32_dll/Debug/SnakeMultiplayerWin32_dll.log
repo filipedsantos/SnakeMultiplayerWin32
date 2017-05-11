@@ -3,10 +3,8 @@ d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin3
 d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(48): warning C4033: 'openFileMapping' must return a value
 d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(68): warning C4033: 'getSHM' must return a value
 d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(86): warning C4047: '=': 'TCHAR' differs in levels of indirection from 'unsigned short [9]'
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(52): warning C4715: 'openFileMapping': not all control paths return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(76): warning C4715: 'getSHM': not all control paths return a value
 d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(33): warning C4715: 'createFileMapping': not all control paths return a value
-  LINK : D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.dll not found or not built by the last incremental link; performing full link
-     Creating library D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.lib and object D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.exp
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(76): warning C4715: 'getSHM': not all control paths return a value
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(52): warning C4715: 'openFileMapping': not all control paths return a value
   SnakeMultiplayerWin32_dll.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.dll
   SnakeMultiplayerWin32_dll.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.pdb (Full PDB)

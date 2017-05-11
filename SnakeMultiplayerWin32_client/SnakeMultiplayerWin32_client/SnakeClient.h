@@ -31,8 +31,6 @@ int typeClient = -1;
 void askTypeClient();
 void startLocalClient();
 void startRemoteClient();
-void releaseSyncHandles();
-void startSyncHandles();
 void createGame();
 void gameMenu(pCircularBuff p);
 
