@@ -6,6 +6,9 @@
 static pCircularBuff circularBufferPointer;
 static pGameInfo gameInfoPointer;
 
+static HANDLE mClient, mServer;
+static HANDLE semaphoreWrite, semaphoreRead;
+
 int snakeFunction() {
 	return 111;
 }
@@ -61,6 +64,8 @@ BOOL createFileMapping() {
 	}
 
 	createNewCircularBuffer();
+	mServer = startSyncMutex();
+	semaphoreRead = startSyncSemaphore(TRUE);
 
 	return TRUE;
 }
@@ -109,6 +114,9 @@ BOOL openFileMapping() {
 		return FALSE;
 	}
 
+
+	mClient = startSyncMutex();
+	semaphoreWrite = startSyncSemaphore(FALSE);
 	return TRUE;
 }
 
@@ -140,30 +148,30 @@ void createNewCircularBuffer() {
 
 
 //SYNCHRONIZED FUCTION USED TO WRITE ON SHARED MEMORY
-void setDataSHM(pCircularBuff cb, data data, HANDLE mClient, HANDLE semaphoreWrite) {
+void setDataSHM(data data) {
 
 	//WaitForSingleObject(mClient, INFINITE);
 	//WaitForSingleObject(semaphoreWrite, INFINITE);
 
 	// Write on SHM
-	cb->circularBuffer[cb->push] = data;
+	circularBufferPointer->circularBuffer[circularBufferPointer->push] = data;
 
 	// INC PUSH
-	cb->push = (cb->push + 1) % SIZECIRCULARBUFFER;
+	circularBufferPointer->push = (circularBufferPointer->push + 1) % SIZECIRCULARBUFFER;
 
 	releaseSyncHandles(mClient, semaphoreWrite);
 }
 
 //SYNCHRONIZED FUCTION USED TO GETDATA FROM SHARED MEMORY
- data getDataSHM(pCircularBuff pCircularBuff, HANDLE mServer, HANDLE semaphoreRead) {
+ data getDataSHM() {
 	 data getData;
 
 	// WaitForSingleObject(mServer, INFINITE);
 	// WaitForSingleObject(semaphoreRead, INFINITE);
 
-	 getData = pCircularBuff->circularBuffer[pCircularBuff->pull];
+	 getData = circularBufferPointer->circularBuffer[circularBufferPointer->pull];
 
-	 pCircularBuff->pull = (pCircularBuff->pull + 1) % SIZECIRCULARBUFFER;
+	 circularBufferPointer->pull = (circularBufferPointer->pull + 1) % SIZECIRCULARBUFFER;
 
 	 releaseSyncHandles(mServer, semaphoreRead);
 
@@ -173,15 +181,16 @@ void setDataSHM(pCircularBuff cb, data data, HANDLE mClient, HANDLE semaphoreWri
 
  //STARTING MUTEX
 HANDLE startSyncMutex() {
+
 	HANDLE mutex;
 
-	 mutex = CreateMutex(NULL, FALSE, NULL);
-	 if (mutex == NULL) {
-		 _tprintf(TEXT("[ERROR] semaphore wasn't created... %d"), GetLastError());
-		 return NULL;
-	 }
+	mutex = CreateMutex(NULL, FALSE, NULL);
+	if (mutex == NULL) {
+		_tprintf(TEXT("[ERROR] semaphore wasn't created... %d"), GetLastError());
+		return NULL;
+	}
 
-	 return mutex;
+	return mutex;
  }
 
  //STARTING SYNCHRONIZATION

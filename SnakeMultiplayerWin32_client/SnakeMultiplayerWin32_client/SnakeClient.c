@@ -16,10 +16,6 @@ HANDLE hSnakeDll;
 
 data newData;
 
-//SYNC HANDLES
-HANDLE semaphoreWrite;
-HANDLE mClient;
-
 
 // função auxiliar para ler do caracteres (jduraes)
 void readTChars(TCHAR * p, int maxchars) {
@@ -76,8 +72,6 @@ void startLocalClient() {
 
 
 	int(*ptr)();
-	HANDLE(*startSyncMutex)();
-	HANDLE(*startSyncSemaphore)(BOOL);
 
 	_tprintf(TEXT("> LOCAL CLIENT\n\n"));
 
@@ -119,21 +113,6 @@ void startLocalClient() {
 
 	circularBufferPointer = getCircularBufferPointerSHM();
 	
-	//CREATE SYNC HANDLES
-	startSyncMutex = (HANDLE(*)()) GetProcAddress(hSnakeDll, "startSyncMutex");
-	if (startSyncMutex == NULL) {
-		_tprintf(TEXT(">>[ERROR] INVALID MUTEX\n"));
-		return;
-	}
-
-	startSyncSemaphore = (HANDLE(*)(BOOL)) GetProcAddress(hSnakeDll, "startSyncSemaphore");
-	if (startSyncSemaphore == NULL) {
-		_tprintf(TEXT(">>[ERROR] INVALID SEMAPHORE\n"));
-		return;
-	}
-
-	semaphoreWrite = startSyncSemaphore(TRUE);
-	mClient = startSyncMutex();
 
 	//EVENT TO INFORM SERVER THAT SOMETHING WAS CHANGED
 	eWriteToServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
@@ -148,7 +127,7 @@ void gameMenu(pCircularBuff p) {
 	int op;
 
 	// DLL FUNCTIONS - FUNCTION POINTERS
-	void(*setDataSHM)(pCircularBuff, data, HANDLE, HANDLE);
+	void(*setDataSHM)(data);
 
 	_tprintf(TEXT("------ SnakeMultiplayer ------\n\n"));
 	_tprintf(TEXT("1 - Create game\n"));
@@ -172,14 +151,14 @@ void gameMenu(pCircularBuff p) {
 			newData.op = op;
 
 			// GET DLL FUNCTION - setSHM
-			setDataSHM = (void(*)(pCircularBuff, data, HANDLE, HANDLE)) GetProcAddress(hSnakeDll, "setDataSHM");
+			setDataSHM = (void(*)(data)) GetProcAddress(hSnakeDll, "setDataSHM");
 			if (setDataSHM == NULL) {
 				_tscanf(TEXT("[SHM ERROR] GetProcAddress - setDataSHM()\n"));
 				return;
 			}
 
 			// CALL DLL FUNCTION
-			setDataSHM(p, newData, mClient, semaphoreWrite);
+			setDataSHM(newData);
 			_tprintf(TEXT("OPTION 1 - CREATE GAME\n"));
 			break;
 		case 2:

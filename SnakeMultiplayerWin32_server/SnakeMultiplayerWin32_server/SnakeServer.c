@@ -22,12 +22,7 @@ HANDLE hThreadSharedMemory;
 HINSTANCE hSnakeDll;
 
 
-HANDLE mServer;
-HANDLE semaphoreRead;
-
 //MAIN 
-
-int(*ptr)();
 
 
 int _tmain(void){
@@ -53,7 +48,7 @@ int _tmain(void){
 
 void initializeServer() {
 
-//	int(*ptr)();
+	int(*ptr)();
 
 	//LOADING SnakeDll
 	hSnakeDll = LoadLibraryEx(TEXT("..\\..\\SnakeMultiplayerWin32_dll\\Debug\\SnakeMultiplayerWin32_dll.dll"), NULL, 0);
@@ -93,8 +88,7 @@ void initializeSharedMemory() {
 
 	BOOL(*createFileMap)();
 	pCircularBuff(*getCircularBufferPointerSHM)();
-	HANDLE(*startSyncMutex)();
-	HANDLE(*startSyncSemaphore)(BOOL);
+
 
 	_tprintf(TEXT("STARTING SHARED MEMORY....................\n"));
 
@@ -117,22 +111,6 @@ void initializeSharedMemory() {
 	}
 
 	circularBufferPointer = getCircularBufferPointerSHM();
-
-	//CREATE SYNC HANDLES
-	startSyncMutex = (HANDLE(*)()) GetProcAddress(hSnakeDll, "startSyncMutex");
-	if (startSyncMutex == NULL) {
-		_tprintf(TEXT(">>[ERROR] INVALID MUTEX\n"));
-		return;
-	}
-
-	startSyncSemaphore = (HANDLE(*)(BOOL)) GetProcAddress(hSnakeDll, "startSyncSemaphore");
-	if (startSyncSemaphore == NULL) {
-		_tprintf(TEXT(">>[ERROR] INVALID SEMAPHORE\n"));
-		return;
-	}
-
-	semaphoreRead = startSyncSemaphore(FALSE);
-	mServer = startSyncMutex();
 
 	//CREATE A THREAD RESPONSABLE FOR SHM ONLY
 	hThreadSharedMemory = CreateThread(
@@ -416,7 +394,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 		}
 	
 
-		switch (getDataSHM(circularBufferPointer, mServer, semaphoreRead).op) {
+		switch (getDataSHM().op) {
 			case EXIT:
 				_tprintf(TEXT("Goodbye.."));
 
