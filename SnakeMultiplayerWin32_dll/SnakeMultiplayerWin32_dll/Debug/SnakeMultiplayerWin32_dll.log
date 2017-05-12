@@ -1,10 +1,5 @@
 ﻿  SnakeDll.c
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(26): warning C4033: 'createFileMapping' must return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(48): warning C4033: 'openFileMapping' must return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(68): warning C4033: 'getSHM' must return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(86): warning C4047: '=': 'TCHAR' differs in levels of indirection from 'unsigned short [9]'
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(33): warning C4715: 'createFileMapping': not all control paths return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(76): warning C4715: 'getSHM': not all control paths return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(52): warning C4715: 'openFileMapping': not all control paths return a value
-  SnakeMultiplayerWin32_dll.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.dll
-  SnakeMultiplayerWin32_dll.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.pdb (Full PDB)
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(131): warning C4047: '=': 'TCHAR' differs in levels of indirection from 'unsigned short [6]'
+     Creating library C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.lib and object C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.exp
+  SnakeMultiplayerWin32_dll.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.dll
+  SnakeMultiplayerWin32_dll.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.pdb (Full PDB)

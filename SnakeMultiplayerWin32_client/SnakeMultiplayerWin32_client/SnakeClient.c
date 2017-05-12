@@ -69,7 +69,11 @@ void askTypeClient() {
 void startLocalClient() {
 
 	pCircularBuff circularBufferPointer;
-	pCircularBuff(*openFileMap)();
+	
+	// DLL IMPORTED FUNCTIONS - FUNCTION POINTERS
+	BOOL(*openFileMap)();
+	pCircularBuff(*getCircularBufferPointerSHM)();
+
 
 	int(*ptr)();
 	HANDLE(*startSyncMutex)();
@@ -93,21 +97,27 @@ void startLocalClient() {
 	if (ptr() == 111)
 		_tprintf(TEXT("DLL correctly Loaded >> ...............%d\n"), ptr());
 	else
-		_tprintf(TEXT("[ERROR] SERVER probably is not online :(.....\n"));
+		_tprintf(TEXT("[ERROR] SERVER probably is not online :(.....(%d)\n"), ptr());
 
 	//OPENFILEMAP
-	openFileMap = (pCircularBuff(*)()) GetProcAddress(hSnakeDll, "openFileMapping");
+	openFileMap = (BOOL(*)()) GetProcAddress(hSnakeDll, "openFileMapping");
 	if (openFileMap == NULL) {
 		_tprintf(TEXT("[SHM ERROR] Loading createFileMapping function from DLL (%d)\n"), GetLastError());
 		return;
 	}
 
-	circularBufferPointer = openFileMap();
-	if (circularBufferPointer == NULL) {
+	if (!openFileMap()) {
 		_tprintf(TEXT("[SHM ERROR] Opening File Map Object... (%d)\n"), GetLastError());
+		return;
+	 }
+	
+	getCircularBufferPointerSHM = (pCircularBuff(*)()) GetProcAddress(hSnakeDll, "getCircularBufferPointerSHM");
+	if (getCircularBufferPointerSHM == NULL) {
+		_tprintf(TEXT("[SHM ERROR] Loading getCircularBufferPointerSHM function from DLL (%d)\n"), GetLastError());
 		return;
 	}
 
+	circularBufferPointer = getCircularBufferPointerSHM();
 	
 	//CREATE SYNC HANDLES
 	startSyncMutex = (HANDLE(*)()) GetProcAddress(hSnakeDll, "startSyncMutex");

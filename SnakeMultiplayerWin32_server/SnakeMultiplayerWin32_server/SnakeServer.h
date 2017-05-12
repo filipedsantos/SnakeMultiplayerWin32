@@ -38,6 +38,11 @@ typedef struct Game {
 	Snake snakes;
 } Game, *pGame;
 
+typedef struct Scores {
+	TCHAR playerName[TCHARSIZE];
+	int score;
+}Scores, *pScores;
+
 // Struct to send info about the actual state of game to the client
 typedef struct GameInfo {
 
@@ -48,11 +53,6 @@ typedef struct GameInfo {
 } GameInfo, *pGameInfo;
 
 #define GameStructSize sizeof(GameInfo)
-
-typedef struct Scores {
-	TCHAR playerName[TCHARSIZE];
-	int score;
-}Scores, *pScores;
 
 typedef struct sCircularBuffer {
 	data circularBuffer[SIZECIRCULARBUFFER];

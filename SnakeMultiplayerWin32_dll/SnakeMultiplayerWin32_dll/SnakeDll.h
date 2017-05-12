@@ -31,15 +31,6 @@ typedef struct sCircularBuffer {
 
 #define BuffsizeCircularBuff sizeof(sCircularBuffer)
 
-typedef struct GameInfo {
-
-	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
-	int commandId;						// variable to inform client about the actual command
-	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
-	int ** boardGame;					// variable that send information about the game variables - snakes, food, etc...	
-} GameInfo, *pGameInfo;
-
-#define GameStructSize sizeof(GameInfo)
 
 typedef struct Scores {
 	TCHAR playerName[TCHARSIZE];
@@ -48,17 +39,27 @@ typedef struct Scores {
 
 #define ScoresStructSize sizeof(Scores)
 
+typedef struct GameInfo {
+
+	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
+	int commandId;						// variable to inform client about the actual command
+	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
+	int ** boardGame;					// variable that send information about the game variables - snakes, food, etc...	
+} GameInfo, *pGameInfo;
+
+#define GameInfoStructSize sizeof(GameInfo)
+
 // VARIABLES
 
 // FUNCTIONS TO EXPORT
 
 _declspec(dllexport) int snakeFunction();
 
-_declspec(dllexport) pCircularBuff createFileMapping();
+_declspec(dllexport) BOOL createFileMapping();
 
-_declspec(dllexport) pCircularBuff openFileMapping();
+_declspec(dllexport) BOOL openFileMapping();
 
-_declspec(dllexport) pCircularBuff getSHM(HANDLE hMapFile, BOOL createNewStruct);
+_declspec(dllexport) pCircularBuff getCircularBufferPointerSHM();
 
 _declspec(dllexport) void setDataSHM(pCircularBuff cb, data data, HANDLE mClient, HANDLE semaphoreWrite);
 
@@ -72,4 +73,4 @@ _declspec(dllexport) HANDLE startSyncMutex();
 
 void releaseSyncHandles(HANDLE mClient, HANDLE semaphoreWrite);
 
-pCircularBuff createNewCircularBuffer(pCircularBuff cb);
+void createNewCircularBuffer();

@@ -27,6 +27,9 @@ HANDLE semaphoreRead;
 
 //MAIN 
 
+int(*ptr)();
+
+
 int _tmain(void){
 
 	#ifdef UNICODE
@@ -50,7 +53,7 @@ int _tmain(void){
 
 void initializeServer() {
 
-	int(*ptr)();
+//	int(*ptr)();
 
 	//LOADING SnakeDll
 	hSnakeDll = LoadLibraryEx(TEXT("..\\..\\SnakeMultiplayerWin32_dll\\Debug\\SnakeMultiplayerWin32_dll.dll"), NULL, 0);
@@ -68,7 +71,9 @@ void initializeServer() {
 	//CHECK DLL FUNCTION
 	if(ptr()==111)
 		_tprintf(TEXT("DLL correctly Loaded >> ...............%d\n"), ptr());
-
+	else {
+		_tprintf(TEXT("DLL not correctly Loaded >> ...............%d\n"), ptr());
+	}
 
 	initializeSharedMemory();
 	initializeNamedPipes();
@@ -84,25 +89,34 @@ void initializeServer() {
 
 void initializeSharedMemory() {
 
-	pCircularBuff circularBufferPointer;
-	pCircularBuff(*createFileMap)();
+	pCircularBuff circularBufferPointer = NULL;
+
+	BOOL(*createFileMap)();
+	pCircularBuff(*getCircularBufferPointerSHM)();
 	HANDLE(*startSyncMutex)();
 	HANDLE(*startSyncSemaphore)(BOOL);
 
 	_tprintf(TEXT("STARTING SHARED MEMORY....................\n"));
 
 	//CREATEFILEMAP
-	createFileMap = (pCircularBuff(*)()) GetProcAddress(hSnakeDll, "createFileMapping");
+	createFileMap = (BOOL(*)()) GetProcAddress(hSnakeDll, "createFileMapping");
 	if (createFileMap == NULL) {
 		_tprintf(TEXT("[SHM ERROR] Loading createFileMapping function from DLL (%d)\n"), GetLastError());
 		return;
 	}
 
-	circularBufferPointer = createFileMap();
-	if (circularBufferPointer == NULL) {
+	if (!createFileMap()) {
 		_tprintf(TEXT("[SHM ERROR] Creating File Map Object... (%d)"), GetLastError());
 		return;
 	}
+
+	getCircularBufferPointerSHM = (pCircularBuff(*)()) GetProcAddress(hSnakeDll, "getCircularBufferPointerSHM");
+	if (getCircularBufferPointerSHM == NULL) {
+		_tprintf(TEXT("[SHM ERROR] Loading getCircularBufferPointerSHM function from DLL (%d)\n"), GetLastError());
+		return;
+	}
+
+	circularBufferPointer = getCircularBufferPointerSHM();
 
 	//CREATE SYNC HANDLES
 	startSyncMutex = (HANDLE(*)()) GetProcAddress(hSnakeDll, "startSyncMutex");
@@ -405,6 +419,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 		switch (getDataSHM(circularBufferPointer, mServer, semaphoreRead).op) {
 			case EXIT:
 				_tprintf(TEXT("Goodbye.."));
+
 				break;
 			case CREATE_GAME:
 				hGameThread = CreateThread(
