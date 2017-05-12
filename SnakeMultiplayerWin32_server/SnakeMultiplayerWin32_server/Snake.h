@@ -9,8 +9,7 @@
 
 typedef struct Snake {
 	int id;
-	char draw;
-	Coords coords[3];
+	Coords * coords;
 	int size;
 
 	boolean alive;

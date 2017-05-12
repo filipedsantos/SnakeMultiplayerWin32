@@ -4,7 +4,7 @@
 
 // Defines
 #define BUFFSIZE 1024
-
+#define TCHARSIZE 30
 
 #define WHO 		60
 #define COMMANDSIZE 60
@@ -17,6 +17,8 @@
 
 #define SIZECIRCULARBUFFER 20
 
+// STRUCTS
+
 typedef struct data {
 	TCHAR who[WHO];
 	TCHAR command[COMMANDSIZE];
@@ -27,7 +29,7 @@ typedef struct data {
 } data, *pData;
 
 typedef struct Game {
-	int gameBoard[10][10];
+	int ** boardGame;
 
 	int nPlayers;
 	Player players;
@@ -35,6 +37,22 @@ typedef struct Game {
 	//int nSnakes;	// Contador para saber se ha cobras ainda a jogar !
 	Snake snakes;
 } Game, *pGame;
+
+// Struct to send info about the actual state of game to the client
+typedef struct GameInfo {
+
+	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
+	int commandId;						// variable to inform client about the actual command
+	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
+	int ** boardGame;					// variable that send information about the game variables - snakes, food, etc...	
+} GameInfo, *pGameInfo;
+
+#define GameStructSize sizeof(GameInfo)
+
+typedef struct Scores {
+	TCHAR playerName[TCHARSIZE];
+	int score;
+}Scores, *pScores;
 
 typedef struct sCircularBuffer {
 	data circularBuffer[SIZECIRCULARBUFFER];

@@ -54,6 +54,7 @@ pCircularBuff openFileMapping() {
 //DO MAPFILE OF VIEW AND HIS VERIFICATIONS
 pCircularBuff getSHM(HANDLE hMapFile, BOOL createNewStruct) {
 	pCircularBuff circularBuffPointer;
+
 	circularBuffPointer = (pCircularBuff) MapViewOfFile(
 		hMapFile,
 		FILE_MAP_ALL_ACCESS,
@@ -63,13 +64,14 @@ pCircularBuff getSHM(HANDLE hMapFile, BOOL createNewStruct) {
 	);
 
 	if (circularBuffPointer == NULL) {
-		_tprintf(TEXT("[DLL - ERROR] Accessing File Map Object... (%d)\n"), GetLastError());
+		_tprintf(TEXT("[DLL - ERROR] Accessing File Map Object (circularBuffPointer)... (%d)\n"), GetLastError());
 		CloseHandle(hMapFile);
 		return;
 	}
-
-	if (createNewStruct)
+	
+	if (createNewStruct) {
 		return createNewCircularBuffer(circularBuffPointer);
+	}
 
 
 	return circularBuffPointer;

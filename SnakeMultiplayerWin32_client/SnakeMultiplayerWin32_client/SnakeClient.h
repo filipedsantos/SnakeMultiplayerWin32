@@ -1,13 +1,17 @@
 #pragma once
 
-#define BUFFSIZE 1024
-#define WHO 60
-#define COMMANDSIZE 60
+#define	BUFFSIZE	1024
+#define	TCHARSIZE	30
 
-#define SIZECIRCULARBUFFER 20
+#define	WHO			60
+#define	COMMANDSIZE 60
 
-#define LOCALCLIENT 0
-#define REMOTECLIENT 1
+#define	SIZECIRCULARBUFFER 20
+
+#define	LOCALCLIENT		0
+#define	REMOTECLIENT	1
+
+// STRUCTS
 
 typedef struct data {
 	TCHAR who[WHO];
@@ -25,6 +29,22 @@ typedef struct sCircularBuffer {
 } sCircularBuffer, *pCircularBuff;
 
 #define dataSize sizeof(data)
+
+// Struct to send info about the actual state of game to the client
+typedef struct GameInfo {
+
+	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
+	int commandId;						// variable to inform client about the actual command
+	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
+	int ** boardGame;					// variable that send information about the game variables - snakes, food, etc...	
+} GameInfo, *pGameInfo;
+
+#define GameStructSize sizeof(GameInfo)
+
+typedef struct Scores {
+	TCHAR playerName[TCHARSIZE];
+	int score;
+}Scores, *pScores;
 
 int typeClient = -1;
 

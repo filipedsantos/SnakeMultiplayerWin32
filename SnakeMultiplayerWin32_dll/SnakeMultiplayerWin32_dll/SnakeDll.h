@@ -3,12 +3,15 @@
 
 // Defines
 #define BUFFSIZE 1024
+#define TCHARSIZE 30
 
 #define WHO 		60
 #define COMMANDSIZE 60
 #define SIZECIRCULARBUFFER 20
 
 TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
+
+// Structs
 
 typedef struct data {
 	TCHAR who[WHO];
@@ -26,9 +29,28 @@ typedef struct sCircularBuffer {
 	int push;
 } sCircularBuffer, *pCircularBuff;
 
+#define BuffsizeCircularBuff sizeof(sCircularBuffer)
+
+typedef struct GameInfo {
+
+	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
+	int commandId;						// variable to inform client about the actual command
+	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
+	int ** boardGame;					// variable that send information about the game variables - snakes, food, etc...	
+} GameInfo, *pGameInfo;
+
+#define GameStructSize sizeof(GameInfo)
+
+typedef struct Scores {
+	TCHAR playerName[TCHARSIZE];
+	int score;
+}Scores, *pScores;
+
+#define ScoresStructSize sizeof(Scores)
+
 // VARIABLES
 
-#define BuffsizeCircularBuff sizeof(sCircularBuffer)
+// FUNCTIONS TO EXPORT
 
 _declspec(dllexport) int snakeFunction();
 
@@ -45,6 +67,8 @@ _declspec(dllexport) data getDataSHM(pCircularBuff pCirucularBuff, HANDLE mServe
 _declspec(dllexport) HANDLE startSyncSemaphore(BOOL writer);
 
 _declspec(dllexport) HANDLE startSyncMutex();
+
+// DLL FUNCTIONS
 
 void releaseSyncHandles(HANDLE mClient, HANDLE semaphoreWrite);
 
