@@ -104,20 +104,12 @@ void initializeSharedMemory() {
 		return;
 	}
 
-	getCircularBufferPointerSHM = (pCircularBuff(*)()) GetProcAddress(hSnakeDll, "getCircularBufferPointerSHM");
-	if (getCircularBufferPointerSHM == NULL) {
-		_tprintf(TEXT("[SHM ERROR] Loading getCircularBufferPointerSHM function from DLL (%d)\n"), GetLastError());
-		return;
-	}
-
-	circularBufferPointer = getCircularBufferPointerSHM();
-
 	//CREATE A THREAD RESPONSABLE FOR SHM ONLY
 	hThreadSharedMemory = CreateThread(
 		NULL,
 		0,
 		listenClientSharedMemory,
-		(LPVOID)circularBufferPointer,
+		NULL,
 		0,
 		0);
 
@@ -373,8 +365,6 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 
 DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 
-	sCircularBuffer * circularBufferPointer = (pCircularBuff)params;
-
 	eReadFromClientSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
 
 	while (1) {
@@ -404,7 +394,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 					NULL,
 					0,
 					gameThread,
-					(LPVOID)circularBufferPointer,
+					NULL,
 					0,
 					0
 				);

@@ -105,25 +105,17 @@ void startLocalClient() {
 		return;
 	 }
 	
-	getCircularBufferPointerSHM = (pCircularBuff(*)()) GetProcAddress(hSnakeDll, "getCircularBufferPointerSHM");
-	if (getCircularBufferPointerSHM == NULL) {
-		_tprintf(TEXT("[SHM ERROR] Loading getCircularBufferPointerSHM function from DLL (%d)\n"), GetLastError());
-		return;
-	}
-
-	circularBufferPointer = getCircularBufferPointerSHM();
-	
 
 	//EVENT TO INFORM SERVER THAT SOMETHING WAS CHANGED
 	eWriteToServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
 
 	newData.op = 0;
 
-	gameMenu(circularBufferPointer);
+	gameMenu();
 
 }
 
-void gameMenu(pCircularBuff p) {
+void gameMenu() {
 	int op;
 
 	// DLL FUNCTIONS - FUNCTION POINTERS

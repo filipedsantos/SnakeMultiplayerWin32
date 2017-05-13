@@ -59,11 +59,13 @@ _declspec(dllexport) BOOL createFileMapping();
 
 _declspec(dllexport) BOOL openFileMapping();
 
-_declspec(dllexport) pCircularBuff getCircularBufferPointerSHM();
+//_declspec(dllexport) pCircularBuff getCircularBufferPointerSHM();
+//
+//_declspec(dllexport) pGameInfo getGameInfoPointerSHM();
 
-_declspec(dllexport) void setDataSHM(pCircularBuff cb, data data, HANDLE mClient, HANDLE semaphoreWrite);
+_declspec(dllexport) void setDataSHM(data data);
 
-_declspec(dllexport) data getDataSHM(pCircularBuff pCirucularBuff, HANDLE mServer, HANDLE semaphoreRead);
+_declspec(dllexport) data getDataSHM();
 
 _declspec(dllexport) HANDLE startSyncSemaphore(BOOL writer);
 

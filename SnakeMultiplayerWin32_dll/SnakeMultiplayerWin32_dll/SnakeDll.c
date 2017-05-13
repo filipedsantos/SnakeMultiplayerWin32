@@ -121,13 +121,13 @@ BOOL openFileMapping() {
 }
 
 //DO MAPFILE OF VIEW AND HIS VERIFICATIONS
-pCircularBuff getCircularBufferPointerSHM() {
-	return circularBufferPointer;
-}
-
-pGameInfo getGameInfoPointerSHM() {
-	return gameInfoPointer;
-}
+//pCircularBuff getCircularBufferPointerSHM() {
+//	return circularBufferPointer;
+//}
+//
+//pGameInfo getGameInfoPointerSHM() {
+//	return gameInfoPointer;
+//}
 
 void createNewCircularBuffer() {
 	
@@ -145,7 +145,6 @@ void createNewCircularBuffer() {
 	circularBufferPointer->pull = 0;
 	circularBufferPointer->push = 0;
 }
-
 
 //SYNCHRONIZED FUCTION USED TO WRITE ON SHARED MEMORY
 void setDataSHM(data data) {
@@ -177,8 +176,7 @@ void setDataSHM(data data) {
 
 	 return getData;
 }
-
-
+ 
  //STARTING MUTEX
 HANDLE startSyncMutex() {
 

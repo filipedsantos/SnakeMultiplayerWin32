@@ -52,7 +52,7 @@ void askTypeClient();
 void startLocalClient();
 void startRemoteClient();
 void createGame();
-void gameMenu(pCircularBuff p);
+void gameMenu();
 
 
 DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
