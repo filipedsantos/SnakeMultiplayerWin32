@@ -428,13 +428,9 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 
 DWORD WINAPI gameThread(LPVOID params) {
 	Snake snake;
-
-	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
-
 	void(*setInfoSHM)();
 
-	//Wait for any client trigger the event by typing any option
-	WaitForSingleObject(eReadFromClientSHM, INFINITE);
+	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
 
 	//GETDATA IN CORRECT PULL POSITION
@@ -446,7 +442,6 @@ DWORD WINAPI gameThread(LPVOID params) {
 
 	GameInfo gi;
 	gi.commandId = 222;
-
 	setInfoSHM(gi);
 
 	SetEvent(eWriteToClientSHM);

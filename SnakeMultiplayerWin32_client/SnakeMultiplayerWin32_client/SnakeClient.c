@@ -65,6 +65,11 @@ void askTypeClient() {
 
 void startLocalClient() {
 
+	//EVENT TO INFORM SERVER THAT SOMETHING WAS CHANGED
+	eWriteToServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
+	eReadFromServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM_eWriteToClientSHM"));
+
+
 	pCircularBuff circularBufferPointer;
 	
 	// DLL IMPORTED FUNCTIONS - FUNCTION POINTERS
@@ -109,7 +114,7 @@ void startLocalClient() {
 	hThreadClientReaderSHM = CreateThread(
 		NULL,
 		0,
-		(LPTHREAD_START_ROUTINE)ThreadClientReaderSHM,
+		ThreadClientReaderSHM,
 		NULL,
 		0,
 		0
@@ -120,10 +125,6 @@ void startLocalClient() {
 		return;
 	}
 	
-
-	//EVENT TO INFORM SERVER THAT SOMETHING WAS CHANGED
-	eWriteToServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
-	eReadFromServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM_eWriteToClientSHM"));
 
 	gameMenu();
 	
@@ -385,26 +386,26 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 
 	GameInfo(*getInfoSHM)();
 
-	_tprintf(TEXT("Lancei thread...\n"));
+	while (1) {
+
+		//Wait for any client trigger the event by typing any option
+		WaitForSingleObject(eReadFromServerSHM, INFINITE);
 
 
-	//Wait for any client trigger the event by typing any option
-	WaitForSingleObject(eReadFromServerSHM, INFINITE);
+		//GETDATA IN CORRECT PULL POSITION
+		getInfoSHM = (GameInfo(*)()) GetProcAddress(hSnakeDll, "getInfoSHM");
+		if (getInfoSHM == NULL) {
+			_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
+			return;
+		}
 
-	_tprintf(TEXT("eReadFromServerSHM...\n"));
+		if (getInfoSHM().commandId == 222) {
+			_tprintf(TEXT("Lets start a game...\n"));
+		}
 
-	//GETDATA IN CORRECT PULL POSITION
-	getInfoSHM = (GameInfo(*)()) GetProcAddress(hSnakeDll, "getInfoSHM");
-	if (getInfoSHM == NULL) {
-		_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
-		return;
+		ResetEvent(eReadFromServerSHM);
+
 	}
-
-	if (getInfoSHM().commandId == 222) {
-		_tprintf(TEXT("Lets start a game...\n"));
-	}
-
-	ResetEvent(eReadFromServerSHM);
 
 	return 1;
 }
