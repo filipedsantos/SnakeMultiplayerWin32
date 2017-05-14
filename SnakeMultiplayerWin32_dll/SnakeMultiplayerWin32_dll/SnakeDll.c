@@ -176,6 +176,15 @@ void setDataSHM(data data) {
 
 	 return getData;
 }
+
+ _declspec(dllexport) void setInfoSHM(GameInfo gi) {
+	 gameInfoPointer->commandId = gi.commandId;
+ }
+
+ _declspec(dllexport) GameInfo getInfoSHM() {
+	 GameInfo gi = *gameInfoPointer;
+	 return gi;
+ }
  
  //STARTING MUTEX
 HANDLE startSyncMutex() {

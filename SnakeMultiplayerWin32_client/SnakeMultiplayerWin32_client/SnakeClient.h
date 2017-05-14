@@ -55,7 +55,11 @@ void createGame();
 void gameMenu();
 
 
+// Threads
+
 DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
+
+DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS);
 
 int mayContinue = 1;
 int readerAlive = 0;

@@ -67,6 +67,10 @@ _declspec(dllexport) void setDataSHM(data data);
 
 _declspec(dllexport) data getDataSHM();
 
+_declspec(dllexport) void setInfoSHM(GameInfo gi);
+
+_declspec(dllexport) GameInfo getInfoSHM();
+
 _declspec(dllexport) HANDLE startSyncSemaphore(BOOL writer);
 
 _declspec(dllexport) HANDLE startSyncMutex();

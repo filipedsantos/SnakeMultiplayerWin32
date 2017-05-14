@@ -11,10 +11,10 @@ TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 
 HANDLE hMapFile;
 HANDLE eWriteToServerSHM;
+HANDLE eReadFromServerSHM;
 
 HANDLE hSnakeDll;
-
-data newData;
+HANDLE hThreadClientReaderSHM;
 
 
 // função auxiliar para ler do caracteres (jduraes)
@@ -48,7 +48,8 @@ int _tmain(int argc, LPTSTR argv[]) {
 			break;
 	}
 
-	
+	WaitForSingleObject(hThreadClientReaderSHM, INFINITE);
+
 	return 0;
 }
 
@@ -69,7 +70,6 @@ void startLocalClient() {
 	// DLL IMPORTED FUNCTIONS - FUNCTION POINTERS
 	BOOL(*openFileMap)();
 	pCircularBuff(*getCircularBufferPointerSHM)();
-
 
 	int(*ptr)();
 
@@ -104,19 +104,35 @@ void startLocalClient() {
 		_tprintf(TEXT("[SHM ERROR] Opening File Map Object... (%d)\n"), GetLastError());
 		return;
 	 }
+
+	// Start thread reader SHM
+	hThreadClientReaderSHM = CreateThread(
+		NULL,
+		0,
+		(LPTHREAD_START_ROUTINE)ThreadClientReaderSHM,
+		NULL,
+		0,
+		0
+	);
+
+	if (hThreadClientReaderSHM == NULL) {
+		_tprintf(TEXT("[ERROR] Impossible to create hThreadClientReaderSHM... (%d)"), GetLastError());
+		return;
+	}
 	
 
 	//EVENT TO INFORM SERVER THAT SOMETHING WAS CHANGED
 	eWriteToServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
-
-	newData.op = 0;
+	eReadFromServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM_eWriteToClientSHM"));
 
 	gameMenu();
+	
 
 }
 
 void gameMenu() {
 	int op;
+	data newData;
 
 	// DLL FUNCTIONS - FUNCTION POINTERS
 	void(*setDataSHM)(data);
@@ -133,7 +149,7 @@ void gameMenu() {
 		_tscanf(TEXT("%d"), &op);
 	} while (op < 0 || op > 4);
 
-	system("cls");
+	//system("cls");
 
 	switch (op) {
 		case 0:
@@ -362,5 +378,33 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 	
 	readerAlive = 0;
 	_tprintf(TEXT("Thread Reader ending\n"));
+	return 1;
+}
+
+DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
+
+	GameInfo(*getInfoSHM)();
+
+	_tprintf(TEXT("Lancei thread...\n"));
+
+
+	//Wait for any client trigger the event by typing any option
+	WaitForSingleObject(eReadFromServerSHM, INFINITE);
+
+	_tprintf(TEXT("eReadFromServerSHM...\n"));
+
+	//GETDATA IN CORRECT PULL POSITION
+	getInfoSHM = (GameInfo(*)()) GetProcAddress(hSnakeDll, "getInfoSHM");
+	if (getInfoSHM == NULL) {
+		_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
+		return;
+	}
+
+	if (getInfoSHM().commandId == 222) {
+		_tprintf(TEXT("Lets start a game...\n"));
+	}
+
+	ResetEvent(eReadFromServerSHM);
+
 	return 1;
 }

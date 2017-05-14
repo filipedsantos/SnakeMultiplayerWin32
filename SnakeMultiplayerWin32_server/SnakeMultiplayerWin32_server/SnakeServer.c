@@ -15,7 +15,9 @@ HANDLE clients[MAXCLIENTS];
 HANDLE hMapFile;
 
 HANDLE eWriteToClientNP;
+
 HANDLE eReadFromClientSHM;
+HANDLE eWriteToClientSHM;
 
 HANDLE hThreadSharedMemory;
 
@@ -366,6 +368,8 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 
 	eReadFromClientSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
+	eWriteToClientSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM_eWriteToClientSHM"));
+
 
 	while (1) {
 
@@ -393,7 +397,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 				hGameThread = CreateThread(
 					NULL,
 					0,
-					gameThread,
+					(LPTHREAD_START_ROUTINE)gameThread,
 					NULL,
 					0,
 					0
@@ -427,12 +431,24 @@ DWORD WINAPI gameThread(LPVOID params) {
 
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
-	//snake.draw = '*';
+	void(*setInfoSHM)();
 
-	//for (int l = 0; l < 10; l++) {
-	//	for (int c = 0; c < 10; c++) {
-	//		_tprintf(TEXT(" "));
-	//	}
-	//}
+	//Wait for any client trigger the event by typing any option
+	WaitForSingleObject(eReadFromClientSHM, INFINITE);
+
+
+	//GETDATA IN CORRECT PULL POSITION
+	setInfoSHM = (void(*)()) GetProcAddress(hSnakeDll, "setInfoSHM");
+	if (setInfoSHM == NULL) {
+		_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
+		return;
+	}
+
+	GameInfo gi;
+	gi.commandId = 222;
+
+	setInfoSHM(gi);
+
+	SetEvent(eWriteToClientSHM);
 }
 
