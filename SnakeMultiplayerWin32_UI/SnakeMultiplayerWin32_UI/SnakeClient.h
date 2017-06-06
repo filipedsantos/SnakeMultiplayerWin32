@@ -18,7 +18,7 @@ typedef struct data {
 	TCHAR command[COMMANDSIZE];
 	int op;			// Option 
 	int nPlayers;	// Number of players to join the created game
-	int nLines;
+	int nRows;
 	int nColumns;
 } data, *pData;
 
@@ -46,20 +46,11 @@ typedef struct GameInfo {
 
 #define GameStructSize sizeof(GameInfo)
 
-int typeClient = -1;
-
-void askTypeClient();
-void startLocalClient();
-void startRemoteClient();
-void createGame();
-void gameMenu();
-
-
 // Threads
 
-DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
+//DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
 
-DWORD WINAPI s(LPVOID PARAMS);
+DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS);
 
 int mayContinue = 1;
 int readerAlive = 0;

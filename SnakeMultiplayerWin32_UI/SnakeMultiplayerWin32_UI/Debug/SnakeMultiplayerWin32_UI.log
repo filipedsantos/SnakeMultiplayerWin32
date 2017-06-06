@@ -1,14 +1,15 @@
 ﻿  SnakeUI.c
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(57): warning C4133: 'function': incompatible types - from 'LPCSTR' to 'LPCWSTR'
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(37): warning C4101: 'wcApp': unreferenced local variable
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(277): warning C4129: 's': unrecognized character escape sequence
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(278): warning C4129: 's': unrecognized character escape sequence
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(307): warning C4098: 'startLocal': 'void' function returning a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(284): warning C4101: 'getCircularBufferPointerSHM': unreferenced local variable
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(280): warning C4101: 'circularBufferPointer': unreferenced local variable
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(353): warning C4474: 'swprintf_s' : too many arguments passed for format string
-  d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(353): note: placeholders and their parameters expect 0 variadic arguments, but 1 were provided
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(383): warning C4033: 'ThreadClientReaderSHM' must return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(395): warning C4715: 'ThreadClientReaderSHM': not all control paths return a value
-  SnakeMultiplayerWin32_UI.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_UI\Debug\SnakeMultiplayerWin32_UI.exe
-  SnakeMultiplayerWin32_UI.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_UI\Debug\SnakeMultiplayerWin32_UI.pdb (Full PDB)
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(59): warning C4133: 'function': incompatible types - from 'LPCSTR' to 'LPCWSTR'
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(39): warning C4101: 'wcApp': unreferenced local variable
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(246): warning C4133: 'function': incompatible types - from 'LPCSTR' to 'LPCWSTR'
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(314): warning C4129: 's': unrecognized character escape sequence
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(315): warning C4129: 's': unrecognized character escape sequence
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(344): warning C4098: 'startLocal': 'void' function returning a value
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(321): warning C4101: 'getCircularBufferPointerSHM': unreferenced local variable
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(317): warning C4101: 'circularBufferPointer': unreferenced local variable
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(388): warning C4474: 'swprintf_s' : too many arguments passed for format string
+  c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(388): note: placeholders and their parameters expect 0 variadic arguments, but 1 were provided
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(418): warning C4033: 'ThreadClientReaderSHM' must return a value
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(430): warning C4715: 'ThreadClientReaderSHM': not all control paths return a value
+  SnakeMultiplayerWin32_UI.vcxproj -> C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_UI\Debug\SnakeMultiplayerWin32_UI.exe
+  SnakeMultiplayerWin32_UI.vcxproj -> C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_UI\Debug\SnakeMultiplayerWin32_UI.pdb (Full PDB)

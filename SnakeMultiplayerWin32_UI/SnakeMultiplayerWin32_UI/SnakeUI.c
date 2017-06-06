@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <tchar.h>
+#include "Commctrl.h"
 
 #include "resource.h"
 #include "SnakeClient.h"
@@ -13,8 +14,9 @@ BOOL CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 void closeEverything();
 void startMainWindow();
 void startLocal();
-void startNewGame();
+void startNewGame(data newData);
 void createErrorMessageBox(TCHAR *message);
+void createMessageBox(TCHAR *Message);
 
 
 TCHAR *szProgName = TEXT("Snake Multiplayer");
@@ -164,34 +166,69 @@ HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName) {
 
 BOOL CALLBACK DialogProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 {
-	switch (messg)
-	{
+	switch (messg) {
 		
-	case WM_INITDIALOG:
-		break;
+		case WM_INITDIALOG:
+			break;
 
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
-		{
-			case ID_BUTTON_LOCAL:
-				startMainWindow(hWnd);
-				startLocal();
-				break;
+		case WM_COMMAND:
+			switch (LOWORD(wParam))
+			{
+				case ID_BUTTON_LOCAL:
+					startMainWindow(hWnd);
+					startLocal();
+					break;
 
-			case ID_BUTTON_REMOTE:
+				case ID_BUTTON_REMOTE:
 
-				startMainWindow(hWnd);
-				break;
+					startMainWindow(hWnd);
+					break;
 
-			default:
-				break;
-		}
+				default:
+					break;
+			}
 
-	case WM_DESTROY:
-		EndDialog(hWnd, 0);
-		return 0;
+		case WM_DESTROY:
+			EndDialog(hWnd, 0);
+			return 0;
 	}
 	
+	return 0;
+}
+
+BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
+	data newData;
+	TCHAR aux[3];
+
+	switch (messg) {
+		case WM_INITDIALOG:
+			return 1;
+
+		case WM_DESTROY:
+			EndDialog(hWnd, 0);
+			return 1;
+
+		case WM_COMMAND:
+			switch (LOWORD(wParam)) {
+			
+				case ID_CANCEL_GAME:
+					EndDialog(hWnd, 0);
+					return 1;
+
+				case ID_START_GAME:
+					
+					newData.op = 1;
+					GetDlgItemText(hWnd, IDC_EDIT_ROWS, aux, 3);
+					newData.nRows = _wtoi(aux);
+					GetDlgItemText(hWnd, IDC_EDIT_COLUMNS, aux, 3);
+					newData.nColumns = _wtoi(aux);
+
+					startNewGame(newData);
+					return 1;
+			}
+	}
+	
+
 	return 0;
 }
 
@@ -206,7 +243,7 @@ LRESULT CALLBACK HandleEvents(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lPara
 				break;
 
 			case ID_FILE_NEWGAME:
-				startNewGame();
+				DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
 				break;
 
 			default:
@@ -341,12 +378,10 @@ void startLocal(){
 }
 
 //Starting a new Game
-void startNewGame() {
-	data newData;
+void startNewGame(data newData) {
 	void(*setDataSHM)(data);
 
-	newData.op = 1;
-	
+
 	// GET DLL FUNCTION - setSHM
 	setDataSHM = (void(*)(data)) GetProcAddress(hSnakeDll, "setDataSHM");
 	if (setDataSHM == NULL) {
@@ -366,7 +401,7 @@ void startNewGame() {
 //----------------------------------------------------
 
 //THREAD RESPONSABLE FOR LOCAL USERS
-DWORD WINAPI s(LPVOID PARAMS) {
+DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 
 	GameInfo(*getInfoSHM)();
 	while (1) {
