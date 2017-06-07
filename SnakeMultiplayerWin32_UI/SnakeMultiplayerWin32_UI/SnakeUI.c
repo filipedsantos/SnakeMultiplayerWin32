@@ -1,4 +1,4 @@
-#include <windows.h>
+Ôªø#include <windows.h>
 #include <tchar.h>
 #include "Commctrl.h"
 
@@ -32,17 +32,22 @@ HANDLE hSnakeDll;
 HANDLE hThreadClientReaderSHM;
 
 HINSTANCE hThisInst;
-HWND hWnd;	// hWnd È o handler da janela, gerado mais abaixo por CreateWindow()
+HWND hWnd;			// hWnd √© o handler da janela, gerado mais abaixo por CreateWindow()
+int maxX, maxY;		// DimensÔøΩes do ÔøΩcran
+HBRUSH hbrush;		// Cor de fundo da janela
+HDC memdc;			// handler para imagem da janela em memÔøΩria
+
+GameInfo gameInfo;
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow) {
-	MSG lpMsg;											// MSG È uma estrutura definida no Windows para as mensagens
-	WNDCLASSEX wcApp;									// WNDCLASSEX È uma estrutura cujos membros servem para 
-	BOOL ret;											// definir as caracterÌsticas da classe da janela
+	MSG lpMsg;											// MSG √© uma estrutura definida no Windows para as mensagens
+	WNDCLASSEX wcApp;									// WNDCLASSEX √© uma estrutura cujos membros servem para 
+	BOOL ret;											// definir as caracter√≠sticas da classe da janela
 
 	windowMode = nCmdShow;
 	hThisInst = hInst;
 
-	// "hbrBackground" = handler para "brush" de pintura do fundo da janela. Devolvido por  // "GetStockObject".Neste caso o fundo ser· branco
+	// "hbrBackground" = handler para "brush" de pintura do fundo da janela. Devolvido por  // "GetStockObject".Neste caso o fundo ser√° branco
 	// ============================================================================
 	// 2. Registar a classe "wcApp" no Windows
 	// ============================================================================
@@ -66,10 +71,10 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 
 	while ((ret = GetMessage(&lpMsg, NULL, 0, 0)) != 0) {
 		if (ret != -1) {
-			TranslateMessage(&lpMsg);	// PrÈ-processamento da mensagem (p.e. obter cÛdigo 
+			TranslateMessage(&lpMsg);	// Pr√©-processamento da mensagem (p.e. obter c√≥digo 
 										// ASCII da tecla premida)
 			DispatchMessage(&lpMsg);	// Enviar a mensagem traduzida de volta ao Windows, que
-										// aguarda atÈ que a possa reenviar ‡ funÁ„o de 
+										// aguarda at√© que a possa reenviar √† fun√ß√£o de 
 										// tratamento da janela, CALLBACK TrataEventos (abaixo)
 		}
 	}
@@ -79,7 +84,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	// 6. Fim do programa
 	// ============================================================================
 
-	return((int)lpMsg.wParam);	// Retorna sempre o par‚metro wParam da estrutura lpMsg
+	return((int)lpMsg.wParam);	// Retorna sempre o par√¢metro wParam da estrutura lpMsg
 }
 
 
@@ -91,23 +96,23 @@ ATOM registerClass(HINSTANCE hInst, TCHAR * szWinName) {
 	WNDCLASSEX wcApp;
 
 	wcApp.cbSize = sizeof(WNDCLASSEX);	// Tamanho da estrutura WNDCLASSEX
-	wcApp.hInstance = hInst;			// Inst‚ncia da janela actualmente exibida 
-										// ("hInst" È par‚metro de WinMain e vem 
-										// inicializada daÌ)
+	wcApp.hInstance = hInst;			// Inst√¢ncia da janela actualmente exibida 
+										// ("hInst" √© par√¢metro de WinMain e vem 
+										// inicializada da√≠)
 	wcApp.lpszClassName = szProgName;	// Nome da janela (neste caso = nome do programa)
-	wcApp.lpfnWndProc = MainWindow;	// EndereÁo da funÁ„o de processamento da janela 	// ("TrataEventos" foi declarada no inÌcio e                 // encontra-se mais abaixo)
+	wcApp.lpfnWndProc = MainWindow;	// Endere√ßo da fun√ß√£o de processamento da janela 	// ("TrataEventos" foi declarada no in√≠cio e                 // encontra-se mais abaixo)
 	wcApp.style = CS_HREDRAW | CS_VREDRAW;	// Estilo da janela: Fazer o redraw se for      // modificada horizontal ou verticalmente
-	wcApp.hIcon = LoadIcon(NULL, IDI_APPLICATION);											// "hIcon" = handler do Ìcon normal
+	wcApp.hIcon = LoadIcon(NULL, IDI_APPLICATION);											// "hIcon" = handler do √≠con normal
 																							//"NULL" = Icon definido no Windows
-																							// "IDI_AP..." Õcone "aplicaÁ„o"
-	wcApp.hIconSm = LoadIcon(NULL, IDI_INFORMATION);// "hIconSm" = handler do Ìcon pequeno
+																							// "IDI_AP..." √çcone "aplica√ß√£o"
+	wcApp.hIconSm = LoadIcon(NULL, IDI_INFORMATION);// "hIconSm" = handler do √≠con pequeno
 													//"NULL" = Icon definido no Windows
-													// "IDI_INF..." Õcon de informaÁ„o
+													// "IDI_INF..." √çcon de informa√ß√£o
 	wcApp.hCursor = LoadCursor(NULL, IDC_ARROW);	// "hCursor" = handler do cursor (rato) 
 													// "NULL" = Forma definida no Windows
 													// "IDC_ARROW" Aspecto "seta" 
 	wcApp.lpszMenuName = MAKEINTRESOURCE(IDR_MENU);
-	// (NULL = n„o tem menu)
+	// (NULL = n√£o tem menu)
 	wcApp.cbClsExtra = 0;							// Livre, para uso particular
 	wcApp.cbWndExtra = 0;							// Livre, para uso particular
 	wcApp.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
@@ -119,10 +124,10 @@ HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName) {
 
 	return CreateWindow(
 		szProgName,									// Nome da janela (programa) definido acima
-		szWinName,	// Texto que figura na barra do tÌtulo
+		szWinName,	// Texto que figura na barra do t√≠tulo
 		WS_OVERLAPPEDWINDOW,						// Estilo da janela (WS_OVERLAPPED= normal)
-		CW_USEDEFAULT,								// PosiÁ„o x pixels (default=‡ direita da ˙ltima)
-		CW_USEDEFAULT,								// PosiÁ„o y pixels (default=abaixo da ˙ltima)
+		CW_USEDEFAULT,								// Posi√ß√£o x pixels (default=√† direita da √∫ltima)
+		CW_USEDEFAULT,								// Posi√ß√£o y pixels (default=abaixo da √∫ltima)
 		CW_USEDEFAULT,								// Largura da janela (em pixels)
 		CW_USEDEFAULT,								// Altura da janela (em pixels)
 		(HWND)HWND_DESKTOP,							// handle da janela pai (se se criar uma a partir de
@@ -130,9 +135,9 @@ HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName) {
 													// outra) ou HWND_DESKTOP se a janela for a primeira, 
 													// criada a partir do "desktop"
 		(HMENU)NULL,			// handle do menu da janela (se tiver menu)
-		(HINSTANCE)hInst,		// handle da inst‚ncia do programa actual ("hInst" È 
-								// passado num dos par‚metros de WinMain()
-		NULL);						// N„o h· par‚metros adicionais para a janela
+		(HINSTANCE)hInst,		// handle da inst√¢ncia do programa actual ("hInst" √© 
+								// passado num dos par√¢metros de WinMain()
+		NULL);						// N√£o h√° par√¢metros adicionais para a janela
 
 }
 
@@ -212,6 +217,8 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					newData.nColumns = _wtoi(aux);
 
 					startNewGame(newData);
+
+					EndDialog(hWnd, 0);
 					return 1;
 					
 					
@@ -245,31 +252,58 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 }
 
 LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
+
+	HDC hdc;						// handler para um Device Context
+	HDC auxmemdc;					// handler para Device Context auxiliar em memÔøΩria
+									// que vai conter o bitmap 
+	PAINTSTRUCT ps;				// Ponteiro para estrutura de WM_PAINT
+
+	static RECT rectangle;
+	static RECT rectangle1;
+	static RECT rectangle2;
+
 	switch (messg) {
-	case WM_COMMAND:
+		case WM_CREATE:
+			SetRect(&rectangle, 1, 1, 200, 200);
+			SetRect(&rectangle1, 1, 1, 20, 20);
+			SetRect(&rectangle2, 1, 1, 1500, 1500);
+			
+			break;
 
-		switch (LOWORD(wParam)) {
-			case ID_FILE_EXIT:
-				closeEverything();
-				break;
+		case WM_COMMAND:
 
-			case ID_FILE_NEWGAME:
-				DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
-				break;
+			switch (LOWORD(wParam)) {
+				case ID_FILE_EXIT:
+					closeEverything();
+					break;
 
-			default:
-				break;
-		}
-		break;
+				case ID_FILE_NEWGAME:
+					DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
+					break;
 
-	case WM_DESTROY:	// Destruir a janela e terminar o programa 
-						// "PostQuitMessage(Exit Status)"		
-		closeEverything();
-		break;
-	default:
+				default:
+					break;
+			}
+			break;
 
-		// Neste exemplo, para qualquer outra mensagem (p.e. "minimizar","maximizar","restaurar") // n„o È efectuado nenhum processamento, apenas se segue o "default" do Windows			
-		return(DefWindowProc(hWnd, messg, wParam, lParam));
+		case WM_DESTROY:	// Destruir a janela e terminar o programa 
+							// "PostQuitMessage(Exit Status)"		
+			closeEverything();
+			break;
+
+		case WM_PAINT:
+			hdc = BeginPaint(hWnd, &ps);
+			//BitBlt(hdc, 0, 0, maxX, maxY, memdc, 0, 0, SRCCOPY);
+			Rectangle(ps.hdc, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
+			Rectangle(ps.hdc, rectangle1.left, rectangle1.top, rectangle1.right, rectangle1.bottom);
+			Rectangle(ps.hdc, rectangle2.left, rectangle2.top, rectangle2.right, rectangle2.bottom);
+			EndPaint(hWnd, &ps);
+			break;
+
+		default:
+
+			// Neste exemplo, para qualquer outra mensagem (p.e. "minimizar","maximizar","restaurar") // n√£o √© efectuado nenhum processamento, apenas se segue o "default" do Windows			
+			return(DefWindowProc(hWnd, messg, wParam, lParam));
 	}
 	return(0);
 }
@@ -306,11 +340,11 @@ void startMainWindow() {
 
 
 	ShowWindow(hWnd, windowMode);	// "hWnd"= handler da janela, devolvido por 
-									// "CreateWindow"; "nCmdShow"= modo de exibiÁ„o (p.e. 
-									// normal/modal); È passado como par‚metro de WinMain()
+									// "CreateWindow"; "nCmdShow"= modo de exibi√ß√£o (p.e. 
+									// normal/modal); √© passado como par√¢metro de WinMain()
 
-	UpdateWindow(hWnd);				// Refrescar a janela (Windows envia ‡ janela uma 
-									// mensagem para pintar, mostrar dados, (refrescar)Ö 
+	UpdateWindow(hWnd);				// Refrescar a janela (Windows envia √† janela uma 
+									// mensagem para pintar, mostrar dados, (refrescar)‚Ä¶ 
 
 	return;
 }
@@ -430,11 +464,7 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 			createMessageBox(TEXT("SERVER: LETS START A GAME"));
 		}
 
-		TCHAR str[123];
-		GameInfo gi;
-		gi = getInfoSHM();
-		_stprintf(str, TEXT("%d"),gi.boardGame[1][3]);
-		createErrorMessageBox(str);
+		gameInfo = getInfoSHM();
 		ResetEvent(eReadFromServerSHM);
 
 	}

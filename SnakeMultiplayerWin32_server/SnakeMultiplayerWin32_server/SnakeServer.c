@@ -447,7 +447,13 @@ DWORD WINAPI gameThread(LPVOID params) {
 		return;
 	}
 	
-	initGame(&game, &gameInfo, data);
+	for (int i = 0; i < data->nLines; i++) {
+		for (int j = 0; j < data->nColumns; j++) {
+			gameInfo.boardGame[i][j] = 1;
+		}
+	}
+
+	gameInfo.boardGame[1][3] = 2;
 
 	for (int i = 0; i < data->nLines; i++) {
 		for (int j = 0; j < data->nColumns; j++) {
@@ -464,29 +470,6 @@ DWORD WINAPI gameThread(LPVOID params) {
 }
 
 void initGame(pGame game, pGameInfo gameInfo, pData data){
-
-	gameInfo->boardGame = malloc(sizeof(int)* data->nLines);
-	for (int i = 0; i < data->nColumns; i++) {
-		gameInfo->boardGame[i] = malloc(sizeof(int) * data->nColumns);
-		//memcpy(gameInfo->boardGame[i], game->boardGame[i], sizeof(int) * data->nLines * data->nColumns);
-	}
-
-	game->boardGame = malloc(sizeof(int)* data->nLines);
-	for (int i = 0; i < data->nColumns; i++) {
-		game->boardGame[i] = malloc(sizeof(int) * data->nColumns);
-	}
-	
 	//FAZER FREE's LATER
-
-	for (int i = 0; i < data->nLines; i++) {
-		for (int j = 0; j < data->nColumns; j++) {
-			gameInfo->boardGame[i][j] = 0;
-
-		}
-	}
-
-	gameInfo->boardGame[1][3] = 1;
-
-	
 
 }
