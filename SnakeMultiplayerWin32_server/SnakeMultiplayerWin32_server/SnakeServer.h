@@ -71,6 +71,7 @@ void broadcastClients(data dataReply);
 void initializeServer();
 void initializeNamedPipes();
 void initializeSharedMemory();
+void initGame(pGame game, pGameInfo gameInfo, pData data);
 
 
 // Threads

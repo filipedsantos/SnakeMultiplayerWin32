@@ -375,6 +375,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 
 		HANDLE hGameThread;
 		data(*getDataSHM)();
+		data dataGame;
 
 		//Wait for any client trigger the event by typing any option
 		WaitForSingleObject(eReadFromClientSHM, INFINITE);
@@ -386,9 +387,9 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 			_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
 			return;
 		}
-	
+		dataGame = getDataSHM();
 
-		switch (getDataSHM().op) {
+		switch (dataGame.op) {
 			case EXIT:
 				_tprintf(TEXT("Goodbye.."));
 
@@ -398,7 +399,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 					NULL,
 					0,
 					(LPTHREAD_START_ROUTINE)gameThread,
-					NULL,
+					&dataGame,
 					0,
 					0
 				);
@@ -428,6 +429,12 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 
 DWORD WINAPI gameThread(LPVOID params) {
 	Snake snake;
+	Game game;
+	pData data;
+	GameInfo gameInfo;
+
+	data = (pData) params;
+
 	void(*setInfoSHM)();
 
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
@@ -439,11 +446,47 @@ DWORD WINAPI gameThread(LPVOID params) {
 		_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
 		return;
 	}
+	
+	initGame(&game, &gameInfo, data);
 
-	GameInfo gi;
-	gi.commandId = 222;
-	setInfoSHM(gi);
+	for (int i = 0; i < data->nLines; i++) {
+		for (int j = 0; j < data->nColumns; j++) {
+			_tprintf(TEXT(" %d "),gameInfo.boardGame[i][j]);
+		}
+		_tprintf(TEXT("\n"));
+	}
+
+	
+	gameInfo.commandId = 222;
+	setInfoSHM(gameInfo);
 
 	SetEvent(eWriteToClientSHM);
 }
 
+void initGame(pGame game, pGameInfo gameInfo, pData data){
+
+	gameInfo->boardGame = malloc(sizeof(int)* data->nLines);
+	for (int i = 0; i < data->nColumns; i++) {
+		gameInfo->boardGame[i] = malloc(sizeof(int) * data->nColumns);
+		//memcpy(gameInfo->boardGame[i], game->boardGame[i], sizeof(int) * data->nLines * data->nColumns);
+	}
+
+	game->boardGame = malloc(sizeof(int)* data->nLines);
+	for (int i = 0; i < data->nColumns; i++) {
+		game->boardGame[i] = malloc(sizeof(int) * data->nColumns);
+	}
+	
+	//FAZER FREE's LATER
+
+	for (int i = 0; i < data->nLines; i++) {
+		for (int j = 0; j < data->nColumns; j++) {
+			gameInfo->boardGame[i][j] = 0;
+
+		}
+	}
+
+	gameInfo->boardGame[1][3] = 1;
+
+	
+
+}

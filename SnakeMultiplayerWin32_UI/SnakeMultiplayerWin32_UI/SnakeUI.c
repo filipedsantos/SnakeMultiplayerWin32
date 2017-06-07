@@ -179,11 +179,10 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	
 	HWND hCombo = NULL;
 	HWND hCaption = NULL;
-	HWND hEditNick = NULL;
+	HWND hEditNickname2 = NULL;
 
 	TCHAR nrPlayers_1[20] = {TEXT(" 1 ")};
-	TCHAR nrPlayers_2[20] = {TEXT(" 2 ") };
-
+	TCHAR nrPlayers_2[20] = {TEXT(" 2 ")};
 
 	switch (messg) {
 
@@ -193,13 +192,8 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			hCombo = GetDlgItem(hWnd, IDC_CB_PLAYERS);
 			SendMessage(hCombo, CB_ADDSTRING, 0, (LPARAM)nrPlayers_1);
 			SendMessage(hCombo, CB_ADDSTRING, 0, (LPARAM)nrPlayers_2);
+			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_SETCURSEL, 0, 0);
 
-			hEditNick = GetDlgItem(hWnd, IDC_NICKNAME2);
-			hCaption  = GetDlgItem(hWnd, IDC_CAPTION_NICK);
-
-		case WM_DESTROY:
-			EndDialog(hWnd, 0);
-			return 1;
 
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
@@ -223,16 +217,22 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					
 				//COMBOBOX
 				case IDC_CB_PLAYERS:
+					
+					hEditNickname2 = GetDlgItem(hWnd, IDC_NICKNAME2);
+					hCaption = GetDlgItem(hWnd, IDC_CAPTION_NICK);
 
 					if (HIWORD(wParam) == CBN_SELENDOK) {
 
 						GetDlgItemText(hWnd, IDC_CB_PLAYERS, aux, 3);
-						MessageBox(hWnd, aux, TEXT("INFO"), NULL);
-
+						
 						//SELECTION 2 MAKE 2ND TEXT BOX - ABOUT NICKNAME - APPEAR
-						if (_tcscmp(aux, "2")) {
-							
-
+						if (_tcscmp(aux, TEXT(" 2")) == 0) {
+							ShowWindow(hEditNickname2, SW_SHOWNORMAL);
+							ShowWindow(hCaption, SW_SHOWNORMAL);
+						}
+						else {
+							ShowWindow(hEditNickname2, SW_HIDE);
+							ShowWindow(hCaption, SW_HIDE);
 						}
 					}
 					return;
@@ -430,6 +430,11 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 			createMessageBox(TEXT("SERVER: LETS START A GAME"));
 		}
 
+		TCHAR str[123];
+		GameInfo gi;
+		gi = getInfoSHM();
+		_stprintf(str, TEXT("%d"),gi.boardGame[1][3]);
+		createErrorMessageBox(str);
 		ResetEvent(eReadFromServerSHM);
 
 	}
