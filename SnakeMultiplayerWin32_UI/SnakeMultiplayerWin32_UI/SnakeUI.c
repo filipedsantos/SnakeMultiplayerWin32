@@ -6,10 +6,10 @@
 #include "SnakeClient.h"
 
 
-LRESULT CALLBACK HandleEvents(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK MainWindow(HWND, UINT, WPARAM, LPARAM);
 ATOM registerClass(HINSTANCE hInst, TCHAR * szWinName);
 HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName);
-BOOL CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
+BOOL CALLBACK DialogTypeUser(HWND, UINT, WPARAM, LPARAM);
 
 void closeEverything();
 void startMainWindow();
@@ -32,7 +32,7 @@ HANDLE hSnakeDll;
 HANDLE hThreadClientReaderSHM;
 
 HINSTANCE hThisInst;
-HWND hWnd;											// hWnd é o handler da janela, gerado mais abaixo por CreateWindow()
+HWND hWnd;	// hWnd é o handler da janela, gerado mais abaixo por CreateWindow()
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow) {
 	MSG lpMsg;											// MSG é uma estrutura definida no Windows para as mensagens
@@ -56,35 +56,12 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	// ============================================================================
 	
 	hWnd = NULL;
-	DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_USER_TYPE, hWnd, (DLGPROC)DialogProc);
+	DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_USER_TYPE, hWnd, (DLGPROC)DialogTypeUser);
 	
-
-	// ============================================================================
-	// 4. Mostrar a janela
-	// ============================================================================
-
-
 
 	// ============================================================================
 	// 5. Loop de Mensagens
 	// ============================================================================
-	// O Windows envia mensagens às janelas (programas). Estas mensagens ficam numa fila de
-	// espera até que GetMessage(...) possa ler "a mensagem seguinte"	
-	// Parâmetros de "getMessage":
-	// 1)"&lpMsg"=Endereço de uma estrutura do tipo MSG ("MSG lpMsg" ja foi declarada no  
-	//   início de WinMain()):
-	//			HWND hwnd		handler da janela a que se destina a mensagem
-	//			UINT message		Identificador da mensagem
-	//			WPARAM wParam		Parâmetro, p.e. código da tecla premida
-	//			LPARAM lParam		Parâmetro, p.e. se ALT também estava premida
-	//			DWORD time		Hora a que a mensagem foi enviada pelo Windows
-	//			POINT pt		Localização do mouse (x, y) 
-	// 2)handle da window para a qual se pretendem receber mensagens (=NULL se se pretendem //   receber as mensagens para todas as janelas pertencentes à thread actual)
-	// 3)Código limite inferior das mensagens que se pretendem receber
-	// 4)Código limite superior das mensagens que se pretendem receber
-
-	// NOTA: GetMessage() devolve 0 quando for recebida a mensagem de fecho da janela,
-	// 	  terminando então o loop de recepção de mensagens, e o programa 
 
 
 	while ((ret = GetMessage(&lpMsg, NULL, 0, 0)) != 0) {
@@ -118,7 +95,7 @@ ATOM registerClass(HINSTANCE hInst, TCHAR * szWinName) {
 										// ("hInst" é parâmetro de WinMain e vem 
 										// inicializada daí)
 	wcApp.lpszClassName = szProgName;	// Nome da janela (neste caso = nome do programa)
-	wcApp.lpfnWndProc = HandleEvents;	// Endereço da função de processamento da janela 	// ("TrataEventos" foi declarada no início e                 // encontra-se mais abaixo)
+	wcApp.lpfnWndProc = MainWindow;	// Endereço da função de processamento da janela 	// ("TrataEventos" foi declarada no início e                 // encontra-se mais abaixo)
 	wcApp.style = CS_HREDRAW | CS_VREDRAW;	// Estilo da janela: Fazer o redraw se for      // modificada horizontal ou verticalmente
 	wcApp.hIcon = LoadIcon(NULL, IDI_APPLICATION);											// "hIcon" = handler do ícon normal
 																							//"NULL" = Icon definido no Windows
@@ -164,7 +141,7 @@ HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName) {
 // EVENTS HANDLERS
 //----------------------------------------------------
 
-BOOL CALLBACK DialogProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
+BOOL CALLBACK DialogTypeUser(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 {
 	switch (messg) {
 		
@@ -198,11 +175,27 @@ BOOL CALLBACK DialogProc(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
 	data newData;
-	TCHAR aux[3];
+	TCHAR aux[1024];
+	
+	HWND hCombo = NULL;
+	HWND hCaption = NULL;
+	HWND hEditNick = NULL;
+
+	TCHAR nrPlayers_1[20] = {TEXT(" 1 ")};
+	TCHAR nrPlayers_2[20] = {TEXT(" 2 ") };
+
 
 	switch (messg) {
+
 		case WM_INITDIALOG:
-			return 1;
+
+			//COMBO BOX
+			hCombo = GetDlgItem(hWnd, IDC_CB_PLAYERS);
+			SendMessage(hCombo, CB_ADDSTRING, 0, (LPARAM)nrPlayers_1);
+			SendMessage(hCombo, CB_ADDSTRING, 0, (LPARAM)nrPlayers_2);
+
+			hEditNick = GetDlgItem(hWnd, IDC_NICKNAME2);
+			hCaption  = GetDlgItem(hWnd, IDC_CAPTION_NICK);
 
 		case WM_DESTROY:
 			EndDialog(hWnd, 0);
@@ -210,13 +203,14 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
-			
+				
 				case ID_CANCEL_GAME:
 					EndDialog(hWnd, 0);
 					return 1;
 
+
 				case ID_START_GAME:
-					
+
 					newData.op = 1;
 					GetDlgItemText(hWnd, IDC_EDIT_ROWS, aux, 3);
 					newData.nRows = _wtoi(aux);
@@ -225,15 +219,32 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 					startNewGame(newData);
 					return 1;
+					
+					
+				//COMBOBOX
+				case IDC_CB_PLAYERS:
+
+					if (HIWORD(wParam) == CBN_SELENDOK) {
+
+						GetDlgItemText(hWnd, IDC_CB_PLAYERS, aux, 3);
+						MessageBox(hWnd, aux, TEXT("INFO"), NULL);
+
+						//SELECTION 2 MAKE 2ND TEXT BOX - ABOUT NICKNAME - APPEAR
+						if (_tcscmp(aux, "2")) {
+							
+
+						}
+					}
+					return;
 			}
+
 	}
 	
 
 	return 0;
 }
 
-
-LRESULT CALLBACK HandleEvents(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
 	switch (messg) {
 	case WM_COMMAND:
 
@@ -300,9 +311,6 @@ void startMainWindow() {
 
 	UpdateWindow(hWnd);				// Refrescar a janela (Windows envia à janela uma 
 									// mensagem para pintar, mostrar dados, (refrescar)… 
-
-
-	
 
 	return;
 }
