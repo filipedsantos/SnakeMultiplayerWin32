@@ -11,12 +11,25 @@
 #define	LOCALCLIENT		0
 #define	REMOTECLIENT	1
 
+#define EXIT			100
+#define CREATE_GAME		101
+#define JOIN_GAME		102
+#define SCORES			103
+#define START_GAME		104
+#define MOVE_SNAKE		105
+
+#define RIGHT 1
+#define LEFT  2
+#define UP    3
+#define DOWN  4
+
 // STRUCTS
 
 typedef struct data {
 	TCHAR who[WHO];
 	TCHAR command[COMMANDSIZE];
-	int op;			// Option 
+	int op;			// Option
+	int direction;
 	int nPlayers;	// Number of players to join the created game
 	int nRows;
 	int nColumns;
@@ -42,15 +55,23 @@ typedef struct GameInfo {
 	int commandId;						// variable to inform client about the actual command
 	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
 	int boardGame[10][10];					// variable that send information about the game variables - snakes, food, etc...	
+	int nLines, nColumns;
 } GameInfo, *pGameInfo;
 
 #define GameStructSize sizeof(GameInfo)
+
+// Variables
+BOOL created;
+BOOL runningThread = FALSE;
+HANDLE hMovementThread;
+int move;
 
 // Threads
 
 //DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
 
 DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS);
+DWORD WINAPI movementThread(LPVOID lpParam);
 
 int mayContinue = 1;
 int readerAlive = 0;

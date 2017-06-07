@@ -14,7 +14,7 @@ BOOL CALLBACK DialogTypeUser(HWND, UINT, WPARAM, LPARAM);
 void closeEverything();
 void startMainWindow();
 void startLocal();
-void startNewGame(data newData);
+void sendCommand(data newData);
 void createErrorMessageBox(TCHAR *message);
 void createMessageBox(TCHAR *Message);
 
@@ -208,15 +208,15 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					return 1;
 
 
-				case ID_START_GAME:
+				case ID_CREATE_GAME:
 
-					newData.op = 1;
+					newData.op = CREATE_GAME;
 					GetDlgItemText(hWnd, IDC_EDIT_ROWS, aux, 3);
 					newData.nRows = _wtoi(aux);
 					GetDlgItemText(hWnd, IDC_EDIT_COLUMNS, aux, 3);
 					newData.nColumns = _wtoi(aux);
 
-					startNewGame(newData);
+					sendCommand(newData);
 
 					EndDialog(hWnd, 0);
 					return 1;
@@ -264,11 +264,46 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 	switch (messg) {
 		case WM_CREATE:
-			SetRect(&rectangle, 1, 1, 200, 200);
-			SetRect(&rectangle1, 1, 1, 20, 20);
-			SetRect(&rectangle2, 1, 1, 1500, 1500);
+			SetRect(&rectangle, 1, 1, gameInfo.nLines*20, gameInfo.nColumns*20);
+			updateBoard();
+	
 			
 			break;
+
+		case WM_KEYDOWN:
+
+			switch (wParam) {
+				case VK_LEFT:
+					move = LEFT;
+					break;
+
+				case VK_RIGHT:
+					move = RIGHT;
+					break;
+
+				case VK_UP:
+					move = UP;
+					break;
+
+				case VK_DOWN:
+					move = DOWN;
+					break;
+
+				default:
+					break;
+			}
+
+			if (!created) {
+				runningThread = TRUE;
+				hMovementThread = CreateThread(NULL,
+					0,
+					movementThread,
+					NULL,
+					0,
+					0
+				);
+				created = TRUE;
+			}
 
 		case WM_COMMAND:
 
@@ -294,9 +329,9 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 		case WM_PAINT:
 			hdc = BeginPaint(hWnd, &ps);
 			//BitBlt(hdc, 0, 0, maxX, maxY, memdc, 0, 0, SRCCOPY);
+			Rectangle(ps.hdc, rectangle2.left, rectangle2.top, rectangle2.right, rectangle2.bottom);
 			Rectangle(ps.hdc, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
 			Rectangle(ps.hdc, rectangle1.left, rectangle1.top, rectangle1.right, rectangle1.bottom);
-			Rectangle(ps.hdc, rectangle2.left, rectangle2.top, rectangle2.right, rectangle2.bottom);
 			EndPaint(hWnd, &ps);
 			break;
 
@@ -420,7 +455,7 @@ void startLocal(){
 }
 
 //Starting a new Game
-void startNewGame(data newData) {
+void sendCommand(data newData) {
 	void(*setDataSHM)(data);
 
 
@@ -470,4 +505,34 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 	}
 
 	return 1;
+}
+
+DWORD WINAPI movementThread(LPVOID lpParam) {
+	data data;
+
+	while (runningThread) {
+
+		if (move == RIGHT) {
+			data.op = MOVE_SNAKE;
+			data.direction = RIGHT;
+		}
+
+		if (move == LEFT) {
+			data.op = MOVE_SNAKE;
+			data.direction = LEFT;
+		}
+
+		if (move == DOWN) {
+			data.op = MOVE_SNAKE;
+			data.direction = DOWN;
+		}
+
+		if (move == UP) {
+			data.op = MOVE_SNAKE;
+			data.direction = UP;
+		}
+
+		sendCommand(data);
+	}
+
 }

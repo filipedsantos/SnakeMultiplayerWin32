@@ -10,12 +10,19 @@
 #define COMMANDSIZE 60
 #define MAXCLIENTS  20
 
-#define EXIT 0
-#define CREATE_GAME 1
-#define JOIN_GAME 2
-#define SCORES 3
-
 #define SIZECIRCULARBUFFER 20
+
+#define EXIT			100
+#define CREATE_GAME		101
+#define JOIN_GAME		102
+#define SCORES			103
+#define START_GAME		104
+#define MOVE_SNAKE		105
+
+#define RIGHT 1
+#define LEFT  2
+#define UP    3
+#define DOWN  4
 
 // STRUCTS
 
