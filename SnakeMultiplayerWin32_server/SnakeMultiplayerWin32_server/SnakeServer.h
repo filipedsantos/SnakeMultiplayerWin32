@@ -25,25 +25,25 @@
 #define DOWN  4
 
 // STRUCTS
-
 typedef struct data {
 	TCHAR who[WHO];
 	TCHAR command[COMMANDSIZE];
 	int op;			// Option 
 	int nPlayers;	// Number of players to join the created game
-	int nLines;
+	int nRows;
 	int nColumns;
+	int direction;
 } data, *pData;
 
-typedef struct Game {
-	int ** boardGame;
+#define DataStructSize sizeof(data)
 
-	int nPlayers;
-	Player players;
-	
-	//int nSnakes;	// Contador para saber se ha cobras ainda a jogar !
-	Snake snakes;
-} Game, *pGame;
+typedef struct sCircularBuffer {
+	data circularBuffer[SIZECIRCULARBUFFER];
+	int pull;
+	int push;
+} sCircularBuffer, *pCircularBuff;
+
+#define BuffsizeCircularBuff sizeof(sCircularBuffer)
 
 typedef struct Scores {
 	TCHAR playerName[TCHARSIZE];
@@ -56,18 +56,12 @@ typedef struct GameInfo {
 	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
 	int commandId;						// variable to inform client about the actual command
 	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
-	int boardGame[10][10];					// variable that send information about the game variables - snakes, food, etc...	
+	int boardGame[10][10];					// variable that send information about the game variables - snakes, food, etc...
+	int nRows, nColumns;
 } GameInfo, *pGameInfo;
 
-#define GameStructSize sizeof(GameInfo)
-
-typedef struct sCircularBuffer {
-	data circularBuffer[SIZECIRCULARBUFFER];
-	int pull;
-	int push;
-} sCircularBuffer, *pCircularBuff;
-
-#define dataSize sizeof(data)
+#define GameInfoStructSize sizeof(GameInfo)
+// END STRUCTS
 
 // Functions
 void startClients();
@@ -78,7 +72,6 @@ void broadcastClients(data dataReply);
 void initializeServer();
 void initializeNamedPipes();
 void initializeSharedMemory();
-void initGame(pGame game, pGameInfo gameInfo, pData data);
 
 
 // Threads

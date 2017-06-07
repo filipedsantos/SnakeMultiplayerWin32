@@ -17,6 +17,7 @@ void startLocal();
 void sendCommand(data newData);
 void createErrorMessageBox(TCHAR *message);
 void createMessageBox(TCHAR *Message);
+void updateBoard();
 
 
 TCHAR *szProgName = TEXT("Snake Multiplayer");
@@ -38,6 +39,8 @@ HBRUSH hbrush;		// Cor de fundo da janela
 HDC memdc;			// handler para imagem da janela em mem�ria
 
 GameInfo gameInfo;
+
+static RECT rectangle;
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow) {
 	MSG lpMsg;											// MSG é uma estrutura definida no Windows para as mensagens
@@ -258,41 +261,36 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 									// que vai conter o bitmap 
 	PAINTSTRUCT ps;				// Ponteiro para estrutura de WM_PAINT
 
-	static RECT rectangle;
-	static RECT rectangle1;
-	static RECT rectangle2;
-
 	switch (messg) {
 		case WM_CREATE:
-			SetRect(&rectangle, 1, 1, gameInfo.nLines*20, gameInfo.nColumns*20);
+		{
+			//SetRect(&rectangle, 1, 1, gameInfo.nLines * 20, gameInfo.nColumns * 20);
 			updateBoard();
-	
-			
 			break;
+		}
 
 		case WM_KEYDOWN:
-
+		{
 			switch (wParam) {
-				case VK_LEFT:
-					move = LEFT;
-					break;
+			case VK_LEFT:
+				move = LEFT;
+				break;
 
-				case VK_RIGHT:
-					move = RIGHT;
-					break;
+			case VK_RIGHT:
+				move = RIGHT;
+				break;
 
-				case VK_UP:
-					move = UP;
-					break;
+			case VK_UP:
+				move = UP;
+				break;
 
-				case VK_DOWN:
-					move = DOWN;
-					break;
+			case VK_DOWN:
+				move = DOWN;
+				break;
 
-				default:
-					break;
+			default:
+				break;
 			}
-
 			if (!created) {
 				runningThread = TRUE;
 				hMovementThread = CreateThread(NULL,
@@ -304,41 +302,55 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 				);
 				created = TRUE;
 			}
+		}
 
 		case WM_COMMAND:
-
+		{
 			switch (LOWORD(wParam)) {
-				case ID_FILE_EXIT:
-					closeEverything();
-					break;
+			case ID_FILE_EXIT:
+				closeEverything();
+				break;
 
-				case ID_FILE_NEWGAME:
-					DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
-					break;
+			case ID_FILE_NEWGAME:
+				DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
+				break;
 
-				default:
-					break;
+			default:
+				break;
 			}
 			break;
+		}
 
-		case WM_DESTROY:	// Destruir a janela e terminar o programa 
-							// "PostQuitMessage(Exit Status)"		
+		case WM_DESTROY:
+		{
+			// Destruir a janela e terminar o programa 
+			// "PostQuitMessage(Exit Status)"		
 			closeEverything();
 			break;
+		}
 
 		case WM_PAINT:
+		{
 			hdc = BeginPaint(hWnd, &ps);
 			//BitBlt(hdc, 0, 0, maxX, maxY, memdc, 0, 0, SRCCOPY);
-			Rectangle(ps.hdc, rectangle2.left, rectangle2.top, rectangle2.right, rectangle2.bottom);
 			Rectangle(ps.hdc, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
-			Rectangle(ps.hdc, rectangle1.left, rectangle1.top, rectangle1.right, rectangle1.bottom);
 			EndPaint(hWnd, &ps);
 			break;
+		}
+			
+
+		case WM_SIZE:
+		{
+			break;
+		}
+			
 
 		default:
-
+		{
 			// Neste exemplo, para qualquer outra mensagem (p.e. "minimizar","maximizar","restaurar") // não é efectuado nenhum processamento, apenas se segue o "default" do Windows			
 			return(DefWindowProc(hWnd, messg, wParam, lParam));
+		}
+			
 	}
 	return(0);
 }
@@ -500,11 +512,32 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 		}
 
 		gameInfo = getInfoSHM();
+
+		updateBoard();
 		ResetEvent(eReadFromServerSHM);
 
 	}
 
 	return 1;
+}
+
+void updateBoard() {
+	int x = 0, y = 0;
+
+	for (int l = 0; l < gameInfo.nRows; l++) {
+		for (int c = 0; c < gameInfo.nColumns; c++) {
+			if (gameInfo.boardGame[l][c] == 1) {
+				rectangle.left = x;
+				rectangle.right = x + 20;
+				rectangle.top = y;
+				rectangle.bottom = y + 20;
+			}
+			x += 20;
+		}
+		x = 0; 
+		y += 20;
+	}
+	InvalidateRect(NULL, TRUE, FALSE);
 }
 
 DWORD WINAPI movementThread(LPVOID lpParam) {

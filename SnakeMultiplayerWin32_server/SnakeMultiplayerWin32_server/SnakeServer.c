@@ -226,14 +226,14 @@ void writeClients(HANDLE client, data dataReply) {
 	success = WriteFile(
 		client,
 		&dataReply,
-		dataSize,
+		DataStructSize,
 		&cbWritten,
 		&overLapped);
 
 	WaitForSingleObject(eWriteToClientNP, INFINITE);
 
 	GetOverlappedResult(client, &overLapped, &cbWritten, FALSE);
-	if (cbWritten < dataSize)
+	if (cbWritten < DataStructSize)
 		_tprintf(TEXT("\nIncomplete data... Error: %d"), GetLastError());
 
 }
@@ -330,14 +330,14 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 		success = ReadFile (
 					hPipe,		 //READ CHANNEL
 					&request,	 //BUFFER OF READING DATA
-					dataSize,    //SIZE OF STRUCT
+					DataStructSize,    //SIZE OF STRUCT
 					&cbBytesRead,
 					&overLapped);
 
 		WaitForSingleObject(ReadFromClient, INFINITE);
 
 		GetOverlappedResult(hPipe, &overLapped, &cbBytesRead, FALSE);
-		if(cbBytesRead < dataSize){
+		if(cbBytesRead < DataStructSize){
 			_tprintf(TEXT("\n[THREAD] ReadFile does not read all - %d"), GetLastError());
 		}
 
@@ -428,8 +428,6 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 //---------------------------------------------------
 
 DWORD WINAPI gameThread(LPVOID params) {
-	Snake snake;
-	Game game;
 	pData data;
 	GameInfo gameInfo;
 
@@ -447,15 +445,15 @@ DWORD WINAPI gameThread(LPVOID params) {
 		return;
 	}
 	
-	for (int i = 0; i < data->nLines; i++) {
+	for (int i = 0; i < data->nRows; i++) {
 		for (int j = 0; j < data->nColumns; j++) {
-			gameInfo.boardGame[i][j] = 1;
+			gameInfo.boardGame[i][j] = 0;
 		}
 	}
 
-	gameInfo.boardGame[1][3] = 2;
+	gameInfo.boardGame[1][3] = 1;
 
-	for (int i = 0; i < data->nLines; i++) {
+	for (int i = 0; i < data->nRows; i++) {
 		for (int j = 0; j < data->nColumns; j++) {
 			_tprintf(TEXT(" %d "),gameInfo.boardGame[i][j]);
 		}
@@ -467,9 +465,4 @@ DWORD WINAPI gameThread(LPVOID params) {
 	setInfoSHM(gameInfo);
 
 	SetEvent(eWriteToClientSHM);
-}
-
-void initGame(pGame game, pGameInfo gameInfo, pData data){
-	//FAZER FREE's LATER
-
 }
