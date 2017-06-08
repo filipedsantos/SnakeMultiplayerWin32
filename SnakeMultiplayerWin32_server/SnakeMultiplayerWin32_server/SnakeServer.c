@@ -22,6 +22,10 @@ HANDLE eWriteToClientSHM;
 HANDLE hThreadSharedMemory;
 
 HINSTANCE hSnakeDll;
+<<<<<<< HEAD
+=======
+
+>>>>>>> parent of 95278ca... WE ARE FKED
 
 <<<<<<< HEAD
 data dataGame;
@@ -478,6 +482,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 	}
 	
 <<<<<<< HEAD
+<<<<<<< HEAD
 	for (int i = 0; i < gameInfo.nRows; i++) {
 		for (int j = 0; j < gameInfo.nColumns; j++) {
 			gameInfo.boardGame[i][j] = 0;
@@ -587,6 +592,23 @@ void initGameInfo() {
 >>>>>>> parent of 95278ca... WE ARE FKED
 	}
 
+=======
+	for (int i = 0; i < data->nRows; i++) {
+		for (int j = 0; j < data->nColumns; j++) {
+			gameInfo.boardGame[i][j] = 0;
+		}
+	}
+
+	gameInfo.boardGame[1][3] = 1;
+
+	for (int i = 0; i < data->nRows; i++) {
+		for (int j = 0; j < data->nColumns; j++) {
+			_tprintf(TEXT(" %d "),gameInfo.boardGame[i][j]);
+		}
+		_tprintf(TEXT("\n"));
+	}
+
+>>>>>>> parent of 95278ca... WE ARE FKED
 	
 	gameInfo.commandId = 222;
 	setInfoSHM(gameInfo);

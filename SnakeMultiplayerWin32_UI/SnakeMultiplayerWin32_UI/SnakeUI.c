@@ -266,7 +266,12 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 		case WM_CREATE:
 		{
 <<<<<<< HEAD
+<<<<<<< HEAD
 			SetRect(&rectangle, 1, 1, 20, 20);
+=======
+			//SetRect(&rectangle, 1, 1, gameInfo.nLines * 20, gameInfo.nColumns * 20);
+			updateBoard();
+>>>>>>> parent of 95278ca... WE ARE FKED
 =======
 			//SetRect(&rectangle, 1, 1, gameInfo.nLines * 20, gameInfo.nColumns * 20);
 			updateBoard();
@@ -577,6 +582,7 @@ void updateBoard() {
 DWORD WINAPI movementThread(LPVOID lpParam) {
 	data data;
 <<<<<<< HEAD
+<<<<<<< HEAD
 	BOOL START = FALSE;
 	data.op = 0;
 	data.direction = 0;	
@@ -645,6 +651,32 @@ DWORD WINAPI movementThread(LPVOID lpParam) {
 		sendCommand(data);
 		Sleep(1000);
 
+=======
+
+	while (runningThread) {
+
+		if (move == RIGHT) {
+			data.op = MOVE_SNAKE;
+			data.direction = RIGHT;
+		}
+
+		if (move == LEFT) {
+			data.op = MOVE_SNAKE;
+			data.direction = LEFT;
+		}
+
+		if (move == DOWN) {
+			data.op = MOVE_SNAKE;
+			data.direction = DOWN;
+		}
+
+		if (move == UP) {
+			data.op = MOVE_SNAKE;
+			data.direction = UP;
+		}
+
+		sendCommand(data);
+>>>>>>> parent of 95278ca... WE ARE FKED
 =======
 
 	while (runningThread) {
