@@ -66,7 +66,7 @@ typedef struct GameInfo {
 BOOL created;
 BOOL runningThread = FALSE;
 HANDLE hMovementThread;
-int move;
+int move = RIGHT;
 
 // Threads
 

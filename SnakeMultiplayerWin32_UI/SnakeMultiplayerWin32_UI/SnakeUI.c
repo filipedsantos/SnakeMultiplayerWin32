@@ -224,7 +224,6 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 					sendCommand(newData);
 
-
 					EndDialog(hWnd, 0);
 					return 1;
 					
@@ -266,13 +265,12 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	switch (messg) {
 		case WM_CREATE:
 		{
+<<<<<<< HEAD
 			SetRect(&rectangle, 1, 1, 20, 20);
-			break;
-		}
-
-		case WM_KEYUP:
-		{
-			runningThread = FALSE;
+=======
+			//SetRect(&rectangle, 1, 1, gameInfo.nLines * 20, gameInfo.nColumns * 20);
+			updateBoard();
+>>>>>>> parent of 95278ca... WE ARE FKED
 			break;
 		}
 
@@ -314,8 +312,12 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			default:
 				break;
 			}
+<<<<<<< HEAD
 			sendCommand(data);
 			/*if (!runningThread) {
+=======
+			if (!created) {
+>>>>>>> origin/master
 				runningThread = TRUE;
 				hMovementThread = CreateThread(NULL,
 					0,
@@ -324,7 +326,12 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					0,
 					0
 				);
+<<<<<<< HEAD
 			}*/
+=======
+				created = TRUE;
+			}
+>>>>>>> origin/master
 		}
 
 		case WM_COMMAND:
@@ -360,12 +367,18 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			EndPaint(hWnd, &ps);
 			break;
 		}
+<<<<<<< HEAD
 		
+=======
+			
+
+>>>>>>> origin/master
 		case WM_SIZE:
 		{
 			break;
 		}
 			
+
 		default:
 		{
 			// Neste exemplo, para qualquer outra mensagem (p.e. "minimizar","maximizar","restaurar") // não é efectuado nenhum processamento, apenas se segue o "default" do Windows			
@@ -373,7 +386,6 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 		}
 			
 	}
-	
 	return(0);
 }
 
@@ -530,14 +542,12 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 		}
 
 		if (getInfoSHM().commandId == 222) {
-			createMessageBox(TEXT("START GAME!!!"));
+			createMessageBox(TEXT("SERVER: LETS START A GAME"));
 		}
-		
-		gameInfo = getInfoSHM();
-		/*if (getInfoSHM().commandId == MOVE_SNAKE) {
-			updateBoard();
-		}*/
 
+		gameInfo = getInfoSHM();
+
+		updateBoard();
 		ResetEvent(eReadFromServerSHM);
 
 	}
@@ -551,61 +561,117 @@ void updateBoard() {
 	for (int l = 0; l < gameInfo.nRows; l++) {
 		for (int c = 0; c < gameInfo.nColumns; c++) {
 			if (gameInfo.boardGame[l][c] == 1) {
-				SetRect(&rectangle, x, y, x + 20, y + 20);
-				InvalidateRect(NULL, NULL, FALSE);
+				rectangle.left = x;
+				rectangle.right = x + 20;
+				rectangle.top = y;
+				rectangle.bottom = y + 20;
 			}
 			x += 20;
 		}
 		x = 0; 
 		y += 20;
 	}
-	//SetRect(&rectangle, 1, 1, 50, 50);
-	
+	InvalidateRect(NULL, TRUE, FALSE);
 }
 
 DWORD WINAPI movementThread(LPVOID lpParam) {
 	data data;
-
+<<<<<<< HEAD
+	BOOL START = FALSE;
 	data.op = 0;
-	data.direction = 0;
+	data.direction = 0;	
 
 	while (runningThread) {
 
+<<<<<<< HEAD
 		if (move == RIGHT) {
 			data.op = MOVE_SNAKE;
 			data.direction = RIGHT;
+=======
+		data.op = MOVE_SNAKE;
+		data.direction = move;
+
+		if (move == RIGHT) {		
+>>>>>>> origin/master
 			rectangle.left += 20;
 			rectangle.right += 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
 		if (move == LEFT) {
+<<<<<<< HEAD
 			data.op = MOVE_SNAKE;
 			data.direction = LEFT;
+=======
+>>>>>>> origin/master
 			rectangle.left -= 20;
 			rectangle.right -= 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
 		if (move == DOWN) {
+<<<<<<< HEAD
 			data.op = MOVE_SNAKE;
 			data.direction = DOWN;
+=======
+>>>>>>> origin/master
 			rectangle.top += 20;
 			rectangle.bottom += 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
 		if (move == UP) {
+<<<<<<< HEAD
 			data.op = MOVE_SNAKE;
 			data.direction = UP;
+=======
+>>>>>>> origin/master
 			rectangle.top -= 20;
 			rectangle.bottom -= 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
+<<<<<<< HEAD
 		sendCommand(data);
 		Sleep(500);
 	}
 	return 0;
 }
 
+=======
+		_stprintf_s(error, 1024, TEXT("move (%d)"), move);
+		createErrorMessageBox(error);
+
+		sendCommand(data);
+		Sleep(1000);
+
+=======
+
+	while (runningThread) {
+
+		if (move == RIGHT) {
+			data.op = MOVE_SNAKE;
+			data.direction = RIGHT;
+		}
+
+		if (move == LEFT) {
+			data.op = MOVE_SNAKE;
+			data.direction = LEFT;
+		}
+
+		if (move == DOWN) {
+			data.op = MOVE_SNAKE;
+			data.direction = DOWN;
+		}
+
+		if (move == UP) {
+			data.op = MOVE_SNAKE;
+			data.direction = UP;
+		}
+
+		sendCommand(data);
+>>>>>>> parent of 95278ca... WE ARE FKED
+	}
+
+}
+>>>>>>> origin/master

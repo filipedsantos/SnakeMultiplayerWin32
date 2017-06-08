@@ -22,14 +22,16 @@ HANDLE eWriteToClientSHM;
 HANDLE hThreadSharedMemory;
 
 HINSTANCE hSnakeDll;
-int diretionToGo = 0;
-int x, y;
 
+<<<<<<< HEAD
 data dataGame;
 GameInfo gameInfo;
 
 //MAIN 
+=======
+>>>>>>> origin/master
 
+//MAIN 
 
 int _tmain(void){
 
@@ -411,18 +413,21 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 					return -1;
 				}
 				break;
+				//WaitForSingleObject(hGameThread, INFINITE);
 			case JOIN_GAME:
 				break;
 			case SCORES:
-				break;
-			case MOVE_SNAKE:
-				diretionToGo = dataGame.direction;
 				break;
 			default:
 				break;
 		}
 		ResetEvent(eReadFromClientSHM);
+<<<<<<< HEAD
 	}	
+=======
+	}
+		
+>>>>>>> origin/master
 }
 
 
@@ -430,22 +435,64 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 // GAMING THREAD
 //---------------------------------------------------
 DWORD WINAPI gameThread(LPVOID params) {
+<<<<<<< HEAD
 	
+=======
+	data(*getDataSHM)();
+	pData data;
+	GameInfo gameInfo;
+
+	data = (pData) params;
+	x = y = 0;
+
+>>>>>>> origin/master
 	void(*setInfoSHM)();
 
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
+<<<<<<< HEAD
+=======
+	WaitForSingleObject(eReadFromClientSHM, INFINITE);
+
+	gameInfo.nRows = data->nRows;
+	gameInfo.nColumns = data->nColumns;
+
+	_tprintf(TEXT("\nGame Started with %d cols and %d rows\n"), gameInfo.nColumns, gameInfo.nRows);
+
+	//Wait for any client trigger the event by typing any option
+
+
 	//GETDATA IN CORRECT PULL POSITION
-	setInfoSHM = (void(*)()) GetProcAddress(hSnakeDll, "setInfoSHM");
-	if (setInfoSHM == NULL) {
+	getDataSHM = (pData(*)()) GetProcAddress(hSnakeDll, "getDataSHM");
+	if(getDataSHM == NULL) {
 		_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
 		return;
 	}
+
+>>>>>>> origin/master
+	//GETDATA IN CORRECT PULL POSITION
+	setInfoSHM = (void(*)()) GetProcAddress(hSnakeDll, "setInfoSHM");
+	if(setInfoSHM == NULL) {
+		_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
+		return;
+	}
+	
+<<<<<<< HEAD
+	for (int i = 0; i < gameInfo.nRows; i++) {
+		for (int j = 0; j < gameInfo.nColumns; j++) {
+			gameInfo.boardGame[i][j] = 0;
+		}
+	}
+
+	gameInfo.boardGame[0][0] = 1;
+	SetEvent(eWriteToClientSHM);
+	ResetEvent(eReadFromClientSHM);
 
 	initGameInfo(dataGame, gameInfo);
 
 	while (1) {
 
+<<<<<<< HEAD
 		if (diretionToGo != 0) {
 			gameInfo.boardGame[y][x] = 0;
 			switch (diretionToGo) {
@@ -472,12 +519,40 @@ DWORD WINAPI gameThread(LPVOID params) {
 					_tprintf(TEXT(" %d "), gameInfo.boardGame[i][j]);
 				}
 				_tprintf(TEXT("\n"));
+=======
+		WaitForSingleObject(eReadFromClientSHM, INFINITE);
+	
+		_tprintf(TEXT("AFTER IF COMMAND %d MOVESNAKE %d dir %d----\n"), getDataSHM().op, MOVE_SNAKE, diretionToGo);
+
+		if(getDataSHM().op == MOVE_SNAKE){
+			
+			switch (diretionToGo) {
+				case RIGHT:
+					x += 1;
+				case LEFT:
+					x -= 1;
+				case UP:
+					y -= 1;
+				case DOWN:
+					y += 1;
+			}
+
+			gameInfo.boardGame[x][y] = 1;
+		}
+
+		_tprintf(TEXT("\n\n"));
+		for (int i = 0; i < gameInfo.nRows; i++) {
+			for (int j = 0; j < gameInfo.nColumns; j++) {
+				_tprintf(TEXT(" %d "), gameInfo.boardGame[i][j]);
+>>>>>>> origin/master
 			}
 		}
 		diretionToGo = 0;
 
 		setInfoSHM(gameInfo);
+		ResetEvent(eReadFromClientSHM);
 		SetEvent(eWriteToClientSHM);
+<<<<<<< HEAD
 		Sleep(10);
 	}
 }
@@ -492,4 +567,31 @@ void initGameInfo() {
 
 	gameInfo.nRows = dataGame.nRows;
 	gameInfo.nColumns = dataGame.nColumns;
+=======
+		
+
+=======
+	for (int i = 0; i < data->nRows; i++) {
+		for (int j = 0; j < data->nColumns; j++) {
+			gameInfo.boardGame[i][j] = 0;
+		}
+	}
+
+	gameInfo.boardGame[1][3] = 1;
+
+	for (int i = 0; i < data->nRows; i++) {
+		for (int j = 0; j < data->nColumns; j++) {
+			_tprintf(TEXT(" %d "),gameInfo.boardGame[i][j]);
+		}
+		_tprintf(TEXT("\n"));
+>>>>>>> parent of 95278ca... WE ARE FKED
+	}
+
+	
+	gameInfo.commandId = 222;
+	setInfoSHM(gameInfo);
+
+	SetEvent(eWriteToClientSHM);
+>>>>>>> origin/master
 }
+
