@@ -22,7 +22,8 @@ HANDLE eWriteToClientSHM;
 HANDLE hThreadSharedMemory;
 
 HINSTANCE hSnakeDll;
-
+int diretionToGo = 0;
+int x, y;
 
 //MAIN 
 
@@ -412,6 +413,9 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 				break;
 			case SCORES:
 				break;
+			case MOVE_SNAKE:
+				diretionToGo = dataGame.direction;
+				break;
 			default:
 				break;
 		}
@@ -444,25 +448,51 @@ DWORD WINAPI gameThread(LPVOID params) {
 		_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
 		return;
 	}
+
+
+	gameInfo.nRows = data->nRows;
+	gameInfo.nColumns = data->nColumns;
 	
-	for (int i = 0; i < data->nRows; i++) {
-		for (int j = 0; j < data->nColumns; j++) {
-			gameInfo.boardGame[i][j] = 0;
+	while (1) {
+		gameInfo.commandId = MOVE_SNAKE;
+		for (int i = 0; i < data->nRows; i++) {
+			for (int j = 0; j < data->nColumns; j++) {
+				gameInfo.boardGame[i][j] = 0;
+			}
 		}
-	}
+		x = y = 0;
 
-	gameInfo.boardGame[1][3] = 1;
-
-	for (int i = 0; i < data->nRows; i++) {
-		for (int j = 0; j < data->nColumns; j++) {
-			_tprintf(TEXT(" %d "),gameInfo.boardGame[i][j]);
+		if (diretionToGo != 0) {
+			switch (diretionToGo) {
+			case RIGHT:
+				x += 1;
+				break;
+			case LEFT:
+				x -= 1;
+				break;
+			case UP:
+				y -= 1;
+				break;
+			case DOWN:
+				y += 1;
+				break;
+			default:
+				break;
+			}
 		}
-		_tprintf(TEXT("\n"));
-	}
+		gameInfo.boardGame[x][y] = 1;
 
+		_tprintf(TEXT("\n\n"));
+		for (int i = 0; i < data->nRows; i++) {
+			for (int j = 0; j < data->nColumns; j++) {
+				_tprintf(TEXT(" %d "), gameInfo.boardGame[i][j]);
+			}
+			_tprintf(TEXT("\n"));
+		}
+
+		setInfoSHM(gameInfo);
+		SetEvent(eWriteToClientSHM);
+		Sleep(5000);
+	}
 	
-	gameInfo.commandId = 222;
-	setInfoSHM(gameInfo);
-
-	SetEvent(eWriteToClientSHM);
 }

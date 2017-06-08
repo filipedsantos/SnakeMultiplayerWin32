@@ -1,2 +1,4 @@
-﻿  SnakeMultiplayerWin32_dll.vcxproj -> C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.dll
+﻿  SnakeDll.c
+c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(139): warning C4047: '=': 'TCHAR' differs in levels of indirection from 'unsigned short [6]'
+  SnakeMultiplayerWin32_dll.vcxproj -> C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.dll
   SnakeMultiplayerWin32_dll.vcxproj -> C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.pdb (Full PDB)
