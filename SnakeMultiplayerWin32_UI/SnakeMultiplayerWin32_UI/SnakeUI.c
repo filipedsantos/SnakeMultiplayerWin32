@@ -221,9 +221,7 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 					sendCommand(newData);
 
-
 					EndDialog(hWnd, 0);
-					updateBoard();
 					return 1;
 					
 					
@@ -266,7 +264,12 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	switch (messg) {
 		case WM_CREATE:
 		{
+<<<<<<< HEAD
 			SetRect(&rectangle, 1, 1, 20, 20);
+=======
+			//SetRect(&rectangle, 1, 1, gameInfo.nLines * 20, gameInfo.nColumns * 20);
+			updateBoard();
+>>>>>>> parent of 95278ca... WE ARE FKED
 			break;
 		}
 
@@ -292,8 +295,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			default:
 				break;
 			}
-			
-			if (!runningThread) {
+			if (!created) {
 				runningThread = TRUE;
 				hMovementThread = CreateThread(NULL,
 					0,
@@ -302,6 +304,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					0,
 					0
 				);
+				created = TRUE;
 			}
 		}
 
@@ -338,17 +341,14 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			EndPaint(hWnd, &ps);
 			break;
 		}
+			
 
-		case WM_ERASEBKGND:
-		{
-			break;
-		}
-		
 		case WM_SIZE:
 		{
 			break;
 		}
 			
+
 		default:
 		{
 			// Neste exemplo, para qualquer outra mensagem (p.e. "minimizar","maximizar","restaurar") // não é efectuado nenhum processamento, apenas se segue o "default" do Windows			
@@ -356,7 +356,6 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 		}
 			
 	}
-	
 	return(0);
 }
 
@@ -513,14 +512,12 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 		}
 
 		if (getInfoSHM().commandId == 222) {
-			createMessageBox(TEXT("START GAME!!!"));
+			createMessageBox(TEXT("SERVER: LETS START A GAME"));
 		}
-		
-		gameInfo = getInfoSHM();
-		/*if (getInfoSHM().commandId == MOVE_SNAKE) {
-			updateBoard();
-		}*/
 
+		gameInfo = getInfoSHM();
+
+		updateBoard();
 		ResetEvent(eReadFromServerSHM);
 
 	}
@@ -534,20 +531,22 @@ void updateBoard() {
 	for (int l = 0; l < gameInfo.nRows; l++) {
 		for (int c = 0; c < gameInfo.nColumns; c++) {
 			if (gameInfo.boardGame[l][c] == 1) {
-				SetRect(&rectangle, x, y, x + 20, y + 20);
-				InvalidateRect(NULL, NULL, FALSE);
+				rectangle.left = x;
+				rectangle.right = x + 20;
+				rectangle.top = y;
+				rectangle.bottom = y + 20;
 			}
 			x += 20;
 		}
 		x = 0; 
 		y += 20;
 	}
-	//SetRect(&rectangle, 1, 1, 50, 50);
-	
+	InvalidateRect(NULL, TRUE, FALSE);
 }
 
 DWORD WINAPI movementThread(LPVOID lpParam) {
 	data data;
+<<<<<<< HEAD
 	BOOL START = FALSE;
 	data.op = 0;
 	data.direction = 0;	
@@ -587,6 +586,32 @@ DWORD WINAPI movementThread(LPVOID lpParam) {
 		sendCommand(data);
 		Sleep(1000);
 
+=======
+
+	while (runningThread) {
+
+		if (move == RIGHT) {
+			data.op = MOVE_SNAKE;
+			data.direction = RIGHT;
+		}
+
+		if (move == LEFT) {
+			data.op = MOVE_SNAKE;
+			data.direction = LEFT;
+		}
+
+		if (move == DOWN) {
+			data.op = MOVE_SNAKE;
+			data.direction = DOWN;
+		}
+
+		if (move == UP) {
+			data.op = MOVE_SNAKE;
+			data.direction = UP;
+		}
+
+		sendCommand(data);
+>>>>>>> parent of 95278ca... WE ARE FKED
 	}
-	return 0;
+
 }
