@@ -186,6 +186,8 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	TCHAR aux[1024];
 	
 	HWND hCombo = NULL;
+	HWND hRadioSinglePlayer;
+	HWND hRadioMultiPlayer;
 	HWND hCaption = NULL;
 	HWND hEditNickname2 = NULL;
 
@@ -195,11 +197,12 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	switch (messg) {
 
 		case WM_INITDIALOG:
-
+			// Radio Buttons
+			CheckRadioButton(hWnd, IDC_RADIO_SINGLEPLAYER, IDC_RADIO_MULTIPLAYER, IDC_RADIO_SINGLEPLAYER);
+			
 			//COMBO BOX
-			hCombo = GetDlgItem(hWnd, IDC_CB_PLAYERS);
-			SendMessage(hCombo, CB_ADDSTRING, 0, (LPARAM)nrPlayers_1);
-			SendMessage(hCombo, CB_ADDSTRING, 0, (LPARAM)nrPlayers_2);
+			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_ADDSTRING, 0, (LPARAM)nrPlayers_1);
+			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_ADDSTRING, 0, (LPARAM)nrPlayers_2);
 			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_SETCURSEL, 0, 0);
 
 
@@ -223,28 +226,25 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 
 					EndDialog(hWnd, 0);
-					updateBoard();
 					return 1;
 					
 					
 				//COMBOBOX
 				case IDC_CB_PLAYERS:
-					
-					hEditNickname2 = GetDlgItem(hWnd, IDC_NICKNAME2);
-					hCaption = GetDlgItem(hWnd, IDC_CAPTION_NICK);
-
+					//hEditNickname2 = GetDlgItem(hWnd, IDC_NICKNAME2);
+					//hCaption = GetDlgItem(hWnd, IDC_CAPTION_NICK);
 					if (HIWORD(wParam) == CBN_SELENDOK) {
 
 						GetDlgItemText(hWnd, IDC_CB_PLAYERS, aux, 3);
 						
 						//SELECTION 2 MAKE 2ND TEXT BOX - ABOUT NICKNAME - APPEAR
 						if (_tcscmp(aux, TEXT(" 2")) == 0) {
-							ShowWindow(hEditNickname2, SW_SHOWNORMAL);
-							ShowWindow(hCaption, SW_SHOWNORMAL);
+							ShowWindow(IDC_NICKNAME2, SW_SHOWNORMAL);
+							ShowWindow(IDC_CAPTION_NICK, SW_SHOWNORMAL);
 						}
 						else {
-							ShowWindow(hEditNickname2, SW_HIDE);
-							ShowWindow(hCaption, SW_HIDE);
+							ShowWindow(IDC_NICKNAME2, SW_HIDE);
+							ShowWindow(IDC_CAPTION_NICK, SW_HIDE);
 						}
 					}
 					return;
@@ -257,7 +257,7 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 }
 
 LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
-
+	data data;
 	HDC hdc;						// handler para um Device Context
 	HDC auxmemdc;					// handler para Device Context auxiliar em mem�ria
 									// que vai conter o bitmap 
@@ -280,26 +280,42 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 		{
 			switch (wParam) {
 			case VK_LEFT:
-				move = LEFT;
+				data.op = MOVE_SNAKE;
+				data.direction = LEFT;
+				rectangle.left -= 20;
+				rectangle.right -= 20;
+				InvalidateRect(NULL, NULL, TRUE);
 				break;
 
 			case VK_RIGHT:
-				move = RIGHT;
+				data.op = MOVE_SNAKE;
+				data.direction = RIGHT;
+				rectangle.left += 20;
+				rectangle.right += 20;
+				InvalidateRect(NULL, NULL, TRUE);
 				break;
 
 			case VK_UP:
-				move = UP;
+				data.op = MOVE_SNAKE;
+				data.direction = UP;
+				rectangle.top -= 20;
+				rectangle.bottom -= 20;
+				InvalidateRect(NULL, NULL, TRUE);
 				break;
 
 			case VK_DOWN:
-				move = DOWN;
+				data.op = MOVE_SNAKE;
+				data.direction = DOWN;
+				rectangle.top += 20;
+				rectangle.bottom += 20;
+				InvalidateRect(NULL, NULL, TRUE);
 				break;
 
 			default:
 				break;
 			}
-			
-			if (!runningThread) {
+			sendCommand(data);
+			/*if (!runningThread) {
 				runningThread = TRUE;
 				hMovementThread = CreateThread(NULL,
 					0,
@@ -308,7 +324,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					0,
 					0
 				);
-			}
+			}*/
 		}
 
 		case WM_COMMAND:
@@ -342,11 +358,6 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			//BitBlt(hdc, 0, 0, maxX, maxY, memdc, 0, 0, SRCCOPY);
 			Rectangle(ps.hdc, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
 			EndPaint(hWnd, &ps);
-			break;
-		}
-
-		case WM_ERASEBKGND:
-		{
 			break;
 		}
 		
@@ -561,39 +572,40 @@ DWORD WINAPI movementThread(LPVOID lpParam) {
 	while (runningThread) {
 
 		if (move == RIGHT) {
-			/*data.op = MOVE_SNAKE;
-			data.direction = RIGHT;*/
+			data.op = MOVE_SNAKE;
+			data.direction = RIGHT;
 			rectangle.left += 20;
 			rectangle.right += 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
 		if (move == LEFT) {
-			/*data.op = MOVE_SNAKE;
-			data.direction = LEFT;*/
+			data.op = MOVE_SNAKE;
+			data.direction = LEFT;
 			rectangle.left -= 20;
 			rectangle.right -= 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
 		if (move == DOWN) {
-			/*data.op = MOVE_SNAKE;
-			data.direction = DOWN;*/
+			data.op = MOVE_SNAKE;
+			data.direction = DOWN;
 			rectangle.top += 20;
 			rectangle.bottom += 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
 		if (move == UP) {
-			/*data.op = MOVE_SNAKE;
-			data.direction = UP;*/
+			data.op = MOVE_SNAKE;
+			data.direction = UP;
 			rectangle.top -= 20;
 			rectangle.bottom -= 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
-		//sendCommand(data);
-		Sleep(1000);
+		sendCommand(data);
+		Sleep(500);
 	}
 	return 0;
 }
+

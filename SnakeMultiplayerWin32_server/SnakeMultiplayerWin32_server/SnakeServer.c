@@ -25,6 +25,9 @@ HINSTANCE hSnakeDll;
 int diretionToGo = 0;
 int x, y;
 
+data dataGame;
+GameInfo gameInfo;
+
 //MAIN 
 
 
@@ -376,7 +379,6 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 
 		HANDLE hGameThread;
 		data(*getDataSHM)();
-		data dataGame;
 
 		//Wait for any client trigger the event by typing any option
 		WaitForSingleObject(eReadFromClientSHM, INFINITE);
@@ -400,7 +402,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 					NULL,
 					0,
 					(LPTHREAD_START_ROUTINE)gameThread,
-					&dataGame,
+					NULL,
 					0,
 					0
 				);
@@ -419,28 +421,19 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 			default:
 				break;
 		}
-
-		
 		ResetEvent(eReadFromClientSHM);
-	}
-	
+	}	
 }
 
 
 //---------------------------------------------------
 // GAMING THREAD
 //---------------------------------------------------
-
 DWORD WINAPI gameThread(LPVOID params) {
-	pData data;
-	GameInfo gameInfo;
-
-	data = (pData) params;
-
+	
 	void(*setInfoSHM)();
 
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
-
 
 	//GETDATA IN CORRECT PULL POSITION
 	setInfoSHM = (void(*)()) GetProcAddress(hSnakeDll, "setInfoSHM");
@@ -449,50 +442,54 @@ DWORD WINAPI gameThread(LPVOID params) {
 		return;
 	}
 
+	initGameInfo(dataGame, gameInfo);
 
-	gameInfo.nRows = data->nRows;
-	gameInfo.nColumns = data->nColumns;
-	
 	while (1) {
-		gameInfo.commandId = MOVE_SNAKE;
-		for (int i = 0; i < data->nRows; i++) {
-			for (int j = 0; j < data->nColumns; j++) {
-				gameInfo.boardGame[i][j] = 0;
-			}
-		}
-		x = y = 0;
 
 		if (diretionToGo != 0) {
+			gameInfo.boardGame[y][x] = 0;
 			switch (diretionToGo) {
-			case RIGHT:
-				x += 1;
-				break;
-			case LEFT:
-				x -= 1;
-				break;
-			case UP:
-				y -= 1;
-				break;
-			case DOWN:
-				y += 1;
-				break;
-			default:
-				break;
+				case RIGHT:
+					x += 1;
+					break;
+				case LEFT:
+					x -= 1;
+					break;
+				case UP:
+					y -= 1;
+					break;
+				case DOWN:
+					y += 1;
+					break;
+				default:
+					break;
 			}
-		}
-		gameInfo.boardGame[x][y] = 1;
+			gameInfo.boardGame[y][x] = 1;
 
-		_tprintf(TEXT("\n\n"));
-		for (int i = 0; i < data->nRows; i++) {
-			for (int j = 0; j < data->nColumns; j++) {
-				_tprintf(TEXT(" %d "), gameInfo.boardGame[i][j]);
+			_tprintf(TEXT("\n\n"));
+			for (int i = 0; i < gameInfo.nRows; i++) {
+				for (int j = 0; j < gameInfo.nRows; j++) {
+					_tprintf(TEXT(" %d "), gameInfo.boardGame[i][j]);
+				}
+				_tprintf(TEXT("\n"));
 			}
-			_tprintf(TEXT("\n"));
 		}
+		diretionToGo = 0;
 
 		setInfoSHM(gameInfo);
 		SetEvent(eWriteToClientSHM);
-		Sleep(5000);
+		Sleep(10);
 	}
-	
+}
+
+void initGameInfo() {
+	x = y = 0;
+	for (int i = 0; i < dataGame.nRows; i++) {
+		for (int j = 0; j < dataGame.nColumns; j++) {
+			gameInfo.boardGame[i][j] = 0;
+		}
+	}
+
+	gameInfo.nRows = dataGame.nRows;
+	gameInfo.nColumns = dataGame.nColumns;
 }

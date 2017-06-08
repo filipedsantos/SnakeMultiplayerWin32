@@ -18,8 +18,8 @@
 #define START_GAME		104
 #define MOVE_SNAKE		105
 
-#define RIGHT 1
-#define LEFT  2
+#define LEFT  1
+#define RIGHT 2
 #define UP    3
 #define DOWN  4
 
