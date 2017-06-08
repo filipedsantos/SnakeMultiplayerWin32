@@ -15,10 +15,10 @@ d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerw
 d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(371): warning C4129: 's': unrecognized character escape sequence
 d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(385): warning C4047: '=': 'data (__cdecl *)()' differs in levels of indirection from 'pData (__cdecl *)()'
 d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(388): warning C4033: 'listenClientSharedMemory' must return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(456): warning C4047: '=': 'data (__cdecl *)()' differs in levels of indirection from 'pData (__cdecl *)()'
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(459): warning C4033: 'gameThread' must return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(466): warning C4033: 'gameThread' must return a value
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(457): warning C4047: '=': 'data (__cdecl *)()' differs in levels of indirection from 'pData (__cdecl *)()'
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(460): warning C4033: 'gameThread' must return a value
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(467): warning C4033: 'gameThread' must return a value
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(518): warning C4716: 'gameThread': must return a value
 d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(427): warning C4715: 'listenClientSharedMemory': not all control paths return a value
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(516): warning C4716: 'gameThread': must return a value
   SnakeMultiplayerWin32_server.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.exe
   SnakeMultiplayerWin32_server.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.pdb (Full PDB)

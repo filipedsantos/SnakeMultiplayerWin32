@@ -408,13 +408,13 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 					return -1;
 				}
 				break;
-				WaitForSingleObject(hGameThread, INFINITE);
+				//WaitForSingleObject(hGameThread, INFINITE);
 			case JOIN_GAME:
 				break;
 			case SCORES:
 				break;
 			case MOVE_SNAKE:
-				//diretionToGo = dataGame.direction;
+				diretionToGo = dataGame.direction;
 				break;
 			default:
 				break;
@@ -423,7 +423,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 		
 		ResetEvent(eReadFromClientSHM);
 	}
-	
+		
 }
 
 
@@ -437,6 +437,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 	GameInfo gameInfo;
 
 	data = (pData) params;
+	x = y = 0;
 
 	void(*setInfoSHM)();
 
@@ -481,11 +482,11 @@ DWORD WINAPI gameThread(LPVOID params) {
 
 		WaitForSingleObject(eReadFromClientSHM, INFINITE);
 	
-		_tprintf(TEXT("AFTER IF COMMAND %d MOVESNAKE %d dir %d----\n"), getDataSHM().op, MOVE_SNAKE, getDataSHM().direction);
+		_tprintf(TEXT("AFTER IF COMMAND %d MOVESNAKE %d dir %d----\n"), getDataSHM().op, MOVE_SNAKE, diretionToGo);
 
 		if(getDataSHM().op == MOVE_SNAKE){
-			x = y = 0;
-			switch (getDataSHM().direction) {
+			
+			switch (diretionToGo) {
 				case RIGHT:
 					x += 1;
 				case LEFT:
@@ -508,8 +509,9 @@ DWORD WINAPI gameThread(LPVOID params) {
 		}
 
 		setInfoSHM(gameInfo);
-		SetEvent(eWriteToClientSHM);
 		ResetEvent(eReadFromClientSHM);
+		SetEvent(eWriteToClientSHM);
+		
 
 	}
 	

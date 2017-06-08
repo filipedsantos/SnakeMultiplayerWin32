@@ -548,11 +548,9 @@ void updateBoard() {
 
 DWORD WINAPI movementThread(LPVOID lpParam) {
 	data data;
-
+	BOOL START = FALSE;
 	data.op = 0;
-	data.direction = 0;
-	move = RIGHT;
-	
+	data.direction = 0;	
 
 	while (runningThread) {
 
@@ -583,8 +581,12 @@ DWORD WINAPI movementThread(LPVOID lpParam) {
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
+		_stprintf_s(error, 1024, TEXT("move (%d)"), move);
+		createErrorMessageBox(error);
+
 		sendCommand(data);
 		Sleep(1000);
+
 	}
 	return 0;
 }
