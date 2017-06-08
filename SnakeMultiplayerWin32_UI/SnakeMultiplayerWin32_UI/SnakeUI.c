@@ -270,12 +270,6 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			break;
 		}
 
-		case WM_KEYUP:
-		{
-			runningThread = FALSE;
-			break;
-		}
-
 		case WM_KEYDOWN:
 		{
 			switch (wParam) {
@@ -557,42 +551,39 @@ DWORD WINAPI movementThread(LPVOID lpParam) {
 
 	data.op = 0;
 	data.direction = 0;
+	move = RIGHT;
+	
 
 	while (runningThread) {
 
-		if (move == RIGHT) {
-			/*data.op = MOVE_SNAKE;
-			data.direction = RIGHT;*/
+		data.op = MOVE_SNAKE;
+		data.direction = move;
+
+		if (move == RIGHT) {		
 			rectangle.left += 20;
 			rectangle.right += 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
 		if (move == LEFT) {
-			/*data.op = MOVE_SNAKE;
-			data.direction = LEFT;*/
 			rectangle.left -= 20;
 			rectangle.right -= 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
 		if (move == DOWN) {
-			/*data.op = MOVE_SNAKE;
-			data.direction = DOWN;*/
 			rectangle.top += 20;
 			rectangle.bottom += 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
 		if (move == UP) {
-			/*data.op = MOVE_SNAKE;
-			data.direction = UP;*/
 			rectangle.top -= 20;
 			rectangle.bottom -= 20;
 			InvalidateRect(NULL, NULL, TRUE);
 		}
 
-		//sendCommand(data);
+		sendCommand(data);
 		Sleep(1000);
 	}
 	return 0;
