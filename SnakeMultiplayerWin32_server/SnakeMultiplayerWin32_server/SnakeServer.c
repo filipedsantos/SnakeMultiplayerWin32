@@ -374,7 +374,6 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 	eReadFromClientSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
 	eWriteToClientSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM_eWriteToClientSHM"));
 
-
 	while (1) {
 
 		HANDLE hGameThread;
@@ -382,7 +381,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 
 		//Wait for any client trigger the event by typing any option
 		WaitForSingleObject(eReadFromClientSHM, INFINITE);
-
+		
 		
 		//GETDATA IN CORRECT PULL POSITION
 		getDataSHM = (pData(*)()) GetProcAddress(hSnakeDll, "getDataSHM");
@@ -442,7 +441,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 		return;
 	}
 
-	initGameInfo(dataGame, gameInfo);
+	initGameInfo();
 
 	while (1) {
 
@@ -474,11 +473,11 @@ DWORD WINAPI gameThread(LPVOID params) {
 				_tprintf(TEXT("\n"));
 			}
 		}
-		diretionToGo = 0;
+		//diretionToGo = 0;
 
 		setInfoSHM(gameInfo);
 		SetEvent(eWriteToClientSHM);
-		Sleep(10);
+		Sleep(1*1000);
 	}
 }
 

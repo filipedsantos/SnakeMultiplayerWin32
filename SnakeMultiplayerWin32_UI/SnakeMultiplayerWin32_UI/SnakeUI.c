@@ -17,7 +17,6 @@ void startLocal();
 void sendCommand(data newData);
 void createErrorMessageBox(TCHAR *message);
 void createMessageBox(TCHAR *Message);
-void updateBoard();
 
 
 TCHAR *szProgName = TEXT("Snake Multiplayer");
@@ -223,7 +222,17 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					newData.nColumns = _wtoi(aux);
 
 					sendCommand(newData);
+					
 
+					
+					hMovementThread = CreateThread(NULL,
+													0,
+													updateBoard,
+													NULL,
+													0,
+													0
+												   );
+					
 
 					EndDialog(hWnd, 0);
 					return 1;
@@ -278,53 +287,31 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 		case WM_KEYDOWN:
 		{
+
+			data.op = MOVE_SNAKE;
+
 			switch (wParam) {
 			case VK_LEFT:
-				data.op = MOVE_SNAKE;
 				data.direction = LEFT;
-				rectangle.left -= 20;
-				rectangle.right -= 20;
-				InvalidateRect(NULL, NULL, TRUE);
 				break;
 
 			case VK_RIGHT:
-				data.op = MOVE_SNAKE;
 				data.direction = RIGHT;
-				rectangle.left += 20;
-				rectangle.right += 20;
-				InvalidateRect(NULL, NULL, TRUE);
 				break;
 
 			case VK_UP:
-				data.op = MOVE_SNAKE;
 				data.direction = UP;
-				rectangle.top -= 20;
-				rectangle.bottom -= 20;
-				InvalidateRect(NULL, NULL, TRUE);
 				break;
 
 			case VK_DOWN:
-				data.op = MOVE_SNAKE;
 				data.direction = DOWN;
-				rectangle.top += 20;
-				rectangle.bottom += 20;
-				InvalidateRect(NULL, NULL, TRUE);
 				break;
 
 			default:
 				break;
 			}
+
 			sendCommand(data);
-			/*if (!runningThread) {
-				runningThread = TRUE;
-				hMovementThread = CreateThread(NULL,
-					0,
-					movementThread,
-					NULL,
-					0,
-					0
-				);
-			}*/
 		}
 
 		case WM_COMMAND:
@@ -488,7 +475,7 @@ void startLocal(){
 
 }
 
-//Starting a new Game
+//SEND COMMANDS THROUGH SHAREDMEMORY
 void sendCommand(data newData) {
 	void(*setDataSHM)(data);
 
@@ -545,67 +532,36 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 	return 1;
 }
 
-void updateBoard() {
-	int x = 0, y = 0;
+DWORD WINAPI updateBoard(LPVOID lpParam) {
 
-	for (int l = 0; l < gameInfo.nRows; l++) {
-		for (int c = 0; c < gameInfo.nColumns; c++) {
-			if (gameInfo.boardGame[l][c] == 1) {
-				SetRect(&rectangle, x, y, x + 20, y + 20);
-				InvalidateRect(NULL, NULL, FALSE);
+	GameInfo(*getInfoSHM)();
+
+	getInfoSHM = (GameInfo(*)()) GetProcAddress(hSnakeDll, "getInfoSHM");
+	if (getInfoSHM == NULL) {
+		_stprintf_s(error, 1024, TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)"), GetLastError());
+		createErrorMessageBox(error);
+		return;
+	}
+
+	while (1) {
+
+		WaitForSingleObject(eReadFromServerSHM, INFINITE);
+		gameInfo = getInfoSHM();
+
+		int x = 0, y = 0;
+		for (int l = 0; l < gameInfo.nRows; l++) {
+			for (int c = 0; c < gameInfo.nColumns; c++) {
+				if (gameInfo.boardGame[l][c] == 1) {
+					SetRect(&rectangle, x, y, x + 20, y + 20);
+				}
+				x += 20;
 			}
-			x += 20;
+			x = 0;
+			y += 20;
 		}
-		x = 0; 
-		y += 20;
+		InvalidateRect(hWnd, NULL, TRUE);
+		ResetEvent(eReadFromServerSHM);
+
 	}
-	//SetRect(&rectangle, 1, 1, 50, 50);
-	
-}
-
-DWORD WINAPI movementThread(LPVOID lpParam) {
-	data data;
-
-	data.op = 0;
-	data.direction = 0;
-
-	while (runningThread) {
-
-		if (move == RIGHT) {
-			data.op = MOVE_SNAKE;
-			data.direction = RIGHT;
-			rectangle.left += 20;
-			rectangle.right += 20;
-			InvalidateRect(NULL, NULL, TRUE);
-		}
-
-		if (move == LEFT) {
-			data.op = MOVE_SNAKE;
-			data.direction = LEFT;
-			rectangle.left -= 20;
-			rectangle.right -= 20;
-			InvalidateRect(NULL, NULL, TRUE);
-		}
-
-		if (move == DOWN) {
-			data.op = MOVE_SNAKE;
-			data.direction = DOWN;
-			rectangle.top += 20;
-			rectangle.bottom += 20;
-			InvalidateRect(NULL, NULL, TRUE);
-		}
-
-		if (move == UP) {
-			data.op = MOVE_SNAKE;
-			data.direction = UP;
-			rectangle.top -= 20;
-			rectangle.bottom -= 20;
-			InvalidateRect(NULL, NULL, TRUE);
-		}
-
-		sendCommand(data);
-		Sleep(500);
-	}
-	return 0;
 }
 

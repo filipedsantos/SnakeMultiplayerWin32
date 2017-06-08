@@ -179,6 +179,8 @@ void setDataSHM(data data) {
 
  _declspec(dllexport) void setInfoSHM(GameInfo gi) {
 	 gameInfoPointer->commandId = gi.commandId;
+	 gameInfoPointer->nRows = gi.nRows;
+	 gameInfoPointer->nColumns = gi.nColumns;
 	 memcpy(gameInfoPointer->boardGame, gi.boardGame, sizeof(int)*10*10);
  }
 
