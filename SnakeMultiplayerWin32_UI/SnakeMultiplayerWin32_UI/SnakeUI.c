@@ -17,6 +17,7 @@ void startLocal();
 void sendCommand(data newData);
 void createErrorMessageBox(TCHAR *message);
 void createMessageBox(TCHAR *Message);
+void bitmap(left, right, top, bot);
 
 
 TCHAR *szProgName = TEXT("Snake Multiplayer");
@@ -36,6 +37,9 @@ HWND hWnd;			// hWnd é o handler da janela, gerado mais abaixo por CreateWindow
 int maxX, maxY;		// Dimens�es do �cran
 HBRUSH hbrush;		// Cor de fundo da janela
 HDC memdc;			// handler para imagem da janela em mem�ria
+HDC hdc;			
+HBITMAP hbitGround;
+HBITMAP hbitSnake;
 
 GameInfo gameInfo;
 
@@ -267,7 +271,6 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
 	data data;
-	HDC hdc;						// handler para um Device Context
 	HDC auxmemdc;					// handler para Device Context auxiliar em mem�ria
 									// que vai conter o bitmap 
 	PAINTSTRUCT ps;				// Ponteiro para estrutura de WM_PAINT
@@ -275,7 +278,23 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	switch (messg) {
 		case WM_CREATE:
 		{
-			SetRect(&rectangle, 1, 1, 20, 20);
+			//SetRect(&rectangle, 1, 1, 20, 20);
+
+
+			hdc = GetDC(hWnd);
+			memdc = CreateCompatibleDC(hdc);
+			hbitGround = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitGround);
+			hbitSnake = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitSnake);
+			hbrush = GetStockObject(WHITE_BRUSH);				
+			SelectObject(memdc, hbrush);
+			PatBlt(memdc, 0, 0, 800, 650, PATCOPY);
+
+			ReleaseDC(hWnd, hdc);
+
+			hbitGround = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GRASS));
+			hbitSnake = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE));
 			break;
 		}
 
@@ -287,7 +306,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 		case WM_KEYDOWN:
 		{
-
+			InvalidateRect(NULL, NULL, TRUE);
 			data.op = MOVE_SNAKE;
 
 			switch (wParam) {
@@ -342,8 +361,9 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 		case WM_PAINT:
 		{
 			hdc = BeginPaint(hWnd, &ps);
-			//BitBlt(hdc, 0, 0, maxX, maxY, memdc, 0, 0, SRCCOPY);
-			Rectangle(ps.hdc, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
+			
+			BitBlt(hdc, 0, 0, 800, 650, memdc, 0, 0, SRCCOPY);
+			//Rectangle(ps.hdc, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
 			EndPaint(hWnd, &ps);
 			break;
 		}
@@ -547,21 +567,37 @@ DWORD WINAPI updateBoard(LPVOID lpParam) {
 
 		WaitForSingleObject(eReadFromServerSHM, INFINITE);
 		gameInfo = getInfoSHM();
+		hdc = GetDC(hWnd);
 
 		int x = 0, y = 0;
 		for (int l = 0; l < gameInfo.nRows; l++) {
 			for (int c = 0; c < gameInfo.nColumns; c++) {
-				if (gameInfo.boardGame[l][c] == 1) {
-					SetRect(&rectangle, x, y, x + 20, y + 20);
+				if (gameInfo.boardGame[l][c] == 0) {
+					
+					bitmap(x, x + 20, y, y + 20, hbitGround);
+				}
+				if (gameInfo.boardGame[l][c] == 2) {
+					bitmap(x, x + 20, y, y + 20, hbitSnake);
 				}
 				x += 20;
 			}
 			x = 0;
 			y += 20;
 		}
-		InvalidateRect(hWnd, NULL, TRUE);
+		ReleaseDC(hWnd, hdc);
 		ResetEvent(eReadFromServerSHM);
-
+		InvalidateRect(NULL, NULL, TRUE);
 	}
 }
 
+void bitmap(left, right, top, bot, hbit) {
+	hdc = GetDC(hWnd);
+	HDC auxmemdc = CreateCompatibleDC(hdc);
+	
+	SelectObject(auxmemdc, hbit);
+	BitBlt(hdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
+	ReleaseDC(hWnd, hdc);
+	BitBlt(memdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
+	DeleteDC(auxmemdc);
+
+}

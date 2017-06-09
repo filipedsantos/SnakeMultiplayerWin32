@@ -105,7 +105,7 @@ void initializeNamedPipes();
 void initializeSharedMemory();
 void initGameInfo();
 void putSnakeIntoBoard(int delX, int delY, Snake snake);
-void moveRight(Snake snake);
+void move(Snake snake, int move);
 Snake initSnake(int startX, int startY, int size);
 
 // Threads

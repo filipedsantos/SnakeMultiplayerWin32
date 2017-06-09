@@ -151,6 +151,10 @@
   <ItemGroup>
     <ResourceCompile Include="SnakeMultiplayerWin32_UI.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="grass.bmp" />
+    <Image Include="gray.bmp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

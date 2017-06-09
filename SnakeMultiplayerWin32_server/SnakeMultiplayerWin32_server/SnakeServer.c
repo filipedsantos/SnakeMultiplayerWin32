@@ -367,7 +367,7 @@ void putSnakeIntoBoard(int delX, int delY, Snake snake) {
 	gameInfo.boardGame[delY][delX] = 0;
 }
 
-void moveRight(Snake snake) {
+void move(Snake snake, int move) {
 
 	int delX, delY;
 	delX = snake.coords[snake.size - 1].posX;
@@ -378,9 +378,28 @@ void moveRight(Snake snake) {
 		snake.coords[i].posX = snake.coords[i - 1].posX;
 		snake.coords[i].posY = snake.coords[i - 1].posY;
 	}
-	snake.coords[0].posX += 1;
+
+	
+	
+	switch (move) {
+		case RIGHT:
+			snake.coords[0].posX += 1;
+			break;
+		case LEFT:
+			snake.coords[0].posX -= 1;
+			break;
+		case UP:
+			snake.coords[0].posY -= 1;
+			break;
+		case DOWN:
+			snake.coords[0].posY += 1;
+			break;
+	}
+		
+
 	putSnakeIntoBoard(delX, delY, snake);
 }
+
 
 //////////////
 //THREADS ////
@@ -535,29 +554,28 @@ DWORD WINAPI gameThread(LPVOID params) {
 		return;
 	}
 
-	snake = initSnake(2, 4, 3);
+	snake = initSnake(2, 4, 4);
 	initGameInfo();
 
 	while (1) {
 
 		if (diretionToGo != 0) {
-			//gameInfo.boardGame[y][x] = 0;
 			switch (diretionToGo) {
 			case RIGHT:
 				x += 1;
-				moveRight(snake);
+				move(snake, RIGHT);
 				break;
 			case LEFT:
 				x -= 1;
+				move(snake, LEFT);
 				break;
-				//moveLeft(snake);
 			case UP:
 				y -= 1;
+				move(snake, UP);
 				break;
-				//moveUp(snake);
 			case DOWN:
 				y += 1;
-				//moveDown(snake);
+				move(snake, DOWN);
 				break;
 			default:
 				break;
@@ -578,11 +596,11 @@ DWORD WINAPI gameThread(LPVOID params) {
 				_tprintf(TEXT("\n"));
 			}
 		}
-		diretionToGo = 0;
+		//diretionToGo = 0;
 
 		setInfoSHM(gameInfo);
 		SetEvent(eWriteToClientSHM);
-		Sleep(1*1000);
+		Sleep(0.5*1000);
 	}
 }
 
