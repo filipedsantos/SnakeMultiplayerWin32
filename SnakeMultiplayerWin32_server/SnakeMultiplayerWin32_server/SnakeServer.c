@@ -313,9 +313,16 @@ Snake initSnake(int startX, int startY, int size) {
 			snake.coords[i].posY = startY + i;
 		}
 	}
+
+	//snake.direction = rand() % 4 + 1;
+	snake.direction = LEFT;
+	snake.alive = TRUE;
 	snake.size = size;
-	snake.direction = 0;
-	snake.id = 2;
+
+	// Falta adicionar um ID na criacao da snake (Player ID)
+	snake.id = 5;
+	snake.print = snake.id;
+	
 
 	return snake;
 }
@@ -337,67 +344,122 @@ void initGameInfo() {
 	gameInfo.nColumns = dataGame.nColumns;
 }
 
-BOOL verifyPosition(int idNext){
-	
-	switch (idNext) {
-		case BLOCK_EMPTY:
-		case BLOCK_WALL:
-		case BLOCK_FOOD:
-		case BLOCK_ICE:
-		case BLOCK_GRANADE:
-		case BLOCK_VODKA:
-		case BLOCK_OIL:
-		case BLOCK_GLUE:
-		case BLOCK_O_VODKA:
-		case BLOCK_O_OIL:
-		case BLOCK_O_GLUE:
-		default:
-			break;
-	}
-
-	return FALSE;
-}
-
 void putSnakeIntoBoard(int delX, int delY, Snake snake) {
 
 	
 	for (int i = 0; i < snake.size; i++) {
-		gameInfo.boardGame[snake.coords[i].posY][snake.coords[i].posX] = snake.id;
+		gameInfo.boardGame[snake.coords[i].posY][snake.coords[i].posX] = snake.print;
 	}
-	gameInfo.boardGame[delY][delX] = 0;
+	if (delX >= 0 && delY >= 0) {
+		gameInfo.boardGame[delY][delX] = 0;
+	}
+	
 }
 
-void move(Snake snake, int move) {
-
+Snake move(Snake snake, int move) {
+	Coords toMove = snake.coords[0];
 	int delX, delY;
-	delX = snake.coords[snake.size - 1].posX;
-	delY = snake.coords[snake.size - 1].posY;
 
-	
-	for (int i = snake.size - 1; i > 0; i--) {
-		snake.coords[i].posX = snake.coords[i - 1].posX;
-		snake.coords[i].posY = snake.coords[i - 1].posY;
-	}
-
-	
-	
 	switch (move) {
 		case RIGHT:
-			snake.coords[0].posX += 1;
+			toMove.posX += 1;
+			toMove.posY = snake.coords[0].posY;
 			break;
 		case LEFT:
-			snake.coords[0].posX -= 1;
+			toMove.posX -= 1;
+			toMove.posY = snake.coords[0].posY;
 			break;
 		case UP:
-			snake.coords[0].posY -= 1;
+			toMove.posX = snake.coords[0].posX;
+			toMove.posY -= 1;
 			break;
 		case DOWN:
-			snake.coords[0].posY += 1;
+			toMove.posX = snake.coords[0].posX;
+			toMove.posY += 1;
 			break;
 	}
-		
 
+	// Get position to check
+	int positionToCheck = gameInfo.boardGame[toMove.posY][toMove.posX];
+	
+	// Verify the position to go before move the snake
+	switch (positionToCheck) {
+
+		case BLOCK_EMPTY:
+			break;
+		case BLOCK_WALL:
+			// kill the snake
+			snake.alive = FALSE;
+			snake.print = 0;
+			delX = delY = -1;
+			return;
+			break;
+		case BLOCK_FOOD:
+			break;
+		case BLOCK_ICE:
+			break;
+		case BLOCK_GRANADE:
+			break;
+		case BLOCK_VODKA:
+			break;
+		case BLOCK_OIL:
+			break;
+		case BLOCK_GLUE:
+			break;
+		case BLOCK_O_VODKA:
+			break;
+		case BLOCK_O_OIL:
+			break;
+		case BLOCK_O_GLUE:
+			break;
+		default:
+			break;
+	}
+
+	if (positionToCheck == 5) {
+		// kill the snake
+		snake.alive = FALSE;
+		snake.print = 0;
+		delX = delY = -1;
+	}
+	
+	if (snake.alive) {
+
+		// Get position to delete in case of move
+		delX = snake.coords[snake.size - 1].posX;
+		delY = snake.coords[snake.size - 1].posY;
+
+		// Copy the coordinates of the snake to apply movement 
+		for (int i = snake.size - 1; i > 0; i--) {
+			snake.coords[i].posX = snake.coords[i - 1].posX;
+			snake.coords[i].posY = snake.coords[i - 1].posY;
+		}
+
+		// Apply the movement to the head
+		switch (move) {
+			case RIGHT:
+				snake.coords[0].posX += 1;
+				snake.direction = RIGHT;
+				break;
+			case LEFT:
+				snake.coords[0].posX -= 1;
+				snake.direction = LEFT;
+				break;
+			case UP:
+				snake.coords[0].posY -= 1;
+				snake.direction = UP;
+				break;
+			case DOWN:
+				snake.coords[0].posY += 1;
+				snake.direction = DOWN;
+				break;
+		}
+	}
+
+	// Draw the snake on the map
 	putSnakeIntoBoard(delX, delY, snake);
+
+	return snake;
 }
 
 
@@ -554,39 +616,36 @@ DWORD WINAPI gameThread(LPVOID params) {
 		return;
 	}
 
-	snake = initSnake(2, 4, 4);
+	snake = initSnake(10,10,6);
 	initGameInfo();
 
 	while (1) {
 
-		if (diretionToGo != 0) {
+		if (diretionToGo != 0 && snake.alive) {
 			switch (diretionToGo) {
-			case RIGHT:
-				x += 1;
-				move(snake, RIGHT);
-				break;
-			case LEFT:
-				x -= 1;
-				move(snake, LEFT);
-				break;
-			case UP:
-				y -= 1;
-				move(snake, UP);
-				break;
-			case DOWN:
-				y += 1;
-				move(snake, DOWN);
-				break;
-			default:
-				break;
+				case RIGHT:
+					if (snake.direction != LEFT) {
+						snake = move(snake, RIGHT);
+					}
+					break;
+				case LEFT:
+					if (snake.direction != RIGHT) {
+						snake = move(snake, LEFT);
+					}
+					break;
+				case UP:
+					if (snake.direction != DOWN) {
+						snake = move(snake, UP);
+					}
+					break;
+				case DOWN:
+					if (snake.direction != UP) {
+						snake = move(snake, DOWN);
+					}
+					break;
+				default:
+					break;
 			}
-
-			/*if (verifyPosition(gameInfo.boardGame[y][x])) {
-				snake.coords[0].posX = x;
-				snake.coords[0].posY = y;
-
-				gameInfo.boardGame[y][x] = 1;
-			}*/
 
 			_tprintf(TEXT("\n\n"));
 			for (int i = 0; i < gameInfo.nRows; i++) {
@@ -596,7 +655,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 				_tprintf(TEXT("\n"));
 			}
 		}
-		//diretionToGo = 0;
+		diretionToGo = 0;
 
 		setInfoSHM(gameInfo);
 		SetEvent(eWriteToClientSHM);

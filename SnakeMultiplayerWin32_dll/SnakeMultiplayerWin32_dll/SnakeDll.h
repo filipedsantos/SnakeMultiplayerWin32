@@ -43,7 +43,7 @@ typedef struct GameInfo {
 	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
 	int commandId;						// variable to inform client about the actual command
 	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
-	int boardGame[10][10];					// variable that send information about the game variables - snakes, food, etc...
+	int boardGame[100][100];					// variable that send information about the game variables - snakes, food, etc...
 	int nRows, nColumns;
 } GameInfo, *pGameInfo;
 

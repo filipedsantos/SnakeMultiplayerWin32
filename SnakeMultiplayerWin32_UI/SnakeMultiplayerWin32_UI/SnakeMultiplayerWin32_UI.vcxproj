@@ -152,6 +152,8 @@
     <ResourceCompile Include="SnakeMultiplayerWin32_UI.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="apple.bmp" />
+    <Image Include="apple2.bmp" />
     <Image Include="grass.bmp" />
     <Image Include="gray.bmp" />
   </ItemGroup>

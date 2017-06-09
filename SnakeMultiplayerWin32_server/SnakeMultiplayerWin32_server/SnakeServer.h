@@ -56,7 +56,7 @@ typedef struct GameInfo {
 	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
 	int commandId;						// variable to inform client about the actual command
 	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
-	int boardGame[10][10];					// variable that send information about the game variables - snakes, food, etc...
+	int boardGame[100][100];			// variable that send information about the game variables - snakes, food, etc...
 	int nRows, nColumns;
 } GameInfo, *pGameInfo;
 
@@ -64,17 +64,17 @@ typedef struct GameInfo {
 
 
 
-#define BLOCK_EMPTY      0
-#define BLOCK_WALL       1
-#define BLOCK_FOOD       2
-#define BLOCK_ICE        3
-#define BLOCK_GRANADE    4
-#define BLOCK_VODKA      5
-#define BLOCK_OIL        6
-#define BLOCK_GLUE       7
-#define BLOCK_O_VODKA    8
-#define BLOCK_O_OIL      9
-#define BLOCK_O_GLUE     11
+#define BLOCK_EMPTY			0
+#define BLOCK_WALL			1
+#define BLOCK_FOOD			2
+#define BLOCK_ICE			3
+#define BLOCK_GRANADE		4
+#define BLOCK_VODKA			5
+#define BLOCK_OIL			6
+#define BLOCK_GLUE			7
+#define BLOCK_O_VODKA		8
+#define BLOCK_O_OIL			9
+#define BLOCK_O_GLUE		11
 
 
 typedef struct Coords {
@@ -89,7 +89,7 @@ typedef struct Snake {
 
 	BOOL alive;
 	int direction;
-
+	int print;		// save the id of the snake/player to print ; when snake die this print = 0 and not change the original id
 } Snake, *pSnake;
 
 // END STRUCTS
@@ -105,7 +105,7 @@ void initializeNamedPipes();
 void initializeSharedMemory();
 void initGameInfo();
 void putSnakeIntoBoard(int delX, int delY, Snake snake);
-void move(Snake snake, int move);
+Snake move(Snake snake, int move);
 Snake initSnake(int startX, int startY, int size);
 
 // Threads

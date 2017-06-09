@@ -40,6 +40,7 @@ HDC memdc;			// handler para imagem da janela em mem�ria
 HDC hdc;			
 HBITMAP hbitGround;
 HBITMAP hbitSnake;
+HBITMAP hbitApple;
 
 GameInfo gameInfo;
 
@@ -194,9 +195,6 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	HWND hCaption = NULL;
 	HWND hEditNickname2 = NULL;
 
-	TCHAR nrPlayers_1[20] = {TEXT(" 1 ")};
-	TCHAR nrPlayers_2[20] = {TEXT(" 2 ")};
-
 	switch (messg) {
 
 		case WM_INITDIALOG:
@@ -204,9 +202,13 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			CheckRadioButton(hWnd, IDC_RADIO_SINGLEPLAYER, IDC_RADIO_MULTIPLAYER, IDC_RADIO_SINGLEPLAYER);
 			
 			//COMBO BOX
-			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_ADDSTRING, 0, (LPARAM)nrPlayers_1);
-			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_ADDSTRING, 0, (LPARAM)nrPlayers_2);
+			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_ADDSTRING, 0, TEXT("1"));
+			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_ADDSTRING, 0, TEXT("2"));
 			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_SETCURSEL, 0, 0);
+
+			// ROWS AND COLUMNS
+			SendDlgItemMessage(hWnd, IDC_EDIT_ROWS, EM_REPLACESEL, 0, TEXT("20"));
+			SendDlgItemMessage(hWnd, IDC_EDIT_COLUMNS, EM_REPLACESEL, 0, TEXT("20"));
 
 
 		case WM_COMMAND:
@@ -227,8 +229,6 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 					sendCommand(newData);
 					
-
-					
 					hMovementThread = CreateThread(NULL,
 													0,
 													updateBoard,
@@ -236,7 +236,6 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 													0,
 													0
 												   );
-					
 
 					EndDialog(hWnd, 0);
 					return 1;
@@ -248,10 +247,10 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					//hCaption = GetDlgItem(hWnd, IDC_CAPTION_NICK);
 					if (HIWORD(wParam) == CBN_SELENDOK) {
 
-						GetDlgItemText(hWnd, IDC_CB_PLAYERS, aux, 3);
+						GetDlgItemText(hWnd, IDC_CB_PLAYERS, aux, 2);
 						
 						//SELECTION 2 MAKE 2ND TEXT BOX - ABOUT NICKNAME - APPEAR
-						if (_tcscmp(aux, TEXT(" 2")) == 0) {
+						if (_tcscmp(aux, TEXT("2")) == 0) {
 							ShowWindow(IDC_NICKNAME2, SW_SHOWNORMAL);
 							ShowWindow(IDC_CAPTION_NICK, SW_SHOWNORMAL);
 						}
@@ -287,6 +286,8 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			SelectObject(memdc, hbitGround);
 			hbitSnake = CreateCompatibleBitmap(hdc, 800, 650);
 			SelectObject(memdc, hbitSnake);
+			hbitApple = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitApple);
 			hbrush = GetStockObject(WHITE_BRUSH);				
 			SelectObject(memdc, hbrush);
 			PatBlt(memdc, 0, 0, 800, 650, PATCOPY);
@@ -295,6 +296,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 			hbitGround = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GRASS));
 			hbitSnake = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE));
+			hbitApple = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_APPLE));
 			break;
 		}
 
@@ -572,12 +574,16 @@ DWORD WINAPI updateBoard(LPVOID lpParam) {
 		int x = 0, y = 0;
 		for (int l = 0; l < gameInfo.nRows; l++) {
 			for (int c = 0; c < gameInfo.nColumns; c++) {
-				if (gameInfo.boardGame[l][c] == 0) {
+				if (gameInfo.boardGame[l][c] == BLOCK_EMPTY) {
 					
 					bitmap(x, x + 20, y, y + 20, hbitGround);
 				}
-				if (gameInfo.boardGame[l][c] == 2) {
+				if (gameInfo.boardGame[l][c] == 5) {
 					bitmap(x, x + 20, y, y + 20, hbitSnake);
+				}
+				if (gameInfo.boardGame[l][c] == BLOCK_FOOD) {
+
+					bitmap(x, x + 20, y, y + 20, hbitApple);
 				}
 				x += 20;
 			}

@@ -18,6 +18,18 @@
 #define START_GAME		104
 #define MOVE_SNAKE		105
 
+#define BLOCK_EMPTY			0
+#define BLOCK_WALL			1
+#define BLOCK_FOOD			2
+#define BLOCK_ICE			3
+#define BLOCK_GRANADE		4
+#define BLOCK_VODKA			5
+#define BLOCK_OIL			6
+#define BLOCK_GLUE			7
+#define BLOCK_O_VODKA		8
+#define BLOCK_O_OIL			9
+#define BLOCK_O_GLUE		11
+
 #define LEFT  1
 #define RIGHT 2
 #define UP    3
@@ -55,7 +67,7 @@ typedef struct GameInfo {
 	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
 	int commandId;						// variable to inform client about the actual command
 	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
-	int boardGame[10][10];					// variable that send information about the game variables - snakes, food, etc...
+	int boardGame[100][100];			// variable that send information about the game variables - snakes, food, etc...
 	int nRows, nColumns;
 } GameInfo, *pGameInfo;
 
