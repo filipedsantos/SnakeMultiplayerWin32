@@ -296,39 +296,31 @@ void startClients() {
 //START BOARD GAME INITIALIZED EVERYTHING WITH '0'
 Snake initSnake(int startX, int startY, int size) {
 	Snake snake;
-
-	snake.coords = (pCoords) malloc(sizeof(Coords)*size);
-
-	if (snake.coords == NULL) {
-		_tprintf(TEXT("[ERROR] SNAKE: CANT ALLOCATE MEMORY"));
-		return;
-	}
+	snake.coords = malloc(sizeof(Coords) * size);
 
 	srand(time(NULL));
-	int r = rand() % 1;
+	int r = rand() % 2;
 
-	if (r == 0) {
+	if (r == 0) {	// Horizontal
 		for (int i = 0; i < size; i++) {
 			snake.coords[i].posX = startX + i;
 			snake.coords[i].posY = startY;
 		}
 	}
-	else {
+	else {			// Vertical
 		for (int i = 0; i < size; i++) {
 			snake.coords[i].posX = startX;
 			snake.coords[i].posY = startY + i;
 		}
 	}
-
-	snake.direction = 0;
-	snake.id = 1;
 	snake.size = size;
-
+	snake.direction = 0;
+	snake.id = 2;
 
 	return snake;
 }
 
-void initGameInfo(Snake snake) {
+void initGameInfo() {
 	x = y = 0;
 
 	//change 3 for a variable from edit control
@@ -337,18 +329,6 @@ void initGameInfo(Snake snake) {
 		for (int j = 0; j < dataGame.nColumns; j++) {
 
 			gameInfo.boardGame[i][j] = 0;
-
-		}
-	}
-
-	for (int i = 0; i < dataGame.nRows; i++) {
-		for (int j = 0; j < dataGame.nColumns; j++) {
-
-			for (int m = 0; m < snake.size; m++){
-				if (snake.coords[m].posX == i && snake.coords[m].posY == j) {
-					gameInfo.boardGame[i][j] = snake.id;
-				}
-			}
 
 		}
 	}
@@ -378,27 +358,29 @@ BOOL verifyPosition(int idNext){
 	return FALSE;
 }
 
-void putSnakeIntoBoard(Coords eraseTail, Snake snake) {
+void putSnakeIntoBoard(int delX, int delY, Snake snake) {
 
-	gameInfo.boardGame[eraseTail.posY][eraseTail.posX] = 0;
+	
 	for (int i = 0; i < snake.size; i++) {
 		gameInfo.boardGame[snake.coords[i].posY][snake.coords[i].posX] = snake.id;
 	}
-
+	gameInfo.boardGame[delY][delX] = 0;
 }
 
 void moveRight(Snake snake) {
-	Snake old = snake;
 
-	snake.coords[0].posX += 1;
-	for (int i = 1; i < snake.size; i++) {
-		snake.coords[i].posX = old.coords[i - 1].posX;
-		snake.coords[i].posY = old.coords[i - 1].posY;
+	int delX, delY;
+	delX = snake.coords[snake.size - 1].posX;
+	delY = snake.coords[snake.size - 1].posY;
+
+	
+	for (int i = snake.size - 1; i > 0; i--) {
+		snake.coords[i].posX = snake.coords[i - 1].posX;
+		snake.coords[i].posY = snake.coords[i - 1].posY;
 	}
-
-	putSnakeIntoBoard(old.coords[snake.size], snake);
+	snake.coords[0].posX += 1;
+	putSnakeIntoBoard(delX, delY, snake);
 }
-
 
 //////////////
 //THREADS ////
@@ -553,8 +535,8 @@ DWORD WINAPI gameThread(LPVOID params) {
 		return;
 	}
 
-	snake = initSnake(0, 0, 3);
-	initGameInfo(snake);
+	snake = initSnake(2, 4, 3);
+	initGameInfo();
 
 	while (1) {
 

@@ -104,10 +104,9 @@ void initializeServer();
 void initializeNamedPipes();
 void initializeSharedMemory();
 void initGameInfo();
-void putSnakeIntoBoard(Coords eraseTail, Snake snake);
+void putSnakeIntoBoard(int delX, int delY, Snake snake);
 void moveRight(Snake snake);
 Snake initSnake(int startX, int startY, int size);
-
 
 // Threads
 DWORD WINAPI listenClientNamedPipes(LPVOID params);
