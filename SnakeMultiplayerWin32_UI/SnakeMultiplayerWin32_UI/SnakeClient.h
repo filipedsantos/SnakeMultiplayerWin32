@@ -73,7 +73,7 @@ int move = RIGHT;
 //DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
 
 DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS);
-DWORD WINAPI movementThread(LPVOID lpParam);
+DWORD WINAPI updateBoard(LPVOID lpParam);
 
 int mayContinue = 1;
 int readerAlive = 0;

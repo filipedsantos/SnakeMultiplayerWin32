@@ -4,10 +4,10 @@
 #include <strsafe.h>
 #include <io.h>
 #include <fcntl.h>
-
+#include <stdlib.h>
+#include <time.h>
 
 #include "SnakeServer.h"
-
 
 TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 
@@ -289,9 +289,120 @@ void startClients() {
 }
 
 
-////////////////
-//THREADS	////
-////////////////
+////////////////////////
+//THREADS  Functions////
+////////////////////////
+
+//START BOARD GAME INITIALIZED EVERYTHING WITH '0'
+Snake initSnake(int startX, int startY, int size) {
+	Snake snake;
+
+	snake.coords = (pCoords) malloc(sizeof(Coords)*size);
+
+	if (snake.coords == NULL) {
+		_tprintf(TEXT("[ERROR] SNAKE: CANT ALLOCATE MEMORY"));
+		return;
+	}
+
+	srand(time(NULL));
+	int r = rand() % 1;
+
+	if (r == 0) {
+		for (int i = 0; i < size; i++) {
+			snake.coords[i].posX = startX + i;
+			snake.coords[i].posY = startY;
+		}
+	}
+	else {
+		for (int i = 0; i < size; i++) {
+			snake.coords[i].posX = startX;
+			snake.coords[i].posY = startY + i;
+		}
+	}
+
+	snake.direction = 0;
+	snake.id = 1;
+	snake.size = size;
+
+
+	return snake;
+}
+
+void initGameInfo(Snake snake) {
+	x = y = 0;
+
+	//change 3 for a variable from edit control
+
+	for (int i = 0; i < dataGame.nRows; i++) {
+		for (int j = 0; j < dataGame.nColumns; j++) {
+
+			gameInfo.boardGame[i][j] = 0;
+
+		}
+	}
+
+	for (int i = 0; i < dataGame.nRows; i++) {
+		for (int j = 0; j < dataGame.nColumns; j++) {
+
+			for (int m = 0; m < snake.size; m++){
+				if (snake.coords[m].posX == i && snake.coords[m].posY == j) {
+					gameInfo.boardGame[i][j] = snake.id;
+				}
+			}
+
+		}
+	}
+
+	gameInfo.nRows = dataGame.nRows;
+	gameInfo.nColumns = dataGame.nColumns;
+}
+
+BOOL verifyPosition(int idNext){
+	
+	switch (idNext) {
+		case BLOCK_EMPTY:
+		case BLOCK_WALL:
+		case BLOCK_FOOD:
+		case BLOCK_ICE:
+		case BLOCK_GRANADE:
+		case BLOCK_VODKA:
+		case BLOCK_OIL:
+		case BLOCK_GLUE:
+		case BLOCK_O_VODKA:
+		case BLOCK_O_OIL:
+		case BLOCK_O_GLUE:
+		default:
+			break;
+	}
+
+	return FALSE;
+}
+
+void putSnakeIntoBoard(Coords eraseTail, Snake snake) {
+
+	gameInfo.boardGame[eraseTail.posY][eraseTail.posX] = 0;
+	for (int i = 0; i < snake.size; i++) {
+		gameInfo.boardGame[snake.coords[i].posY][snake.coords[i].posX] = snake.id;
+	}
+
+}
+
+void moveRight(Snake snake) {
+	Snake old = snake;
+
+	snake.coords[0].posX += 1;
+	for (int i = 1; i < snake.size; i++) {
+		snake.coords[i].posX = old.coords[i - 1].posX;
+		snake.coords[i].posY = old.coords[i - 1].posY;
+	}
+
+	putSnakeIntoBoard(old.coords[snake.size], snake);
+}
+
+
+//////////////
+//THREADS ////
+//////////////
 
 //---------------------------------------------------------
 // THREAD RESPONSABLE FOR ATTENDING CLIENTS VIA NAMEDPIPED
@@ -364,7 +475,6 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 	return 0;
 }
 
-
 //---------------------------------------------------
 // THREAD RESPONSABLE FOR HANDLING SHAREDMEMORY
 //---------------------------------------------------
@@ -428,8 +538,10 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 //---------------------------------------------------
 // GAMING THREAD
 //---------------------------------------------------
+
 DWORD WINAPI gameThread(LPVOID params) {
-	
+	Snake snake;
+
 	void(*setInfoSHM)();
 
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
@@ -441,29 +553,40 @@ DWORD WINAPI gameThread(LPVOID params) {
 		return;
 	}
 
-	initGameInfo();
+	snake = initSnake(0, 0, 3);
+	initGameInfo(snake);
 
 	while (1) {
 
 		if (diretionToGo != 0) {
-			gameInfo.boardGame[y][x] = 0;
+			//gameInfo.boardGame[y][x] = 0;
 			switch (diretionToGo) {
-				case RIGHT:
-					x += 1;
-					break;
-				case LEFT:
-					x -= 1;
-					break;
-				case UP:
-					y -= 1;
-					break;
-				case DOWN:
-					y += 1;
-					break;
-				default:
-					break;
+			case RIGHT:
+				x += 1;
+				moveRight(snake);
+				break;
+			case LEFT:
+				x -= 1;
+				break;
+				//moveLeft(snake);
+			case UP:
+				y -= 1;
+				break;
+				//moveUp(snake);
+			case DOWN:
+				y += 1;
+				//moveDown(snake);
+				break;
+			default:
+				break;
 			}
-			gameInfo.boardGame[y][x] = 1;
+
+			/*if (verifyPosition(gameInfo.boardGame[y][x])) {
+				snake.coords[0].posX = x;
+				snake.coords[0].posY = y;
+
+				gameInfo.boardGame[y][x] = 1;
+			}*/
 
 			_tprintf(TEXT("\n\n"));
 			for (int i = 0; i < gameInfo.nRows; i++) {
@@ -473,7 +596,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 				_tprintf(TEXT("\n"));
 			}
 		}
-		//diretionToGo = 0;
+		diretionToGo = 0;
 
 		setInfoSHM(gameInfo);
 		SetEvent(eWriteToClientSHM);
@@ -481,14 +604,4 @@ DWORD WINAPI gameThread(LPVOID params) {
 	}
 }
 
-void initGameInfo() {
-	x = y = 0;
-	for (int i = 0; i < dataGame.nRows; i++) {
-		for (int j = 0; j < dataGame.nColumns; j++) {
-			gameInfo.boardGame[i][j] = 0;
-		}
-	}
 
-	gameInfo.nRows = dataGame.nRows;
-	gameInfo.nColumns = dataGame.nColumns;
-}

@@ -1,6 +1,6 @@
 #pragma once
+#include <windows.h>
 #include "Player.h"
-#include "Snake.h"
 
 // Defines
 #define BUFFSIZE 1024
@@ -61,6 +61,37 @@ typedef struct GameInfo {
 } GameInfo, *pGameInfo;
 
 #define GameInfoStructSize sizeof(GameInfo)
+
+
+
+#define BLOCK_EMPTY      0
+#define BLOCK_WALL       1
+#define BLOCK_FOOD       2
+#define BLOCK_ICE        3
+#define BLOCK_GRANADE    4
+#define BLOCK_VODKA      5
+#define BLOCK_OIL        6
+#define BLOCK_GLUE       7
+#define BLOCK_O_VODKA    8
+#define BLOCK_O_OIL      9
+#define BLOCK_O_GLUE     11
+
+
+typedef struct Coords {
+	int posX;
+	int posY;
+} Coords, *pCoords;
+
+typedef struct Snake {
+	int id;
+	Coords *coords;
+	int size;
+
+	BOOL alive;
+	int direction;
+
+} Snake, *pSnake;
+
 // END STRUCTS
 
 // Functions
@@ -73,10 +104,12 @@ void initializeServer();
 void initializeNamedPipes();
 void initializeSharedMemory();
 void initGameInfo();
+void putSnakeIntoBoard(Coords eraseTail, Snake snake);
+void moveRight(Snake snake);
+Snake initSnake(int startX, int startY, int size);
 
 
 // Threads
 DWORD WINAPI listenClientNamedPipes(LPVOID params);
 DWORD WINAPI listenClientSharedMemory(LPVOID params);
-
 DWORD WINAPI gameThread(LPVOID params);
