@@ -12,6 +12,9 @@
 #define	LOCALCLIENT		0
 #define	REMOTECLIENT	1
 
+#define SINGLEPLAYER	0
+#define MULTIPLAYER		1
+
 #define EXIT			100
 #define CREATE_GAME		101
 #define JOIN_GAME		102

@@ -243,9 +243,11 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					// NUM OF LOCAL PLAYERS
 					if (IsDlgButtonChecked(hWnd, IDC_RADIO_SINGLEPLAYER)) {
 						nPlayers = 1;
+						newData.typeOfGame = SINGLEPLAYER;
 					}
 					else {
 						nPlayers = 2;
+						newData.typeOfGame = MULTIPLAYER;
 					}
 
 					newData.numLocalPlayers = nPlayers;
@@ -334,21 +336,39 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 {
+	TCHAR str[2];
 	switch (messg) {
 
-	case WM_INITDIALOG:
-		break;
-
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
+		case WM_INITDIALOG:
+			_stprintf(str, TEXT("%c"), keyLeft);
+			SendDlgItemMessage(hWnd, IDC_P2_LEFT, EM_REPLACESEL, 0, str);
+			_stprintf(str, TEXT("%c"), keyUp);
+			SendDlgItemMessage(hWnd, IDC_P2_UP, EM_REPLACESEL, 0, str);
+			_stprintf(str, TEXT("%c"), keyRight);
+			SendDlgItemMessage(hWnd, IDC_P2_RIGHT, EM_REPLACESEL, 0, str);
+			_stprintf(str, TEXT("%c"), keyDown);
+			SendDlgItemMessage(hWnd, IDC_P2_DOWN, EM_REPLACESEL, 0, str);
+			return 1;
+		case WM_COMMAND:
 		{
-		default:
-			break;
+			switch (LOWORD(wParam)) {
+			case IDOK:
+				GetDlgItemText(hWnd, IDC_P2_LEFT, str, 2);
+				keyLeft = _toupper(str[0]);
+				GetDlgItemText(hWnd, IDC_P2_UP, str, 2);
+				keyUp = _toupper(str[0]);
+				GetDlgItemText(hWnd, IDC_P2_RIGHT, str, 2);
+				keyRight = _toupper(str[0]);
+				GetDlgItemText(hWnd, IDC_P2_DOWN, str, 2);
+				keyDown = _toupper(str[0]);
+				EndDialog(hWnd, 0);
+				return 1;
+			case IDCANCEL:
+				EndDialog(hWnd, 0);
+				return 1;
+			}
 		}
 
-	case WM_DESTROY:
-		EndDialog(hWnd, 0);
-		return 0;
 	}
 
 	return 0;
@@ -462,7 +482,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 				}
 				break;
 					
-			case ID_SETTINGS_CONTROLS40009:
+			case ID_SETTINGS_CONTROLS:
 				DialogBox(hThisInst, (LPCSTR)IDD_EDIT_CONTROLS, hWnd, (DLGPROC)DialogEditControls);
 				break;
 

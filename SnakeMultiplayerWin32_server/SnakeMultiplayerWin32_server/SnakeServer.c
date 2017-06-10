@@ -302,14 +302,20 @@ void startClients() {
 ////////////////////////
 
 //START BOARD GAME INITIALIZED EVERYTHING WITH '0'
-Snake initSnake(int startX, int startY, int size) {
+Snake initSnake(int size, int rows, int columns) {
 	Snake snake;
+	int startX, startY;
 	snake.coords = malloc(sizeof(Coords) * size);
 
 	srand(time(NULL));
-	int r = rand() % 2;
+	int orientation = rand() % 2;
 
-	if (r == 0) {	// Horizontal
+	do {
+		startX = rand() % (columns - 1) + 1;
+		startY = rand() % (rows - 1) + 1;
+	} while (verifyPosition(size, startX, startY, orientation));
+
+	if (orientation == 0) {	// Horizontal
 		for (int i = 0; i < size; i++) {
 			snake.coords[i].posX = startX + i;
 			snake.coords[i].posY = startY;
@@ -331,7 +337,29 @@ Snake initSnake(int startX, int startY, int size) {
 	snake.print = snake.id;
 	
 
+	putSnakeIntoBoard(-1, -1, snake);
 	return snake;
+}
+
+BOOL verifyPosition(int size, int rows, int columns, int orientation) {
+
+	if (orientation == 0) {	// horizontal
+		for (int i = 0; i < size; i++)
+		{
+			if (game.boardGame[rows][columns + i] != 0) {
+				return FALSE;
+			}
+		}
+	}
+	else {					// Vertical
+		for (int i = 0; i < size; i++)
+		{
+			if (game.boardGame[rows + i][columns] != 0) {
+				return FALSE;
+			}
+		}
+	}
+	return TRUE;
 }
 
 void initGame() {
@@ -341,8 +369,9 @@ void initGame() {
 	game.Created = TRUE;
 	game.running = FALSE;
 	game.nPlayers = 0;
-	//game.playerSnakes[0] = initSnake(10, 10, 6);
 
+
+	// Initialize board
 	game.boardGame = malloc(sizeof(int) * game.nRows);
 	for (int i = 0; i < game.nRows; i++)	{
 		game.boardGame[i] = malloc(sizeof(int)* game.nColumns);
@@ -356,6 +385,9 @@ void initGame() {
 			}
 		}
 	}
+
+	// Initialize Snake
+	game.playerSnakes[0] = initSnake(dataGame.serpentInitialSize, dataGame.nRows, dataGame.nColumns);
 
 	game.boardGame[2][2] = BLOCK_FOOD;
 
@@ -653,7 +685,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
-	snake = initSnake(10,10,6);
+	//snake = initSnake(10,10,6);
 
 	while (1) {
 
