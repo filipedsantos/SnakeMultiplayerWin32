@@ -314,8 +314,7 @@ Snake initSnake(int startX, int startY, int size) {
 		}
 	}
 
-	//snake.direction = rand() % 4 + 1;
-	snake.direction = LEFT;
+	snake.direction = rand() % 4 + 1;
 	snake.alive = TRUE;
 	snake.size = size;
 
@@ -330,15 +329,16 @@ Snake initSnake(int startX, int startY, int size) {
 void initGameInfo() {
 	x = y = 0;
 
-	//change 3 for a variable from edit control
-
 	for (int i = 0; i < dataGame.nRows; i++) {
 		for (int j = 0; j < dataGame.nColumns; j++) {
-
-			gameInfo.boardGame[i][j] = 0;
-
+			gameInfo.boardGame[i][j] = BLOCK_EMPTY;
+			if (i == 0 || j == 0 || i == dataGame.nRows - 1 || j == dataGame.nColumns - 1) {
+				gameInfo.boardGame[i][j] = BLOCK_WALL;
+			}
 		}
 	}
+
+	gameInfo.boardGame[2][2] = BLOCK_FOOD;
 
 	gameInfo.nRows = dataGame.nRows;
 	gameInfo.nColumns = dataGame.nColumns;
@@ -357,6 +357,7 @@ void putSnakeIntoBoard(int delX, int delY, Snake snake) {
 }
 
 Snake move(Snake snake, int move) {
+	Coords *toEat;
 	Coords toMove = snake.coords[0];
 	int delX, delY;
 
@@ -392,9 +393,16 @@ Snake move(Snake snake, int move) {
 			snake.alive = FALSE;
 			snake.print = 0;
 			delX = delY = -1;
-			return;
 			break;
 		case BLOCK_FOOD:
+			// Grow the snake
+			snake.size++;
+			toEat = malloc(sizeof(Coords) * snake.size);
+			toEat[0] = toMove;
+			for (int i = 1; i < snake.size; i++) {
+				toEat[i] = snake.coords[i - 1];
+			}
+			snake.coords = toEat;
 			break;
 		case BLOCK_ICE:
 			break;
@@ -423,7 +431,7 @@ Snake move(Snake snake, int move) {
 		delX = delY = -1;
 	}
 	
-	if (snake.alive) {
+	if (snake.alive || positionToCheck != BLOCK_FOOD) {
 
 		// Get position to delete in case of move
 		delX = snake.coords[snake.size - 1].posX;

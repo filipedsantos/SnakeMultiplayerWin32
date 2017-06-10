@@ -1,39 +1,43 @@
 ﻿  SnakeUI.c
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(70): warning C4133: 'function': incompatible types - from 'LPCSTR' to 'LPCWSTR'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(50): warning C4101: 'wcApp': unreferenced local variable
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(204): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [2]'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(204): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(205): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [2]'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(205): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(209): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [3]'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(209): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(210): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [3]'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(210): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(253): warning C4047: 'function': 'HWND' differs in levels of indirection from 'int'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(253): warning C4024: 'ShowWindow': different types for formal and actual parameter 1
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(254): warning C4047: 'function': 'HWND' differs in levels of indirection from 'int'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(254): warning C4024: 'ShowWindow': different types for formal and actual parameter 1
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(257): warning C4047: 'function': 'HWND' differs in levels of indirection from 'int'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(257): warning C4024: 'ShowWindow': different types for formal and actual parameter 1
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(258): warning C4047: 'function': 'HWND' differs in levels of indirection from 'int'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(258): warning C4024: 'ShowWindow': different types for formal and actual parameter 1
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(261): warning C4033: 'DialogNewGame' must return a value
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(192): warning C4101: 'hRadioSinglePlayer': unreferenced local variable
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(193): warning C4101: 'hRadioMultiPlayer': unreferenced local variable
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(342): warning C4133: 'function': incompatible types - from 'LPCSTR' to 'LPCWSTR'
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(272): warning C4101: 'auxmemdc': unreferenced local variable
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(430): warning C4129: 's': unrecognized character escape sequence
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(431): warning C4129: 's': unrecognized character escape sequence
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(460): warning C4098: 'startLocal': 'void' function returning a value
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(437): warning C4101: 'getCircularBufferPointerSHM': unreferenced local variable
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(433): warning C4101: 'circularBufferPointer': unreferenced local variable
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(504): warning C4474: 'swprintf_s' : too many arguments passed for format string
-  c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(504): note: placeholders and their parameters expect 0 variadic arguments, but 1 were provided
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(534): warning C4033: 'ThreadClientReaderSHM' must return a value
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(561): warning C4033: 'updateBoard' must return a value
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(595): warning C4022: 'SelectObject': pointer mismatch for actual parameter 2
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(268): warning C4715: 'DialogNewGame': not all control paths return a value
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(551): warning C4715: 'ThreadClientReaderSHM': not all control paths return a value
-c:\users\filipe-desktop\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(589): warning C4716: 'updateBoard': must return a value
-  SnakeMultiplayerWin32_UI.vcxproj -> C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_UI\Debug\SnakeMultiplayerWin32_UI.exe
-  SnakeMultiplayerWin32_UI.vcxproj -> C:\Users\Filipe-Desktop\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_UI\Debug\SnakeMultiplayerWin32_UI.pdb (Full PDB)
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(72): warning C4133: 'function': incompatible types - from 'LPCSTR' to 'LPCWSTR'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(52): warning C4101: 'wcApp': unreferenced local variable
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(207): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [2]'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(207): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(208): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [2]'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(208): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(212): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [3]'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(212): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(213): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [3]'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(213): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(214): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [2]'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(214): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(215): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [2]'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(215): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(219): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [3]'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(219): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(220): warning C4047: 'function': 'LPARAM' differs in levels of indirection from 'unsigned short [3]'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(220): warning C4024: 'SendDlgItemMessageW': different types for formal and actual parameter 5
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(244): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(248): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(195): warning C4101: 'hRadioSinglePlayer': unreferenced local variable
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(196): warning C4101: 'hRadioMultiPlayer': unreferenced local variable
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(396): warning C4133: 'function': incompatible types - from 'LPCSTR' to 'LPCWSTR'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(317): warning C4101: 'hdcDB': unreferenced local variable
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(318): warning C4101: 'hDB': unreferenced local variable
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(312): warning C4101: 'auxmemdc': unreferenced local variable
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(495): warning C4129: 's': unrecognized character escape sequence
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(496): warning C4129: 's': unrecognized character escape sequence
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(525): warning C4098: 'startLocal': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(502): warning C4101: 'getCircularBufferPointerSHM': unreferenced local variable
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(498): warning C4101: 'circularBufferPointer': unreferenced local variable
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(569): warning C4474: 'swprintf_s' : too many arguments passed for format string
+  c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(569): note: placeholders and their parameters expect 0 variadic arguments, but 1 were provided
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(599): warning C4033: 'ThreadClientReaderSHM' must return a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(626): warning C4033: 'updateBoard' must return a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(668): warning C4022: 'SelectObject': pointer mismatch for actual parameter 2
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(616): warning C4715: 'ThreadClientReaderSHM': not all control paths return a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_ui\snakemultiplayerwin32_ui\snakeui.c(662): warning C4716: 'updateBoard': must return a value
+  SnakeMultiplayerWin32_UI.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_UI\Debug\SnakeMultiplayerWin32_UI.exe
+  SnakeMultiplayerWin32_UI.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_UI\Debug\SnakeMultiplayerWin32_UI.pdb (Full PDB)

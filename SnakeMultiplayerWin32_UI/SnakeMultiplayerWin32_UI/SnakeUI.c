@@ -41,6 +41,7 @@ HDC hdc;
 HBITMAP hbitGround;
 HBITMAP hbitSnake;
 HBITMAP hbitApple;
+HBITMAP hbitwall;
 
 GameInfo gameInfo;
 
@@ -187,7 +188,8 @@ BOOL CALLBACK DialogTypeUser(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam
 
 BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
 	data newData;
-	TCHAR aux[1024];
+	TCHAR getText[1024];
+	int nPlayers;
 	
 	HWND hCombo = NULL;
 	HWND hRadioSinglePlayer;
@@ -206,6 +208,13 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_ADDSTRING, 0, TEXT("2"));
 			SendDlgItemMessage(hWnd, IDC_CB_PLAYERS, CB_SETCURSEL, 0, 0);
 
+			// Game Variables
+			SendDlgItemMessage(hWnd, IDC_EDIT_GAME_OBJECTS, EM_REPLACESEL, 0, TEXT("10"));
+			SendDlgItemMessage(hWnd, IDC_EDIT_OBJECTS_DURATION, EM_REPLACESEL, 0, TEXT("10"));
+			SendDlgItemMessage(hWnd, IDC_EDIT_SERPENT_SIZE, EM_REPLACESEL, 0, TEXT("3"));
+			SendDlgItemMessage(hWnd, IDC_EDIT_AI_SERPENTS, EM_REPLACESEL, 0, TEXT("0"));
+
+
 			// ROWS AND COLUMNS
 			SendDlgItemMessage(hWnd, IDC_EDIT_ROWS, EM_REPLACESEL, 0, TEXT("20"));
 			SendDlgItemMessage(hWnd, IDC_EDIT_COLUMNS, EM_REPLACESEL, 0, TEXT("20"));
@@ -220,12 +229,42 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 
 				case ID_CREATE_GAME:
-
+					// COMMAND ID
 					newData.op = CREATE_GAME;
-					GetDlgItemText(hWnd, IDC_EDIT_ROWS, aux, 3);
-					newData.nRows = _wtoi(aux);
-					GetDlgItemText(hWnd, IDC_EDIT_COLUMNS, aux, 3);
-					newData.nColumns = _wtoi(aux);
+					// NUM OF LOCAL PLAYERS
+					if (IsDlgButtonChecked(hWnd, IDC_RADIO_SINGLEPLAYER)) {
+						nPlayers = 1;
+					}
+					else {
+						nPlayers = 2;
+					}
+					newData.numLocalPlayers = nPlayers;
+					// NCKNAME1
+					GetDlgItemText(hWnd, IDC_NICKNAME1, getText, TCHAR_SIZE);
+					_tcscpy(newData.nicknamePlayer1, getText);
+					// NCKNAME2
+					if (newData.numLocalPlayers == 2) {
+						GetDlgItemText(hWnd, IDC_NICKNAME2, getText, TCHAR_SIZE);
+						_tcscpy(newData.nicknamePlayer2, getText);
+					}
+					// GAME OBJECTS
+					GetDlgItemText(hWnd, IDC_EDIT_GAME_OBJECTS, getText, 3);
+					newData.gameObjects = _wtoi(getText);
+					// OBJECTS DURATION
+					GetDlgItemText(hWnd, IDC_EDIT_OBJECTS_DURATION, getText, 3);
+					newData.objectsDuration = _wtoi(getText);
+					// SERPENTS INITIAL SIZE
+					GetDlgItemText(hWnd, IDC_EDIT_SERPENT_SIZE, getText, 2);
+					newData.serpentInitialSize= _wtoi(getText);
+					// AI SERPENTS
+					GetDlgItemText(hWnd, IDC_EDIT_AI_SERPENTS, getText, 3);
+					newData.AIserpents = _wtoi(getText);
+					// BOARD ROWS
+					GetDlgItemText(hWnd, IDC_EDIT_ROWS, getText, 3);
+					newData.nRows = _wtoi(getText);
+					// BOARD COLUMNS
+					GetDlgItemText(hWnd, IDC_EDIT_COLUMNS, getText, 3);
+					newData.nColumns = _wtoi(getText);
 
 					sendCommand(newData);
 					
@@ -247,19 +286,19 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					//hCaption = GetDlgItem(hWnd, IDC_CAPTION_NICK);
 					if (HIWORD(wParam) == CBN_SELENDOK) {
 
-						GetDlgItemText(hWnd, IDC_CB_PLAYERS, aux, 2);
+						GetDlgItemText(hWnd, IDC_CB_PLAYERS, getText, 2);
 						
 						//SELECTION 2 MAKE 2ND TEXT BOX - ABOUT NICKNAME - APPEAR
-						if (_tcscmp(aux, TEXT("2")) == 0) {
-							ShowWindow(IDC_NICKNAME2, SW_SHOWNORMAL);
-							ShowWindow(IDC_CAPTION_NICK, SW_SHOWNORMAL);
+						if (_tcscmp(getText, TEXT("2")) == 0) {
+							ShowWindow(GetDlgItem(hWnd, IDC_NICKNAME2), SW_SHOWNORMAL);
+							ShowWindow(GetDlgItem(hWnd, IDC_CAPTION_NICK), SW_SHOWNORMAL);
 						}
 						else {
-							ShowWindow(IDC_NICKNAME2, SW_HIDE);
-							ShowWindow(IDC_CAPTION_NICK, SW_HIDE);
+							ShowWindow(GetDlgItem(hWnd, IDC_NICKNAME2), SW_HIDE);
+							ShowWindow(GetDlgItem(hWnd, IDC_CAPTION_NICK), SW_HIDE);
 						}
 					}
-					return;
+					return 1;
 			}
 
 	}
@@ -273,6 +312,10 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	HDC auxmemdc;					// handler para Device Context auxiliar em mem�ria
 									// que vai conter o bitmap 
 	PAINTSTRUCT ps;				// Ponteiro para estrutura de WM_PAINT
+	
+	// Double Buffer
+	HDC hdcDB;
+	HBITMAP hDB;
 
 	switch (messg) {
 		case WM_CREATE:
@@ -282,12 +325,18 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 			hdc = GetDC(hWnd);
 			memdc = CreateCompatibleDC(hdc);
+			// Create background
 			hbitGround = CreateCompatibleBitmap(hdc, 800, 650);
 			SelectObject(memdc, hbitGround);
+			// Create snake
 			hbitSnake = CreateCompatibleBitmap(hdc, 800, 650);
 			SelectObject(memdc, hbitSnake);
+			// Create food
 			hbitApple = CreateCompatibleBitmap(hdc, 800, 650);
 			SelectObject(memdc, hbitApple);
+			// Create wall
+			hbitwall = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitwall);
 			hbrush = GetStockObject(WHITE_BRUSH);				
 			SelectObject(memdc, hbrush);
 			PatBlt(memdc, 0, 0, 800, 650, PATCOPY);
@@ -297,6 +346,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			hbitGround = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GRASS));
 			hbitSnake = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE));
 			hbitApple = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_APPLE));
+			hbitwall = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_WALL1));
 			break;
 		}
 
@@ -308,7 +358,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 		case WM_KEYDOWN:
 		{
-			InvalidateRect(NULL, NULL, TRUE);
+			//InvalidateRect(NULL, NULL, TRUE);
 			data.op = MOVE_SNAKE;
 
 			switch (wParam) {
@@ -362,10 +412,21 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 		case WM_PAINT:
 		{
+
 			hdc = BeginPaint(hWnd, &ps);
+
+			// Double Buffer
+			/*if (hdcDB == NULL) {
+				hdcDB = CreateCompatibleDC(hdc);
+				hdcDB = CreateCompatibleBitmap(hdc, 800, 650);
+				SelectObject(hdcDB, hDB);
+			}
+			BitBlt(hdcDB, 0, 0, 800, 650, hbitGround, 0, 0, SRCCOPY);
+			BitBlt(hdc, 0, 0, 800, 650, hdcDB, 0, 0, SRCCOPY);*/
+
 			
 			BitBlt(hdc, 0, 0, 800, 650, memdc, 0, 0, SRCCOPY);
-			//Rectangle(ps.hdc, rectangle.left, rectangle.top, rectangle.right, rectangle.bottom);
+
 			EndPaint(hWnd, &ps);
 			break;
 		}
@@ -584,6 +645,10 @@ DWORD WINAPI updateBoard(LPVOID lpParam) {
 				if (gameInfo.boardGame[l][c] == BLOCK_FOOD) {
 
 					bitmap(x, x + 20, y, y + 20, hbitApple);
+				}
+				if (gameInfo.boardGame[l][c] == BLOCK_WALL) {
+
+					bitmap(x, x + 20, y, y + 20, hbitwall);
 				}
 				x += 20;
 			}

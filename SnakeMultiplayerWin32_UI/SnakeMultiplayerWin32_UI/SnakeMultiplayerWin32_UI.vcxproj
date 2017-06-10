@@ -156,6 +156,8 @@
     <Image Include="apple2.bmp" />
     <Image Include="grass.bmp" />
     <Image Include="gray.bmp" />
+    <Image Include="wall__1.bmp" />
+    <Image Include="wall__2.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

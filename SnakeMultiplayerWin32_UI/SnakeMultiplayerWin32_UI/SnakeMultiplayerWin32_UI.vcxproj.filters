@@ -45,5 +45,11 @@
     <Image Include="apple2.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="wall__1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wall__2.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

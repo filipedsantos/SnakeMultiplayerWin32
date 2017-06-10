@@ -5,6 +5,7 @@
 #define BUFFSIZE 1024
 #define TCHARSIZE 30
 
+#define TCHAR_SIZE	60
 #define WHO 		60
 #define COMMANDSIZE 60
 #define SIZECIRCULARBUFFER 20
@@ -15,11 +16,23 @@ TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 typedef struct data {
 	TCHAR who[WHO];
 	TCHAR command[COMMANDSIZE];
-	int op;			// Option 
-	int nPlayers;	// Number of players to join the created game
+
+	int op;					// Command ID 
+	int numLocalPlayers;	// Number of players to join the created game
 	int nRows;
 	int nColumns;
+
+	int typeOfGame;				// SinglePlayer or MultiPlayer
+	int gameObjects;
+	int objectsDuration;
+	int serpentInitialSize;
+	int AIserpents;
+
+	TCHAR nicknamePlayer1[TCHAR_SIZE];
+	TCHAR nicknamePlayer2[TCHAR_SIZE];
+
 	int direction;
+
 } data, *pData;
 
 #define DataStructSize sizeof(data)
