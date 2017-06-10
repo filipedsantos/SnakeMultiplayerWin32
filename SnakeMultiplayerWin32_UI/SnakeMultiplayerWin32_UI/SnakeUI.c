@@ -10,6 +10,7 @@ LRESULT CALLBACK MainWindow(HWND, UINT, WPARAM, LPARAM);
 ATOM registerClass(HINSTANCE hInst, TCHAR * szWinName);
 HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName);
 BOOL CALLBACK DialogTypeUser(HWND, UINT, WPARAM, LPARAM);
+BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam);
 
 void closeEverything();
 void startMainWindow();
@@ -25,6 +26,8 @@ TCHAR *WindowName = TEXT("Snake Multiplayer");
 TCHAR error[1024];
 int windowMode = 0;
 
+BOOL cannotCreate = FALSE;
+
 HANDLE hMapFile;
 HANDLE eWriteToServerSHM;
 HANDLE eReadFromServerSHM;
@@ -37,7 +40,8 @@ HWND hWnd;			// hWnd é o handler da janela, gerado mais abaixo por CreateWindow
 int maxX, maxY;		// Dimens�es do �cran
 HBRUSH hbrush;		// Cor de fundo da janela
 HDC memdc;			// handler para imagem da janela em mem�ria
-HDC hdc;			
+HDC hdc;	
+
 HBITMAP hbitGround;
 HBITMAP hbitSnake;
 HBITMAP hbitApple;
@@ -45,7 +49,10 @@ HBITMAP hbitwall;
 
 GameInfo gameInfo;
 
-static RECT rectangle;
+TCHAR keyLeft  = TEXT('A');
+TCHAR keyRight = TEXT('D');
+TCHAR keyUp    = TEXT('W');
+TCHAR keyDown  = TEXT('S');
 
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow) {
 	MSG lpMsg;											// MSG é uma estrutura definida no Windows para as mensagens
@@ -219,6 +226,7 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			SendDlgItemMessage(hWnd, IDC_EDIT_ROWS, EM_REPLACESEL, 0, TEXT("20"));
 			SendDlgItemMessage(hWnd, IDC_EDIT_COLUMNS, EM_REPLACESEL, 0, TEXT("20"));
 
+			SendDlgItemMessage(hWnd, IDC_NICKNAME1, EM_REPLACESEL, 0, TEXT("MARIO"));
 
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
@@ -231,6 +239,7 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 				case ID_CREATE_GAME:
 					// COMMAND ID
 					newData.op = CREATE_GAME;
+
 					// NUM OF LOCAL PLAYERS
 					if (IsDlgButtonChecked(hWnd, IDC_RADIO_SINGLEPLAYER)) {
 						nPlayers = 1;
@@ -238,36 +247,52 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					else {
 						nPlayers = 2;
 					}
+
 					newData.numLocalPlayers = nPlayers;
+
 					// NCKNAME1
 					GetDlgItemText(hWnd, IDC_NICKNAME1, getText, TCHAR_SIZE);
 					_tcscpy(newData.nicknamePlayer1, getText);
+
 					// NCKNAME2
 					if (newData.numLocalPlayers == 2) {
 						GetDlgItemText(hWnd, IDC_NICKNAME2, getText, TCHAR_SIZE);
 						_tcscpy(newData.nicknamePlayer2, getText);
 					}
+
 					// GAME OBJECTS
 					GetDlgItemText(hWnd, IDC_EDIT_GAME_OBJECTS, getText, 3);
 					newData.gameObjects = _wtoi(getText);
+
 					// OBJECTS DURATION
 					GetDlgItemText(hWnd, IDC_EDIT_OBJECTS_DURATION, getText, 3);
 					newData.objectsDuration = _wtoi(getText);
+
 					// SERPENTS INITIAL SIZE
 					GetDlgItemText(hWnd, IDC_EDIT_SERPENT_SIZE, getText, 2);
 					newData.serpentInitialSize= _wtoi(getText);
+
 					// AI SERPENTS
 					GetDlgItemText(hWnd, IDC_EDIT_AI_SERPENTS, getText, 3);
 					newData.AIserpents = _wtoi(getText);
+
 					// BOARD ROWS
 					GetDlgItemText(hWnd, IDC_EDIT_ROWS, getText, 3);
 					newData.nRows = _wtoi(getText);
+
 					// BOARD COLUMNS
 					GetDlgItemText(hWnd, IDC_EDIT_COLUMNS, getText, 3);
 					newData.nColumns = _wtoi(getText);
 
 					sendCommand(newData);
 					
+					EndDialog(hWnd, 0);
+					MessageBox(hWnd, TEXT("Press OK to begin the game"), TEXT("StartGame"), MB_OK);
+					
+					newData.op = START_GAME;
+					sendCommand(newData);
+					
+
 					hMovementThread = CreateThread(NULL,
 													0,
 													updateBoard,
@@ -276,7 +301,7 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 													0
 												   );
 
-					EndDialog(hWnd, 0);
+					
 					return 1;
 					
 					
@@ -303,6 +328,28 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 	}
 	
+
+	return 0;
+}
+
+BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
+{
+	switch (messg) {
+
+	case WM_INITDIALOG:
+		break;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		default:
+			break;
+		}
+
+	case WM_DESTROY:
+		EndDialog(hWnd, 0);
+		return 0;
+	}
 
 	return 0;
 }
@@ -358,10 +405,11 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 		case WM_KEYDOWN:
 		{
-			//InvalidateRect(NULL, NULL, TRUE);
+			
 			data.op = MOVE_SNAKE;
 
 			switch (wParam) {
+
 			case VK_LEFT:
 				data.direction = LEFT;
 				break;
@@ -382,8 +430,21 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 
+			if (wParam == keyLeft)
+				data.direction = LEFT;
+			if (wParam == keyUp)
+				data.direction = UP;
+			if (wParam == keyRight)
+				data.direction = RIGHT;
+			if (wParam == keyDown)
+				data.direction = DOWN;
+
 			sendCommand(data);
+			break;
+
 		}
+
+		
 
 		case WM_COMMAND:
 		{
@@ -393,7 +454,16 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 				break;
 
 			case ID_FILE_NEWGAME:
-				DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
+				if (!cannotCreate) {
+					DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
+				}
+				else {
+					createErrorMessageBox(TEXT("GAME ALREADY RUNNING...."));
+				}
+				break;
+					
+			case ID_SETTINGS_CONTROLS40009:
+				DialogBox(hThisInst, (LPCSTR)IDD_EDIT_CONTROLS, hWnd, (DLGPROC)DialogEditControls);
 				break;
 
 			default:
@@ -604,9 +674,12 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 		}
 		
 		gameInfo = getInfoSHM();
-		/*if (getInfoSHM().commandId == MOVE_SNAKE) {
-			updateBoard();
-		}*/
+		
+		switch (gameInfo.commandId) {
+			case ERROR_CANNOT_CREATE_GAME:
+				cannotCreate = TRUE;
+				break;
+		}
 
 		ResetEvent(eReadFromServerSHM);
 
@@ -617,39 +690,31 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 
 DWORD WINAPI updateBoard(LPVOID lpParam) {
 
-	GameInfo(*getInfoSHM)();
-
-	getInfoSHM = (GameInfo(*)()) GetProcAddress(hSnakeDll, "getInfoSHM");
-	if (getInfoSHM == NULL) {
-		_stprintf_s(error, 1024, TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)"), GetLastError());
-		createErrorMessageBox(error);
-		return;
-	}
-
 	while (1) {
 
 		WaitForSingleObject(eReadFromServerSHM, INFINITE);
-		gameInfo = getInfoSHM();
 		hdc = GetDC(hWnd);
 
 		int x = 0, y = 0;
 		for (int l = 0; l < gameInfo.nRows; l++) {
 			for (int c = 0; c < gameInfo.nColumns; c++) {
-				if (gameInfo.boardGame[l][c] == BLOCK_EMPTY) {
-					
-					bitmap(x, x + 20, y, y + 20, hbitGround);
+
+				switch (gameInfo.boardGame[l][c]) {
+					case BLOCK_EMPTY:
+						bitmap(x, x + 20, y, y + 20, hbitGround);
+						break;
+					case BLOCK_FOOD:
+						bitmap(x, x + 20, y, y + 20, hbitApple);
+						break;
+					case BLOCK_WALL:
+						bitmap(x, x + 20, y, y + 20, hbitwall);
+						break;
 				}
+				
 				if (gameInfo.boardGame[l][c] == 5) {
 					bitmap(x, x + 20, y, y + 20, hbitSnake);
 				}
-				if (gameInfo.boardGame[l][c] == BLOCK_FOOD) {
-
-					bitmap(x, x + 20, y, y + 20, hbitApple);
-				}
-				if (gameInfo.boardGame[l][c] == BLOCK_WALL) {
-
-					bitmap(x, x + 20, y, y + 20, hbitwall);
-				}
+				
 				x += 20;
 			}
 			x = 0;
@@ -666,7 +731,7 @@ void bitmap(left, right, top, bot, hbit) {
 	HDC auxmemdc = CreateCompatibleDC(hdc);
 	
 	SelectObject(auxmemdc, hbit);
-	BitBlt(hdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
+	//BitBlt(hdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
 	ReleaseDC(hWnd, hdc);
 	BitBlt(memdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
 	DeleteDC(auxmemdc);

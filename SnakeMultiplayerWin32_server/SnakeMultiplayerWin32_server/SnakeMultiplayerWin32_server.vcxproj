@@ -22,7 +22,6 @@
     <ClCompile Include="SnakeServer.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Player.h" />
     <ClInclude Include="SnakeServer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

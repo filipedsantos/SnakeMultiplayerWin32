@@ -1,6 +1,5 @@
 #pragma once
 #include <windows.h>
-#include "Player.h"
 
 // Defines
 #define BUFFSIZE 1024
@@ -20,10 +19,19 @@
 #define START_GAME		104
 #define MOVE_SNAKE		105
 
+//errors
+#define ERROR_CANNOT_CREATE_GAME 506
+
+//messages
+#define SHM_ALL 600
+
+
 #define LEFT  1
 #define RIGHT 2
 #define UP    3
 #define DOWN  4
+
+
 
 // STRUCTS
 typedef struct data {
@@ -63,7 +71,6 @@ typedef struct Scores {
 	int score;
 }Scores, *pScores;
 
-// Struct to send info about the actual state of game to the client
 typedef struct GameInfo {
 
 	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
@@ -72,6 +79,8 @@ typedef struct GameInfo {
 	int boardGame[100][100];			// variable that send information about the game variables - snakes, food, etc...
 	int nRows, nColumns;
 } GameInfo, *pGameInfo;
+
+// Struct to send info about the actual state of game to the client
 
 #define GameInfoStructSize sizeof(GameInfo)
 
@@ -94,14 +103,33 @@ typedef struct Coords {
 } Coords, *pCoords;
 
 typedef struct Snake {
+	
+	//PLAYER
+	TCHAR nickname[TCHARSIZE];
 	int id;
+	int score;
+	
+	//SNAKE
 	Coords *coords;
 	int size;
-
 	BOOL alive;
 	int direction;
 	int print;		// save the id of the snake/player to print ; when snake die this print = 0 and not change the original id
+
 } Snake, *pSnake;
+
+typedef struct Game {
+
+	//int commandId;						
+	Scores scores[SIZECIRCULARBUFFER];
+	int  **boardGame;
+	BOOL Created;
+	BOOL running;
+	int nPlayers;
+	int nRows, nColumns;
+	Snake playerSnakes[MAXCLIENTS];
+
+} Game, *pGame;
 
 // END STRUCTS
 
@@ -114,10 +142,11 @@ void broadcastClients(data dataReply);
 void initializeServer();
 void initializeNamedPipes();
 void initializeSharedMemory();
-void initGameInfo();
+void initGame();
 void putSnakeIntoBoard(int delX, int delY, Snake snake);
 Snake move(Snake snake, int move);
 Snake initSnake(int startX, int startY, int size);
+void updateGameInfo();
 
 // Threads
 DWORD WINAPI listenClientNamedPipes(LPVOID params);

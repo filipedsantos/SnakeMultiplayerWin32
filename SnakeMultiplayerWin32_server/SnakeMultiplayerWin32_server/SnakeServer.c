@@ -9,6 +9,8 @@
 
 #include "SnakeServer.h"
 
+void(*setInfoSHM)();
+
 TCHAR readWriteMapName[] = TEXT("fileMappingReadWrite");
 
 HANDLE clients[MAXCLIENTS];
@@ -27,7 +29,7 @@ int x, y;
 
 data dataGame;
 GameInfo gameInfo;
-
+Game game;
 //MAIN 
 
 
@@ -107,6 +109,12 @@ void initializeSharedMemory() {
 
 	if (!createFileMap()) {
 		_tprintf(TEXT("[SHM ERROR] Creating File Map Object... (%d)"), GetLastError());
+		return;
+	}
+
+	setInfoSHM = (void(*)()) GetProcAddress(hSnakeDll, "setInfoSHM");
+	if (setInfoSHM == NULL) {
+		_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
 		return;
 	}
 
@@ -326,32 +334,41 @@ Snake initSnake(int startX, int startY, int size) {
 	return snake;
 }
 
-void initGameInfo() {
-	x = y = 0;
+void initGame() {
 
-	for (int i = 0; i < dataGame.nRows; i++) {
-		for (int j = 0; j < dataGame.nColumns; j++) {
-			gameInfo.boardGame[i][j] = BLOCK_EMPTY;
-			if (i == 0 || j == 0 || i == dataGame.nRows - 1 || j == dataGame.nColumns - 1) {
-				gameInfo.boardGame[i][j] = BLOCK_WALL;
+	game.nRows = dataGame.nRows;
+	game.nColumns = dataGame.nColumns;
+	game.Created = TRUE;
+	game.running = FALSE;
+	game.nPlayers = 0;
+	//game.playerSnakes[0] = initSnake(10, 10, 6);
+
+	game.boardGame = malloc(sizeof(int) * game.nRows);
+	for (int i = 0; i < game.nRows; i++)	{
+		game.boardGame[i] = malloc(sizeof(int)* game.nColumns);
+	}
+
+	for (int i = 0; i < game.nRows; i++) {
+		for (int j = 0; j < game.nColumns; j++) {
+			game.boardGame[i][j] = BLOCK_EMPTY;
+			if (i == 0 || j == 0 || i == game.nRows - 1 || j == game.nColumns - 1) {
+				game.boardGame[i][j] = BLOCK_WALL;
 			}
 		}
 	}
 
-	gameInfo.boardGame[2][2] = BLOCK_FOOD;
+	game.boardGame[2][2] = BLOCK_FOOD;
 
-	gameInfo.nRows = dataGame.nRows;
-	gameInfo.nColumns = dataGame.nColumns;
 }
 
 void putSnakeIntoBoard(int delX, int delY, Snake snake) {
 
 	
 	for (int i = 0; i < snake.size; i++) {
-		gameInfo.boardGame[snake.coords[i].posY][snake.coords[i].posX] = snake.print;
+		game.boardGame[snake.coords[i].posY][snake.coords[i].posX] = snake.print;
 	}
 	if (delX >= 0 && delY >= 0) {
-		gameInfo.boardGame[delY][delX] = 0;
+		game.boardGame[delY][delX] = 0;
 	}
 	
 }
@@ -359,7 +376,7 @@ void putSnakeIntoBoard(int delX, int delY, Snake snake) {
 Snake move(Snake snake, int move) {
 	Coords *toEat;
 	Coords toMove = snake.coords[0];
-	int delX, delY;
+	int delX=-1, delY=-1;
 
 	switch (move) {
 		case RIGHT:
@@ -381,7 +398,7 @@ Snake move(Snake snake, int move) {
 	}
 
 	// Get position to check
-	int positionToCheck = gameInfo.boardGame[toMove.posY][toMove.posX];
+	int positionToCheck = game.boardGame[toMove.posY][toMove.posX];
 	
 	// Verify the position to go before move the snake
 	switch (positionToCheck) {
@@ -431,7 +448,7 @@ Snake move(Snake snake, int move) {
 		delX = delY = -1;
 	}
 	
-	if (snake.alive || positionToCheck != BLOCK_FOOD) {
+	if (snake.alive && positionToCheck != BLOCK_FOOD) {
 
 		// Get position to delete in case of move
 		delX = snake.coords[snake.size - 1].posX;
@@ -470,6 +487,17 @@ Snake move(Snake snake, int move) {
 	return snake;
 }
 
+void updateGameInfo() {
+	gameInfo.nRows = game.nRows;
+	gameInfo.nColumns = game.nColumns;
+
+	for (int i = 0; i < game.nRows; i++) {
+		for (int j = 0; j < game.nColumns; j++) {
+			gameInfo.boardGame[i][j] = game.boardGame[i][j];
+		}
+	}
+
+}
 
 //////////////
 //THREADS ////
@@ -578,6 +606,16 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 
 				break;
 			case CREATE_GAME:
+				if (!game.Created)
+					initGame();
+				else{
+					gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
+					setInfoSHM(gameInfo);
+				}
+					
+				break;
+			case START_GAME:
+				if(!game.Created){}
 				hGameThread = CreateThread(
 					NULL,
 					0,
@@ -613,19 +651,9 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 DWORD WINAPI gameThread(LPVOID params) {
 	Snake snake;
 
-	void(*setInfoSHM)();
-
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
-	//GETDATA IN CORRECT PULL POSITION
-	setInfoSHM = (void(*)()) GetProcAddress(hSnakeDll, "setInfoSHM");
-	if (setInfoSHM == NULL) {
-		_tprintf(TEXT("[SHM ERROR] Loading getDataSHM function from DLL (%d)\n"), GetLastError());
-		return;
-	}
-
 	snake = initSnake(10,10,6);
-	initGameInfo();
 
 	while (1) {
 
@@ -656,19 +684,20 @@ DWORD WINAPI gameThread(LPVOID params) {
 			}
 
 			_tprintf(TEXT("\n\n"));
-			for (int i = 0; i < gameInfo.nRows; i++) {
-				for (int j = 0; j < gameInfo.nRows; j++) {
-					_tprintf(TEXT(" %d "), gameInfo.boardGame[i][j]);
+			for (int i = 0; i < game.nRows; i++) {
+				for (int j = 0; j < game.nRows; j++) {
+					_tprintf(TEXT(" %d "), game.boardGame[i][j]);
 				}
 				_tprintf(TEXT("\n"));
 			}
 		}
 		diretionToGo = 0;
 
+
+		updateGameInfo();
 		setInfoSHM(gameInfo);
 		SetEvent(eWriteToClientSHM);
 		Sleep(0.5*1000);
 	}
 }
-
 

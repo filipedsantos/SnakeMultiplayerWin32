@@ -19,6 +19,8 @@
 #define START_GAME		104
 #define MOVE_SNAKE		105
 
+#define ERROR_CANNOT_CREATE_GAME 106
+
 #define BLOCK_EMPTY			0
 #define BLOCK_WALL			1
 #define BLOCK_FOOD			2
