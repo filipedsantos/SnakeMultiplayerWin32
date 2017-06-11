@@ -2,6 +2,7 @@
 #include <windows.h>
 
 // Defines
+#define MINIDPLAYER 1000
 #define BUFFSIZE 1024
 #define TCHARSIZE 30
 
@@ -18,6 +19,10 @@
 #define SCORES			103
 #define START_GAME		104
 #define MOVE_SNAKE		105
+#define MOVE_SNAKE2		106
+
+
+
 
 //errors
 #define ERROR_CANNOT_CREATE_GAME 506
@@ -49,7 +54,9 @@ typedef struct data {
 	int serpentInitialSize;
 	int AIserpents;
 
+	int playerId;
 	TCHAR nicknamePlayer1[TCHAR_SIZE];
+
 	TCHAR nicknamePlayer2[TCHAR_SIZE];
 
 	int direction;
@@ -71,9 +78,10 @@ typedef struct Scores {
 	int score;
 }Scores, *pScores;
 
+// Struct to send info about the actual state of game to the client
 typedef struct GameInfo {
-
-	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
+	int playerId;						// id for wich player send info (1000 for all)
+										//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
 	int commandId;						// variable to inform client about the actual command
 	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
 	int boardGame[100][100];			// variable that send information about the game variables - snakes, food, etc...
@@ -145,8 +153,10 @@ void initializeSharedMemory();
 void initGame();
 void putSnakeIntoBoard(int delX, int delY, Snake snake);
 Snake move(Snake snake, int move);
-Snake initSnake(int startX, int startY, int size);
+Snake initSnake(int startX, int startY, int size, int id);
 void updateGameInfo();
+void initObjetcts(int objectType, int nObjects);
+void moveSnake(int id, int direction);
 
 // Threads
 DWORD WINAPI listenClientNamedPipes(LPVOID params);

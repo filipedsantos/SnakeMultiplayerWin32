@@ -28,6 +28,7 @@ typedef struct data {
 	int serpentInitialSize;
 	int AIserpents;
 
+	int playerId;
 	TCHAR nicknamePlayer1[TCHAR_SIZE];
 	TCHAR nicknamePlayer2[TCHAR_SIZE];
 
@@ -52,11 +53,11 @@ typedef struct Scores {
 
 // Struct to send info about the actual state of game to the client
 typedef struct GameInfo {
-
-	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
+	int playerId;						// id for wich player send info (1000 for all)
+										//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
 	int commandId;						// variable to inform client about the actual command
 	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
-	int boardGame[100][100];					// variable that send information about the game variables - snakes, food, etc...
+	int boardGame[100][100];			// variable that send information about the game variables - snakes, food, etc...
 	int nRows, nColumns;
 } GameInfo, *pGameInfo;
 

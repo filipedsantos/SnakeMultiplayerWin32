@@ -21,6 +21,7 @@
 #define SCORES			103
 #define START_GAME		104
 #define MOVE_SNAKE		105
+#define MOVE_SNAKE2		106
 
 #define ERROR_CANNOT_CREATE_GAME 106
 
@@ -57,7 +58,9 @@ typedef struct data {
 	int serpentInitialSize;
 	int AIserpents;
 
+	int playerId;
 	TCHAR nicknamePlayer1[TCHAR_SIZE];
+
 	TCHAR nicknamePlayer2[TCHAR_SIZE];
 
 	int direction;
@@ -81,7 +84,7 @@ typedef struct Scores {
 
 // Struct to send info about the actual state of game to the client
 typedef struct GameInfo {
-
+	int playerId;						// id for wich player send info (1000 for all)
 	//TCHAR message[BUFFSIZE];			// variable to send some additional info to client
 	int commandId;						// variable to inform client about the actual command
 	Scores scores[SIZECIRCULARBUFFER];	// array to send info about scores
