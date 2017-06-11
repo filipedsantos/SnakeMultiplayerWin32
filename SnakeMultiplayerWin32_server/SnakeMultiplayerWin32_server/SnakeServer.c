@@ -756,28 +756,28 @@ void moveSnake(int id, int direction) {
 
 			if ( game.playerSnakes[0].alive) {
 				switch (diretionToGo) {
-				case RIGHT:
-					if (game.playerSnakes[i].direction != LEFT) {
-						game.playerSnakes[i] = move(game.playerSnakes[0], RIGHT);
-					}
-					break;
-				case LEFT:
-					if (game.playerSnakes[i].direction != RIGHT) {
-						game.playerSnakes[i] = move(game.playerSnakes[0], LEFT);
-					}
-					break;
-				case UP:
-					if (game.playerSnakes[i].direction != DOWN) {
-						game.playerSnakes[i] = move(game.playerSnakes[0], UP);
-					}
-					break;
-				case DOWN:
-					if (game.playerSnakes[i].direction != UP) {
-						game.playerSnakes[i] = move(game.playerSnakes[0], DOWN);
-					}
-					break;
-				default:
-					break;
+					case RIGHT:
+						if (game.playerSnakes[i].direction != LEFT) {
+							game.playerSnakes[i] = move(game.playerSnakes[0], RIGHT);
+						}
+						break;
+					case LEFT:
+						if (game.playerSnakes[i].direction != RIGHT) {
+							game.playerSnakes[i] = move(game.playerSnakes[0], LEFT);
+						}
+						break;
+					case UP:
+						if (game.playerSnakes[i].direction != DOWN) {
+							game.playerSnakes[i] = move(game.playerSnakes[0], UP);
+						}
+						break;
+					case DOWN:
+						if (game.playerSnakes[i].direction != UP) {
+							game.playerSnakes[i] = move(game.playerSnakes[0], DOWN);
+						}
+						break;
+					default:
+						break;
 				}
 			}
 		}
