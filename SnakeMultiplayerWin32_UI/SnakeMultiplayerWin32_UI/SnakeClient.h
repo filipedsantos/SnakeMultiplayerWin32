@@ -61,6 +61,7 @@ typedef struct data {
 	int playerId;
 	TCHAR nicknamePlayer1[TCHAR_SIZE];
 
+	int playerId2;
 	TCHAR nicknamePlayer2[TCHAR_SIZE];
 
 	int direction;

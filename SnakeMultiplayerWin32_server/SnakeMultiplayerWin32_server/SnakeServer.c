@@ -1,4 +1,6 @@
+#define _WIN32_WINNT 0x0500
 #include <Windows.h>
+#include <sddl.h>
 #include <stdio.h>
 #include <tchar.h>
 #include <strsafe.h>
@@ -167,6 +169,13 @@ void initializeNamedPipes() {
 
 	//////CREATE NAMEDPIPE THEN CREATE THREAD FOR USER
 
+	SECURITY_ATTRIBUTES sa;
+	TCHAR *szSD = TEXT("(A;OICI;GA;;;AU)");
+	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+	sa.bInheritHandle = FALSE;
+
+	//ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(sa->lpSecurityDescriptor), NULL);
+
 	while (1) {
 		hPipe = CreateNamedPipe(
 			lpszPipeName,			 //name
@@ -179,7 +188,7 @@ void initializeNamedPipes() {
 			BUFFSIZE,
 			BUFFSIZE,
 			5000,					 //TIMEOUT
-			NULL);					 //DEFAULT SECURITY	
+			NULL);	//&sa					 //DEFAULT SECURITY	
 
 
 		if (hPipe == INVALID_HANDLE_VALUE) {
@@ -311,6 +320,7 @@ Snake initSnake(int size, int rows, int columns, int id) {
 	int orientation = rand() % 2;
 
 	do {
+		srand(time(NULL));
 		startX = rand() % (columns - 1) + 1;
 		startY = rand() % (rows - 1) + 1;
 	} while (!verifyPosition(size, startX, startY, orientation));
@@ -388,10 +398,12 @@ void initGame(data dataGame) {
 	// Initialize the Player and the Snake
 	_tcscpy(game.playerSnakes[0].nickname, dataGame.nicknamePlayer1);
 	game.playerSnakes[0] = initSnake(dataGame.serpentInitialSize, dataGame.nRows, dataGame.nColumns, dataGame.playerId);
+	game.nPlayers++;
 
 	if (dataGame.numLocalPlayers == 2) {
 		_tcscpy(game.playerSnakes[1].nickname, dataGame.nicknamePlayer2);
-		game.playerSnakes[1] = initSnake(dataGame.serpentInitialSize, dataGame.nRows, dataGame.nColumns, dataGame.playerId++);
+		game.playerSnakes[1] = initSnake(dataGame.serpentInitialSize, dataGame.nRows, dataGame.nColumns, dataGame.playerId2);
+		game.nPlayers++;
 	}
 
 	// Initialize some objets
@@ -424,12 +436,12 @@ void putSnakeIntoBoard(int delX, int delY, Snake snake) {
 	
 }
 
-Snake move(Snake snake, int move) {
+Snake move(Snake snake) {
 	Coords *toEat;
 	Coords toMove = snake.coords[0];
 	int delX=-1, delY=-1;
 
-	switch (move) {
+	switch (snake.direction) {
 		case RIGHT:
 			toMove.posX += 1;
 			toMove.posY = snake.coords[0].posY;
@@ -512,7 +524,7 @@ Snake move(Snake snake, int move) {
 		}
 
 		// Apply the movement to the head
-		switch (move) {
+		switch (snake.direction) {
 			case RIGHT:
 				snake.coords[0].posX += 1;
 				snake.direction = RIGHT;
@@ -650,11 +662,11 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 			case MOVE_SNAKE:
 				playerId = dataGame.playerId;
 				diretionToGo = dataGame.direction;
-				//moveSnake(dataGame.playerId, dataGame.direction);
+				moveIndividualSnake(dataGame.playerId, dataGame.direction);
 				break;
 			case MOVE_SNAKE2:
 				diretionToGo = dataGame.direction;
-				moveSnake(dataGame.playerId++, dataGame.direction);
+				moveIndividualSnake(dataGame.playerId2, dataGame.direction);
 				break;
 			default:
 				break;
@@ -736,11 +748,11 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 				break;
 			case MOVE_SNAKE:
 				diretionToGo = dataGame.direction;
-				moveSnake(dataGame.playerId, dataGame.direction);
+				moveIndividualSnake(dataGame.playerId, dataGame.direction);
 				break;
 			case MOVE_SNAKE2:
 				diretionToGo = dataGame.direction;
-				moveSnake(dataGame.playerId++, dataGame.direction);
+				moveIndividualSnake(dataGame.playerId2, dataGame.direction);
 				break;
 			default:
 				break;
@@ -749,31 +761,30 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 	}	
 }
 
-void moveSnake(int id, int direction) {
-
+void moveIndividualSnake(int id, int direction) {
 	for (int i = 0; i < MAXCLIENTS; i++) {
-		if (game.playerSnakes[i].id) {
+		if (game.playerSnakes[i].id == id) {
 
 			if ( game.playerSnakes[0].alive) {
 				switch (diretionToGo) {
 					case RIGHT:
 						if (game.playerSnakes[i].direction != LEFT) {
-							game.playerSnakes[i] = move(game.playerSnakes[0], RIGHT);
+							game.playerSnakes[i].direction = RIGHT;
 						}
 						break;
 					case LEFT:
 						if (game.playerSnakes[i].direction != RIGHT) {
-							game.playerSnakes[i] = move(game.playerSnakes[0], LEFT);
+							game.playerSnakes[i].direction = LEFT;
 						}
 						break;
 					case UP:
 						if (game.playerSnakes[i].direction != DOWN) {
-							game.playerSnakes[i] = move(game.playerSnakes[0], UP);
+							game.playerSnakes[i].direction = UP;
 						}
 						break;
 					case DOWN:
 						if (game.playerSnakes[i].direction != UP) {
-							game.playerSnakes[i] = move(game.playerSnakes[0], DOWN);
+							game.playerSnakes[i].direction = DOWN;
 						}
 						break;
 					default:
@@ -793,8 +804,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
 	while (game.running) {
-
-		moveSnake(playerId, diretionToGo);
+		moveSnakes();
 
 		_tprintf(TEXT("\n\n"));
 		for (int i = 0; i < game.nRows; i++) {
@@ -803,13 +813,29 @@ DWORD WINAPI gameThread(LPVOID params) {
 			}
 			_tprintf(TEXT("\n"));
 		}
-
+		
 		updateGameInfo();
 		sendInfoToPlayers(gameInfo);
 		
+		verifyEndGame();
 		Sleep(0.5 * 1000);
 
 	}
+
+	_tprintf(TEXT("\nThread terminou..\n"));
+}
+
+void verifyEndGame(){
+
+	for (int i = 0; i < MAXCLIENTS; i++)
+	{
+		if (game.playerSnakes[i].alive) {
+			return;
+		}
+	}
+	game.running = FALSE;
+	game.Created = FALSE;
+
 }
 
 void sendInfoToPlayers(GameInfo gi) {
@@ -821,6 +847,15 @@ void sendInfoToPlayers(GameInfo gi) {
 	broadcastClients(gi);
 	SetEvent(eWriteToClientNP);
 
+
+}
+
+void moveSnakes() {
+	for (int i = 0; i < MAXCLIENTS; i++) {
+		if (game.playerSnakes[i].id > 1999 && game.playerSnakes[i].id < 2999) {
+			game.playerSnakes[i] = move(game.playerSnakes[i]);
+		}
+	}
 
 }
 

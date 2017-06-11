@@ -10,6 +10,13 @@
 #include "resource.h"
 #include "SnakeClient.h"
 
+HANDLE hUserToken = NULL;
+BOOL log;
+int ret;
+TCHAR	username[20],
+pass[20],
+domain[20];
+
 
 LRESULT CALLBACK MainWindow(HWND, UINT, WPARAM, LPARAM);
 ATOM registerClass(HINSTANCE hInst, TCHAR * szWinName);
@@ -50,6 +57,8 @@ HDC hdc;
 
 HBITMAP hbitGround;
 HBITMAP hbitSnake;
+HBITMAP hbitSnake2;
+HBITMAP hbitSnakeEnemy;
 HBITMAP hbitApple;
 HBITMAP hbitwall;
 
@@ -61,6 +70,7 @@ TCHAR keyUp    = TEXT('W');
 TCHAR keyDown  = TEXT('S');
 
 int myId;
+int myId2;
 
 int typeClient = -1; // LOCAL OR REMOTE
 
@@ -75,6 +85,7 @@ DWORD dwMode;
 HANDLE hThread;
 DWORD dwThreadId = 0;
 LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\SnakeMultiplayerPipe");
+LPTSTR lpszPipeRemoteName;
 
 
 int objects[9] = {100, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -266,16 +277,22 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 				case ID_CREATE_GAME:
 					// COMMAND ID
 					newData.op = CREATE_GAME;
-					// NUM OF LOCAL PLAYERS
+					// SINGLE OR MULTIPLAYER
 					if (IsDlgButtonChecked(hWnd, IDC_RADIO_SINGLEPLAYER)) {
-						nPlayers = 1;
 						newData.typeOfGame = SINGLEPLAYER;
 					}
 					else {
-						nPlayers = 2;
 						newData.typeOfGame = MULTIPLAYER;
 					}
 
+					// NUM LOCAL PLAYERS
+					GetDlgItemText(hWnd, IDC_CB_PLAYERS, getText, TCHAR_SIZE);
+					if (_tcscmp(getText, TEXT("1")) == 0) {
+						nPlayers = 1;
+					}
+					else {
+						nPlayers = 2;
+					}
 					newData.numLocalPlayers = nPlayers;
 
 					// NCKNAME1
@@ -286,6 +303,10 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					if (newData.numLocalPlayers == 2) {
 						GetDlgItemText(hWnd, IDC_NICKNAME2, getText, TCHAR_SIZE);
 						_tcscpy(newData.nicknamePlayer2, getText);
+
+						// create an id for 2 user
+						srand(time(NULL));
+						myId2 = rand() % 1000 + 1999;
 					}
 
 					// GAME OBJECTS
@@ -333,12 +354,7 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					else {
 						createErrorMessageBox(TEXT("Game already created.."));
 					}
-					
-					
 
-					
-
-					
 					return 1;
 					
 					
@@ -572,6 +588,12 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			// Create snake
 			hbitSnake = CreateCompatibleBitmap(hdc, 800, 650);
 			SelectObject(memdc, hbitSnake);
+			// Create snake2
+			hbitSnake2 = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitSnake2);
+			// Create snake enemy
+			hbitSnakeEnemy = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitSnakeEnemy);
 			// Create food
 			hbitApple = CreateCompatibleBitmap(hdc, 800, 650);
 			SelectObject(memdc, hbitApple);
@@ -585,7 +607,9 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			ReleaseDC(hWnd, hdc);
 
 			hbitGround = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GRASS));
-			hbitSnake = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE));
+			hbitSnake = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_YELLOW));
+			hbitSnake2 = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_GRAY));
+			hbitSnakeEnemy = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_RED));
 			hbitApple = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_APPLE));
 			hbitwall = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_WALL1));
 			break;
@@ -619,30 +643,29 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 				case VK_DOWN:
 					data.direction = DOWN;
 					break;
-
 				default:
+					if (wParam == keyLeft) {
+						data.op = MOVE_SNAKE2;
+						data.direction = LEFT;
+					}
+					if (wParam == keyUp) {
+						data.op = MOVE_SNAKE2;
+						data.direction = UP;
+					}
+					if (wParam == keyRight) {
+						data.op = MOVE_SNAKE2;
+						data.direction = RIGHT;
+					}
+
+					if (wParam == keyDown) {
+						data.op = MOVE_SNAKE2;
+						data.direction = DOWN;
+					}
 					break;
 			}
 
-			if (wParam == keyLeft) {
-				data.op = MOVE_SNAKE2;
-				data.direction = LEFT;
-			}
-			if (wParam == keyUp) {
-				data.op = MOVE_SNAKE2;
-				data.direction = UP;
-			}
-			if (wParam == keyRight) {
-				data.op = MOVE_SNAKE2;
-				data.direction = RIGHT;
-			}
-				
-			if (wParam == keyDown) {
-				data.op = MOVE_SNAKE2;
-				data.direction = DOWN;
-			}
-				
-
+			
+			
 			sendCommand(data);
 			break;
 
@@ -868,6 +891,13 @@ void startLocal(){
 void startRemote() {
 
 	while (1) {
+
+		/*_tcscpy(lpszPipeRemoteName, TEXT("\\\\"));
+		_tcscat(lpszPipeRemoteName, domain);
+		_tcscat(lpszPipeRemoteName, lpszPipename);
+
+		log = ImpersonateLoggedOnUser(hUserToken);*/
+
 		// Open pipe with flag - File_Flag_OVERLAPPED
 		hPipe = CreateFile(
 			lpszPipename,								// name of pipe
@@ -930,6 +960,9 @@ void sendCommand(data newData) {
 	void(*setDataSHM)(data);
 
 	newData.playerId = myId;
+	if (newData.numLocalPlayers == 2) {
+		newData.playerId2 = myId2;
+	}
 
 	if (typeClient == LOCALCLIENT) {
 		// GET DLL FUNCTION - setSHM
@@ -1047,8 +1080,14 @@ DWORD WINAPI updateBoard(LPVOID lpParam) {
 						break;
 					}
 
+					if (gameInfo.boardGame[l][c] > 1999) {
+						bitmap(x, x + 20, y, y + 20, hbitSnakeEnemy);
+					}
 					if (gameInfo.boardGame[l][c] == myId) {
 						bitmap(x, x + 20, y, y + 20, hbitSnake);
+					}
+					if (gameInfo.boardGame[l][c] == myId2) {
+						bitmap(x, x + 20, y, y + 20, hbitSnake2);
 					}
 
 					x += 20;
@@ -1153,8 +1192,14 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 						break;
 					}
 
+					if (gameInfo.boardGame[l][c] > 1999) {
+						bitmap(x, x + 20, y, y + 20, hbitSnakeEnemy);
+					}
 					if (gameInfo.boardGame[l][c] == myId) {
 						bitmap(x, x + 20, y, y + 20, hbitSnake);
+					}
+					if (gameInfo.boardGame[l][c] == myId2) {
+						bitmap(x, x + 20, y, y + 20, hbitSnake2);
 					}
 
 					x += 20;

@@ -51,5 +51,44 @@
     <Image Include="wall__2.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="apple__1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="glue__1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ice__1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ice__2.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="oil__1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="oil__2.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="snake__1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="snake__2.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="snake__3.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="snake__4.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="snake__5.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="vodka__1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="vodka__2.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

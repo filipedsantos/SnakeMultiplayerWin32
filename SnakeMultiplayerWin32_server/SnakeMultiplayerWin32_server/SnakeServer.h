@@ -57,6 +57,7 @@ typedef struct data {
 	int playerId;
 	TCHAR nicknamePlayer1[TCHAR_SIZE];
 
+	int playerId2;
 	TCHAR nicknamePlayer2[TCHAR_SIZE];
 
 	int direction;
@@ -150,13 +151,15 @@ void broadcastClients(GameInfo gi);
 void initializeServer();
 void initializeNamedPipes();
 void initializeSharedMemory();
-void initGame();
+void initGame(data dataGame);
 void putSnakeIntoBoard(int delX, int delY, Snake snake);
-Snake move(Snake snake, int move);
+Snake move(Snake snake);
 Snake initSnake(int startX, int startY, int size, int id);
 void updateGameInfo();
 void initObjetcts(int objectType, int nObjects);
-void moveSnake(int id, int direction);
+void moveIndividualSnake(int id, int direction);
+void moveSnakes();
+void verifyEndGame();
 void sendInfoToPlayers(GameInfo gi);
 
 // Threads

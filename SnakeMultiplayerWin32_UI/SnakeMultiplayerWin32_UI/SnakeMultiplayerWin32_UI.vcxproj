@@ -154,8 +154,21 @@
   <ItemGroup>
     <Image Include="apple.bmp" />
     <Image Include="apple2.bmp" />
+    <Image Include="apple__1.bmp" />
+    <Image Include="glue__1.bmp" />
     <Image Include="grass.bmp" />
     <Image Include="gray.bmp" />
+    <Image Include="ice__1.bmp" />
+    <Image Include="ice__2.bmp" />
+    <Image Include="oil__1.bmp" />
+    <Image Include="oil__2.bmp" />
+    <Image Include="snake__1.bmp" />
+    <Image Include="snake__2.bmp" />
+    <Image Include="snake__3.bmp" />
+    <Image Include="snake__4.bmp" />
+    <Image Include="snake__5.bmp" />
+    <Image Include="vodka__1.bmp" />
+    <Image Include="vodka__2.bmp" />
     <Image Include="wall__1.bmp" />
     <Image Include="wall__2.bmp" />
   </ItemGroup>
