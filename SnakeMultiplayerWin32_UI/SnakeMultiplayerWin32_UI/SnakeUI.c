@@ -388,6 +388,52 @@ BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lP
 	return 0;
 }
 
+BOOL CALLBACK DialogObjects(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
+	WPARAM food;
+	TCHAR tmp[10];
+	LRESULT result;
+
+	switch (messg) {
+
+		case WM_INITDIALOG:	
+
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_SETRANGE, (WPARAM)1, (LPARAM)MAKELONG(0, 10));
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_SETPOS, (WPARAM)0, 0);
+			SetWindowTextW(GetDlgItem(hWnd, IDC_LABEL_FOOD), TEXT("0.0%"));
+
+			break;
+
+		
+		case WM_HSCROLL:			
+
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_GETPOS, 0, 0);
+			_itoa(result, tmp, 10);
+			result *= 0.1;
+			TCHAR buf[10];
+			_stprintf(buf, TEXT("%f %c"), result, 37);
+
+			SetWindowTextW(GetDlgItem(hWnd, IDC_LABEL_FOOD), buf);
+			break;
+
+		case WM_COMMAND:
+			switch (LOWORD(wParam))
+			{
+				
+				case IDOK:
+					startMainWindow(hWnd);
+					startLocal();
+					break;
+
+				case IDCANCEL:
+
+					EndDialog(hWnd, 0);
+					return 1;
+			}
+			
+		}
+	return 0;
+}
+
 LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
 	data data;
 	HDC auxmemdc;					// handler para Device Context auxiliar em mem�ria
@@ -503,6 +549,9 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 					
 			case ID_SETTINGS_CONTROLS:
 				DialogBox(hThisInst, (LPCSTR)IDD_EDIT_CONTROLS, hWnd, (DLGPROC)DialogEditControls);
+				break;
+			case ID_SETTINGS_OBJECTS:
+				DialogBox(hThisInst, (LPCSTR)IDD_OBJECTS, hWnd, (DLGPROC)DialogObjects);
 				break;
 
 			default:
