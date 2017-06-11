@@ -63,7 +63,6 @@ int typeClient = -1; // LOCAL OR REMOTE
 // Remote Client Vars
 DWORD cbWritten;
 HANDLE hPipe;
-data dataToSend;
 BOOL fSucess = FALSE;
 
 
@@ -923,7 +922,7 @@ void sendCommand(data newData) {
 
 		fSucess = WriteFile(
 			hPipe,				// pipe handle
-			&dataToSend,		// message
+			&newData,		// message
 			DataStructSize,		// message size
 			&cbWritten,			// ptr to save number of written bytes
 			&overLapped);		// not nul -> not overlapped I/O
@@ -1094,6 +1093,36 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 		}
 
 		// Receive Command from server
+		if (gameInfo.playerId == 1000 || gameInfo.playerId == myId) {
+			hdc = GetDC(hWnd);
+			int x = 0, y = 0;
+			for (int l = 0; l < gameInfo.nRows; l++) {
+				for (int c = 0; c < gameInfo.nColumns; c++) {
+
+					switch (gameInfo.boardGame[l][c]) {
+					case BLOCK_EMPTY:
+						bitmap(x, x + 20, y, y + 20, hbitGround);
+						break;
+					case BLOCK_FOOD:
+						bitmap(x, x + 20, y, y + 20, hbitApple);
+						break;
+					case BLOCK_WALL:
+						bitmap(x, x + 20, y, y + 20, hbitwall);
+						break;
+					}
+
+					if (gameInfo.boardGame[l][c] == myId) {
+						bitmap(x, x + 20, y, y + 20, hbitSnake);
+					}
+
+					x += 20;
+				}
+				x = 0;
+				y += 20;
+			}
+			ReleaseDC(hWnd, hdc);
+			InvalidateRect(NULL, NULL, TRUE);
+		}
 
 	}
 

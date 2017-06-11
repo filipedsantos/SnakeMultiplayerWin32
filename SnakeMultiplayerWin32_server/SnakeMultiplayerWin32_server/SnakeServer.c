@@ -24,9 +24,10 @@ HANDLE eWriteToClientSHM;
 HANDLE hThreadSharedMemory;
 
 HINSTANCE hSnakeDll;
+
+int playerId = 0;
 int diretionToGo = 0;
 
-data dataGame;
 GameInfo gameInfo;
 Game game;
 
@@ -360,7 +361,7 @@ BOOL verifyPosition(int size, int rows, int columns, int orientation) {
 	return TRUE;
 }
 
-void initGame() {
+void initGame(data dataGame) {
 
 	game.nRows = dataGame.nRows;
 	game.nColumns = dataGame.nColumns;
@@ -559,7 +560,7 @@ void updateGameInfo() {
 //---------------------------------------------------------
 
 DWORD WINAPI listenClientNamedPipes (LPVOID param){
-	data dg;
+	data dataGame;
 	BOOL success = FALSE;
 	DWORD cbBytesRead  = 0;
 	DWORD cbBytesReply = 0;
@@ -591,7 +592,7 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 		//READ FROM CLIENT
 		success = ReadFile (
 					hPipe,				//READ CHANNEL
-					&dg,				//BUFFER OF READING DATA
+					&dataGame,				//BUFFER OF READING DATA
 					DataStructSize,    //SIZE OF STRUCT
 					&cbBytesRead,
 					&overLapped);
@@ -610,14 +611,14 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 		_tcscpy(reply.command, request.command);
 		broadcastClients(reply);*/
 
-		switch (dg.op) {
+		switch (dataGame.op) {
 			case EXIT:
 				_tprintf(TEXT("Goodbye.."));
 
 				break;
 			case CREATE_GAME:
 				if (!game.Created)
-					initGame();
+					initGame(dataGame);
 				else {
 					gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
 					setInfoSHM(gameInfo);
@@ -647,12 +648,13 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 			case SCORES:
 				break;
 			case MOVE_SNAKE:
-				diretionToGo = dg.direction;
-				moveSnake(dg.playerId, dg.direction);
+				playerId = dataGame.playerId;
+				diretionToGo = dataGame.direction;
+				//moveSnake(dataGame.playerId, dataGame.direction);
 				break;
 			case MOVE_SNAKE2:
-				diretionToGo = dg.direction;
-				moveSnake(dg.playerId++, dg.direction);
+				diretionToGo = dataGame.direction;
+				moveSnake(dataGame.playerId++, dataGame.direction);
 				break;
 			default:
 				break;
@@ -677,7 +679,7 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 //---------------------------------------------------
 
 DWORD WINAPI listenClientSharedMemory(LPVOID params) {
-
+	data dataGame;
 	eReadFromClientSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
 	eWriteToClientSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM_eWriteToClientSHM"));
 
@@ -703,7 +705,7 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 				break;
 			case CREATE_GAME:
 				if (!game.Created)
-					initGame();
+					initGame(dataGame);
 				else{
 					gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
 					setInfoSHM(gameInfo);
@@ -752,7 +754,7 @@ void moveSnake(int id, int direction) {
 	for (int i = 0; i < MAXCLIENTS; i++) {
 		if (game.playerSnakes[i].id) {
 
-			if (diretionToGo != 0 && game.playerSnakes[0].alive) {
+			if ( game.playerSnakes[0].alive) {
 				switch (diretionToGo) {
 				case RIGHT:
 					if (game.playerSnakes[i].direction != LEFT) {
@@ -779,7 +781,7 @@ void moveSnake(int id, int direction) {
 				}
 			}
 		}
-		diretionToGo = 0;
+		//diretionToGo = 0;
 	}
 
 }
@@ -791,6 +793,9 @@ DWORD WINAPI gameThread(LPVOID params) {
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
 	while (game.running) {
+
+		moveSnake(playerId, diretionToGo);
+
 		_tprintf(TEXT("\n\n"));
 		for (int i = 0; i < game.nRows; i++) {
 			for (int j = 0; j < game.nRows; j++) {
@@ -802,7 +807,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 		updateGameInfo();
 		sendInfoToPlayers(gameInfo);
 		
-		Sleep(2000);
+		Sleep(0.5 * 1000);
 
 	}
 }
@@ -814,6 +819,7 @@ void sendInfoToPlayers(GameInfo gi) {
 
 	// Broadcast to NamedPipes
 	broadcastClients(gi);
+	SetEvent(eWriteToClientNP);
 
 
 }
