@@ -145,8 +145,8 @@ typedef struct Game {
 void startClients();
 void addClient(HANDLE hPipe);
 void removeClients(HANDLE hPipe);
-void writeClients(HANDLE client, data dataReply);
-void broadcastClients(data dataReply);
+void writeClients(HANDLE client, GameInfo gi);
+void broadcastClients(GameInfo gi);
 void initializeServer();
 void initializeNamedPipes();
 void initializeSharedMemory();
@@ -157,6 +157,7 @@ Snake initSnake(int startX, int startY, int size, int id);
 void updateGameInfo();
 void initObjetcts(int objectType, int nObjects);
 void moveSnake(int id, int direction);
+void sendInfoToPlayers(GameInfo gi);
 
 // Threads
 DWORD WINAPI listenClientNamedPipes(LPVOID params);

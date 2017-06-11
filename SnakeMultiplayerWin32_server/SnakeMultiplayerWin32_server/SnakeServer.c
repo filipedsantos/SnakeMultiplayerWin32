@@ -31,9 +31,10 @@ GameInfo gameInfo;
 Game game;
 
 int IDcounter = MINIDPLAYER;
+
+HANDLE hGameThread;
+
 //MAIN 
-
-
 int _tmain(void){
 
 	#ifdef UNICODE
@@ -223,7 +224,7 @@ void initializeNamedPipes() {
 
 
 //CREATE A MESSAGE TO CLIENT
-void writeClients(HANDLE client, data dataReply) {
+void writeClients(HANDLE client, GameInfo gi) {
 	DWORD cbWritten = 0;
 	BOOL  success = FALSE;
 
@@ -235,25 +236,25 @@ void writeClients(HANDLE client, data dataReply) {
 
 	success = WriteFile(
 		client,
-		&dataReply,
-		DataStructSize,
+		&gi,
+		GameInfoStructSize,
 		&cbWritten,
 		&overLapped);
 
 	WaitForSingleObject(eWriteToClientNP, INFINITE);
 
 	GetOverlappedResult(client, &overLapped, &cbWritten, FALSE);
-	if (cbWritten < DataStructSize)
+	if (cbWritten < GameInfoStructSize)
 		_tprintf(TEXT("\nIncomplete data... Error: %d"), GetLastError());
 
 }
 
 //SEND TO EVERYCLIENT THE SAME MESSAGE
-void broadcastClients(data dataReply) {
+void broadcastClients(GameInfo gi) {
 	int i = 0;
 	for (i; i < MAXCLIENTS; i++) {
 		if (clients[i] != 0) {
-			writeClients(clients[i], dataReply);
+			writeClients(clients[i], gi);
 		}
 	}
 }
@@ -558,8 +559,7 @@ void updateGameInfo() {
 //---------------------------------------------------------
 
 DWORD WINAPI listenClientNamedPipes (LPVOID param){
-
-	data request, reply;
+	data dg;
 	BOOL success = FALSE;
 	DWORD cbBytesRead  = 0;
 	DWORD cbBytesReply = 0;
@@ -580,8 +580,6 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 		_tprintf(TEXT("\nError creating Read event - %d"), GetLastError());
 		return -1;
 	}
-
-	_tcscpy(reply.who, TEXT("SERVER"));
 	addClient(hPipe);
 
 	while(1){
@@ -592,8 +590,8 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 
 		//READ FROM CLIENT
 		success = ReadFile (
-					hPipe,		 //READ CHANNEL
-					&request,	 //BUFFER OF READING DATA
+					hPipe,				//READ CHANNEL
+					&dg,				//BUFFER OF READING DATA
 					DataStructSize,    //SIZE OF STRUCT
 					&cbBytesRead,
 					&overLapped);
@@ -607,10 +605,60 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 
 		///////////////////////////////////////
 
-		_tprintf(TEXT("[%s] : [%s]\n"), request.who, request.command);
+	/*	_tprintf(TEXT("[%s] : [%s]\n"), request.who, request.command);
 
 		_tcscpy(reply.command, request.command);
-		broadcastClients(reply);
+		broadcastClients(reply);*/
+
+		switch (dg.op) {
+			case EXIT:
+				_tprintf(TEXT("Goodbye.."));
+
+				break;
+			case CREATE_GAME:
+				if (!game.Created)
+					initGame();
+				else {
+					gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
+					setInfoSHM(gameInfo);
+				}
+
+				break;
+			case START_GAME:
+				if (!game.running) {
+					hGameThread = CreateThread(
+						NULL,
+						0,
+						(LPTHREAD_START_ROUTINE)gameThread,
+						NULL,
+						0,
+						0
+					);
+					if (hGameThread == NULL) {
+						_tprintf(TEXT("[ERROR] Impossible to create gameThread... (%d)"), GetLastError());
+						return -1;
+					}
+					game.running = TRUE;
+				}
+
+				break;
+			case JOIN_GAME:
+				break;
+			case SCORES:
+				break;
+			case MOVE_SNAKE:
+				diretionToGo = dg.direction;
+				moveSnake(dg.playerId, dg.direction);
+				break;
+			case MOVE_SNAKE2:
+				diretionToGo = dg.direction;
+				moveSnake(dg.playerId++, dg.direction);
+				break;
+			default:
+				break;
+		}
+
+
 	}
 
 	removeClients(hPipe);
@@ -634,8 +682,6 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 	eWriteToClientSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM_eWriteToClientSHM"));
 
 	while (1) {
-
-		HANDLE hGameThread;
 		data(*getDataSHM)();
 
 		//Wait for any client trigger the event by typing any option
@@ -738,11 +784,9 @@ void moveSnake(int id, int direction) {
 
 }
 
-
 //---------------------------------------------------
 // GAMING THREAD
 //---------------------------------------------------
-
 DWORD WINAPI gameThread(LPVOID params) {
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
@@ -756,11 +800,22 @@ DWORD WINAPI gameThread(LPVOID params) {
 		}
 
 		updateGameInfo();
-		setInfoSHM(gameInfo);
-		SetEvent(eWriteToClientSHM);
+		sendInfoToPlayers(gameInfo);
+		
 		Sleep(2000);
 
 	}
+}
+
+void sendInfoToPlayers(GameInfo gi) {
+	// Write on SHM
+	setInfoSHM(gi);
+	SetEvent(eWriteToClientSHM);
+
+	// Broadcast to NamedPipes
+	broadcastClients(gi);
+
+
 }
 
 

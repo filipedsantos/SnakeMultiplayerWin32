@@ -16,6 +16,7 @@ BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lP
 void closeEverything();
 void startMainWindow();
 void startLocal();
+void startRemote();
 void sendCommand(data newData);
 void createErrorMessageBox(TCHAR *message);
 void createMessageBox(TCHAR *Message);
@@ -57,6 +58,24 @@ TCHAR keyDown  = TEXT('S');
 
 int myId;
 
+int typeClient = -1; // LOCAL OR REMOTE
+
+// Remote Client Vars
+DWORD cbWritten;
+HANDLE hPipe;
+data dataToSend;
+BOOL fSucess = FALSE;
+
+
+DWORD dwMode;
+
+HANDLE hThread;
+DWORD dwThreadId = 0;
+LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\SnakeMultiplayerPipe");
+
+
+int objects[9] = {100, 0, 0, 0, 0, 0, 0, 0, 0 };
+
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow) {
 	MSG lpMsg;											// MSG é uma estrutura definida no Windows para as mensagens
 	WNDCLASSEX wcApp;									// WNDCLASSEX é uma estrutura cujos membros servem para 
@@ -84,11 +103,9 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	hWnd = NULL;
 	DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_USER_TYPE, hWnd, (DLGPROC)DialogTypeUser);
 	
-
 	// ============================================================================
 	// 5. Loop de Mensagens
 	// ============================================================================
-
 
 	while ((ret = GetMessage(&lpMsg, NULL, 0, 0)) != 0) {
 		if (ret != -1) {
@@ -99,8 +116,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 										// tratamento da janela, CALLBACK TrataEventos (abaixo)
 		}
 	}
-
-
+	
 	// ============================================================================
 	// 6. Fim do programa
 	// ============================================================================
@@ -179,12 +195,14 @@ BOOL CALLBACK DialogTypeUser(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam
 			{
 				case ID_BUTTON_LOCAL:
 					startMainWindow(hWnd);
+					typeClient = LOCALCLIENT;
 					startLocal();
 					break;
 
 				case ID_BUTTON_REMOTE:
-
 					startMainWindow(hWnd);
+					typeClient = REMOTECLIENT;
+					startRemote();
 					break;
 
 				default:
@@ -310,7 +328,7 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 							0);
 					}
 					else {
-						createErrorMessageBox(TEXT("Game already creared.."));
+						createErrorMessageBox(TEXT("Game already created.."));
 					}
 					
 					
@@ -389,39 +407,128 @@ BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lP
 }
 
 BOOL CALLBACK DialogObjects(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam) {
-	WPARAM food;
 	TCHAR tmp[10];
 	LRESULT result;
+	int objectAux[9];
 
 	switch (messg) {
 
-		case WM_INITDIALOG:	
+		case WM_INITDIALOG:
 
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_SETRANGE, (WPARAM)1, (LPARAM)MAKELONG(0, 10));
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_SETPOS, (WPARAM)0, 0);
-			SetWindowTextW(GetDlgItem(hWnd, IDC_LABEL_FOOD), TEXT("0.0%"));
+			for (size_t i = 0; i < 9; i++){
+				objectAux[i] = objects[i];
+			}
+
+			// Food
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[0]);
+			_stprintf(tmp, TEXT("%d %%"), objectAux[0]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_FOOD), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// ICE
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[1]);
+			_stprintf(tmp, TEXT("%d %%"), objectAux[1]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_ICE), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// GRANADE
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_GRANADE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[2]);
+			_stprintf(tmp, TEXT("%d %%"), objectAux[2]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_GRANADE), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// VODKA
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_VODKA), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[3]);
+			_stprintf(tmp, TEXT("%d %%"), objectAux[3]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_VODKA), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// OIL
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[4]);
+			_stprintf(tmp, TEXT("%d %%"), objectAux[4]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_OIL), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// GLUE
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[5]);
+			_stprintf(tmp, TEXT("%d %%"), objectAux[5]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_GLUE), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// O-VODKA
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[6]);
+			_stprintf(tmp, TEXT("%d %%"), objectAux[6]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_O_VODKA), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// O-OIL
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[7]);
+			_stprintf(tmp, TEXT("%d %%"), objectAux[7]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_O_OIL), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// O-GLUE
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[8]);
+			_stprintf(tmp, TEXT("%d %%"), objectAux[8]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_O_GLUE), WM_SETTEXT, 0, (LPARAM)tmp);
 
 			break;
-
 		
-		case WM_HSCROLL:			
+		case WM_HSCROLL:
+			// Food
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_GETPOS, (WPARAM)0, 0);
+			objectAux[0] = result;
+			_stprintf(tmp, TEXT("%d %%"), objectAux[0]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_FOOD), WM_SETTEXT, 0, (LPARAM)tmp);
 
-			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_GETPOS, 0, 0);
-			_itoa(result, tmp, 10);
-			result *= 0.1;
-			TCHAR buf[10];
-			_stprintf(buf, TEXT("%f %c"), result, 37);
+			// ICE
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_GETPOS, (WPARAM)0, 0);
+			objectAux[1] = result;
+			_stprintf(tmp, TEXT("%d %%"), objectAux[1]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_ICE), WM_SETTEXT, 0, (LPARAM)tmp);
 
-			SetWindowTextW(GetDlgItem(hWnd, IDC_LABEL_FOOD), buf);
+			// GRANADE
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_GRANADE), TBM_GETPOS, (WPARAM)0, 0);
+			objectAux[2] = result;
+			_stprintf(tmp, TEXT("%d %%"), objectAux[2]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_GRANADE), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// VODKA
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_VODKA), TBM_GETPOS, (WPARAM)0, 0);
+			objectAux[3] = result;
+			_stprintf(tmp, TEXT("%d %%"), objectAux[3]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_VODKA), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// OIL
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_OIL), TBM_GETPOS, (WPARAM)0, 0);
+			objectAux[4] = result;
+			_stprintf(tmp, TEXT("%d %%"), objectAux[4]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_OIL), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// GLUE
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_GLUE), TBM_GETPOS, (WPARAM)0, 0);
+			objectAux[5] = result;
+			_stprintf(tmp, TEXT("%d %%"), objectAux[5]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_GLUE), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// O-VODKA
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_O_VODKA), TBM_GETPOS, (WPARAM)0, 0);
+			objectAux[6] = result;
+			_stprintf(tmp, TEXT("%d %%"), objectAux[6]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_O_VODKA), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// O-OIL
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_O_OIL), TBM_GETPOS, (WPARAM)0, 0);
+			objectAux[7] = result;
+			_stprintf(tmp, TEXT("%d %%"), objectAux[7]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_O_OIL), WM_SETTEXT, 0, (LPARAM)tmp);
+
+			// O-GLUE
+			result = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_O_GLUE), TBM_GETPOS, (WPARAM)0, 0);
+			objectAux[8] = result;
+			_stprintf(tmp, TEXT("%d %%"), objectAux[8]);
+			SendMessage(GetDlgItem(hWnd, IDC_LABEL_O_GLUE), WM_SETTEXT, 0, (LPARAM)tmp);
+
 			break;
-
+			
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
 				
 				case IDOK:
-					startMainWindow(hWnd);
-					startLocal();
+					
 					break;
 
 				case IDCANCEL:
@@ -716,25 +823,122 @@ void startLocal(){
 
 }
 
+//USER is type --> REMOTE
+void startRemote() {
+
+	while (1) {
+		// Open pipe with flag - File_Flag_OVERLAPPED
+		hPipe = CreateFile(
+			lpszPipename,								// name of pipe
+			GENERIC_READ | GENERIC_WRITE,				// read & write access
+			0 | FILE_SHARE_READ | FILE_SHARE_WRITE,		// sem -> com partilha
+			NULL,										// security -> default
+			OPEN_EXISTING,								// open existing
+			0 | FILE_FLAG_OVERLAPPED,					// default
+			NULL);
+
+		if (hPipe != INVALID_HANDLE_VALUE)
+			break;
+
+		if (GetLastError() != ERROR_PIPE_BUSY) {
+			_stprintf_s(error, 1024, TEXT("Create file error and not BUSY...(%d)\n"), GetLastError());
+			createErrorMessageBox(error);
+			return -1;
+		}
+
+		if (!WaitNamedPipe(lpszPipename, 30000)) {
+			_stprintf_s(error, 1024, TEXT("Waited 30 seconds, exit..\n"));
+			createErrorMessageBox(error);
+			return -1;
+		}
+	}
+
+	dwMode = PIPE_READMODE_MESSAGE;
+	fSucess = SetNamedPipeHandleState(
+		hPipe,		// pipe handle
+		&dwMode,	// pipe new mode type
+		NULL,		// max bytes
+		NULL);		// timeout
+
+	if (!fSucess) {
+		_stprintf_s(error, 1024, TEXT("SetNamedPipeHandleState failed... (%d)"), GetLastError());
+		createErrorMessageBox(error);
+		return -1;
+	}
+
+	hThread = CreateThread(
+		NULL,					// security
+		0,						// tam da pilha -> default
+		ThreadClientReader,		// thread function 
+		(LPVOID)hPipe,			// thread = handle
+		0,						// make alive
+		&dwThreadId);			// ptr para ID da thread
+
+	if (hThread == NULL) {
+		_stprintf_s(error, 1024, TEXT("Creating thread... (%d)"), GetLastError());
+		createErrorMessageBox(error);
+		return -1;
+	}
+}
+
 //SEND COMMANDS THROUGH SHAREDMEMORY
 void sendCommand(data newData) {
+	HANDLE eWriteToServerNP;	// HANDLE para o evento leitura
+	OVERLAPPED overLapped = { 0 };
+
 	void(*setDataSHM)(data);
-
-
-	// GET DLL FUNCTION - setSHM
-	setDataSHM = (void(*)(data)) GetProcAddress(hSnakeDll, "setDataSHM");
-	if (setDataSHM == NULL) {
-		_stprintf_s(error, 1024, TEXT("[SHM ERROR] GetProcAddress - setDataSHM()"), GetLastError());
-		createErrorMessageBox(error);
-		return;
-	}
 
 	newData.playerId = myId;
 
-	// CALL DLL FUNCTION
-	setDataSHM(newData);
+	if (typeClient == LOCALCLIENT) {
+		// GET DLL FUNCTION - setSHM
+		setDataSHM = (void(*)(data)) GetProcAddress(hSnakeDll, "setDataSHM");
+		if (setDataSHM == NULL) {
+			_stprintf_s(error, 1024, TEXT("[SHM ERROR] GetProcAddress - setDataSHM()"), GetLastError());
+			createErrorMessageBox(error);
+			return;
+		}
+		// CALL DLL FUNCTION
+		setDataSHM(newData);
+		// CALL EVENT FOR SERVER READ SHARED MEMORY
+		SetEvent(eWriteToServerSHM);
+	}
+	else {
+		eWriteToServerNP = CreateEvent(
+			NULL,		// default security
+			TRUE,		// manual reset
+			FALSE,		// not signaled
+			NULL);		// nao precisa de nome, interno ao processo
 
-	SetEvent(eWriteToServerSHM);
+		if (eWriteToServerNP == NULL) {
+			_stprintf_s(error, 1024, TEXT("Create Event failed... (%d)"), GetLastError());
+			createErrorMessageBox(error);
+			return -1;
+		}
+
+		// WRITE NAMED PIPES
+		ZeroMemory(&overLapped, sizeof(overLapped));
+		ResetEvent(eWriteToServerNP);
+		overLapped.hEvent = eWriteToServerNP;
+
+		fSucess = WriteFile(
+			hPipe,				// pipe handle
+			&dataToSend,		// message
+			DataStructSize,		// message size
+			&cbWritten,			// ptr to save number of written bytes
+			&overLapped);		// not nul -> not overlapped I/O
+
+		WaitForSingleObject(eWriteToServerNP, INFINITE);
+
+		GetOverlappedResult(hPipe, &overLapped, &cbWritten, FALSE); // no wait
+		if (cbWritten < DataStructSize) {
+			_stprintf_s(error, 1024, TEXT("Write File failed... (%d)"), GetLastError());
+			createErrorMessageBox(error);
+		}
+
+	} // END ELSE
+
+	
 }
 
 //----------------------------------------------------
@@ -829,4 +1033,71 @@ void bitmap(left, right, top, bot, hbit) {
 	BitBlt(memdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
 	DeleteDC(auxmemdc);
 
+}
+
+//THREAD RESPONSABLE FOR REMOTE USERS
+DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
+	data fromServer;
+
+	GameInfo gameInfo;
+
+	DWORD cbBytesRead = 0;
+	BOOL fSuccess = FALSE;
+	HANDLE hPipe = (HANDLE)PARAMS;	// a info enviada é o handle
+
+	HANDLE eReadFromServerNP;
+	OVERLAPPED overLapped = { 0 };
+
+	if (hPipe == NULL) {
+		_stprintf_s(error, 1024, TEXT("Thread Reader - handle its null..."));
+		createErrorMessageBox(error);
+		return -1;
+	}
+
+	eReadFromServerNP = CreateEvent(
+		NULL,		// defalt security
+		TRUE,		// resetEvent -> requisito do Overlapped I/O
+		FALSE,		// not signaled
+		NULL);		// name not needed
+
+	if (eReadFromServerNP == NULL) {
+		_stprintf_s(error, 1024, TEXT("Client - read event cannot be created..."));
+		createErrorMessageBox(error);
+		return -1;
+	}
+
+	readerAlive = 1;
+	//_tprintf(TEXT("Thread Reader - receiving messages..."));
+
+	while (mayContinue) {
+
+		// prepare ReadReady event
+		ZeroMemory(&overLapped, sizeof(overLapped));
+		overLapped.hEvent = eReadFromServerNP;
+		ResetEvent(eReadFromServerNP);
+
+		fSuccess = ReadFile(
+			hPipe,			// pipe handle (params)
+			&gameInfo,	// read bytes buffer
+			GameInfoStructSize,		// msg size
+			&cbBytesRead,	// msg size to read
+			&overLapped);	// not null -> not overlapped
+
+		WaitForSingleObject(eReadFromServerNP, INFINITE);
+		//_tprintf(TEXT("\nRead success..."));
+
+		if (!fSuccess || cbBytesRead < GameInfoStructSize) {
+			GetOverlappedResult(hPipe, &overLapped, &cbBytesRead, FALSE); // No wait
+			if (cbBytesRead < DataStructSize) {
+				_tprintf(TEXT("[ERROR] Read file failed... (%d)"), GetLastError());
+			}
+		}
+
+		// Receive Command from server
+
+	}
+
+	readerAlive = 0;
+	//_tprintf(TEXT("Thread Reader ending\n"));
+	return 1;
 }
