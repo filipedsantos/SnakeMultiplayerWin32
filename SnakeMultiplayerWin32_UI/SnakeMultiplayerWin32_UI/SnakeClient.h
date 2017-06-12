@@ -54,6 +54,7 @@ typedef struct data {
 
 	int typeOfGame;				// SinglePlayer or MultiPlayer
 	int gameObjects;
+	int objects[9];
 	int objectsDuration;
 	int serpentInitialSize;
 	int AIserpents;
@@ -65,6 +66,7 @@ typedef struct data {
 	TCHAR nicknamePlayer2[TCHAR_SIZE];
 
 	int direction;
+	
 
 } data, *pData;
 

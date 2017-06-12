@@ -402,7 +402,7 @@ void initGame(data dataGame) {
 	}
 
 	// Initialize some objets
-	initObjetcts(BLOCK_FOOD, 10);
+	initObjetcts(dataGame.gameObjects, dataGame.objects);
 
 	_tprintf(TEXT("\n\n"));
 	for (int i = 0; i < game.nRows; i++) {
@@ -414,7 +414,7 @@ void initGame(data dataGame) {
 	_tprintf(TEXT("end objects\n"));
 }
 
-void initObjetcts(int objectType, int nObjects) {
+void initObjetcts(int nObjects, int objectsArr[]) {
 	int x, y;
 	for (int i = 0; i < nObjects; i++)
 	{
@@ -423,7 +423,7 @@ void initObjetcts(int objectType, int nObjects) {
 			y = rand() % game.nRows;
 		} while (game.boardGame[x][y] != 0);
 
-		game.boardGame[x][y] = objectType;
+		game.boardGame[x][y] = 1;
 	}
 }
 

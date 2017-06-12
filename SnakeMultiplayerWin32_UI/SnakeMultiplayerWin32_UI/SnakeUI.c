@@ -89,7 +89,7 @@ LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\SnakeMultiplayerPipe");
 LPTSTR lpszPipeRemoteName;
 
 
-int objects[9] = {100, 0, 0, 0, 0, 0, 0, 0, 0 };
+int objects[9] = {41, 10, 10, 10, 10, 10, 3, 3, 3 };
 
 //MAIN
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow) {
@@ -311,10 +311,13 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 						
 					}
 
-					// GAME OBJECTS
+					// Number GAME OBJECTS
 					GetDlgItemText(hWnd, IDC_EDIT_GAME_OBJECTS, getText, 3);
 					newData.gameObjects = _wtoi(getText);
-
+					for (int i = 0; i < 9; i++) {
+						newData.objects[i] = objects[i];
+					}
+					 
 					// OBJECTS DURATION
 					GetDlgItemText(hWnd, IDC_EDIT_OBJECTS_DURATION, getText, 3);
 					newData.objectsDuration = _wtoi(getText);
@@ -431,6 +434,7 @@ BOOL CALLBACK DialogObjects(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	TCHAR tmp[10];
 	LRESULT result;
 	int objectAux[9];
+	int counter = 0;
 
 	switch (messg) {
 
@@ -441,47 +445,47 @@ BOOL CALLBACK DialogObjects(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			}
 
 			// Food
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[0]);
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_SETPOS, (WPARAM)TRUE, objectAux[0]);
 			_stprintf(tmp, TEXT("%d %%"), objectAux[0]);
 			SendMessage(GetDlgItem(hWnd, IDC_LABEL_FOOD), WM_SETTEXT, 0, (LPARAM)tmp);
 
 			// ICE
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[1]);
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)TRUE, objectAux[1]);
 			_stprintf(tmp, TEXT("%d %%"), objectAux[1]);
 			SendMessage(GetDlgItem(hWnd, IDC_LABEL_ICE), WM_SETTEXT, 0, (LPARAM)tmp);
 
 			// GRANADE
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_GRANADE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[2]);
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_GRANADE), TBM_SETPOS, (WPARAM)TRUE, objectAux[2]);
 			_stprintf(tmp, TEXT("%d %%"), objectAux[2]);
 			SendMessage(GetDlgItem(hWnd, IDC_LABEL_GRANADE), WM_SETTEXT, 0, (LPARAM)tmp);
 
 			// VODKA
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_VODKA), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[3]);
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_VODKA), TBM_SETPOS, (WPARAM)TRUE, objectAux[3]);
 			_stprintf(tmp, TEXT("%d %%"), objectAux[3]);
 			SendMessage(GetDlgItem(hWnd, IDC_LABEL_VODKA), WM_SETTEXT, 0, (LPARAM)tmp);
 
 			// OIL
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[4]);
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_OIL), TBM_SETPOS, (WPARAM)TRUE, objectAux[4]);
 			_stprintf(tmp, TEXT("%d %%"), objectAux[4]);
 			SendMessage(GetDlgItem(hWnd, IDC_LABEL_OIL), WM_SETTEXT, 0, (LPARAM)tmp);
 
 			// GLUE
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[5]);
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_GLUE), TBM_SETPOS, (WPARAM)TRUE, objectAux[5]);
 			_stprintf(tmp, TEXT("%d %%"), objectAux[5]);
 			SendMessage(GetDlgItem(hWnd, IDC_LABEL_GLUE), WM_SETTEXT, 0, (LPARAM)tmp);
 
 			// O-VODKA
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[6]);
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_O_VODKA), TBM_SETPOS, (WPARAM)TRUE, objectAux[6]);
 			_stprintf(tmp, TEXT("%d %%"), objectAux[6]);
 			SendMessage(GetDlgItem(hWnd, IDC_LABEL_O_VODKA), WM_SETTEXT, 0, (LPARAM)tmp);
 
 			// O-OIL
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[7]);
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_O_OIL), TBM_SETPOS, (WPARAM)TRUE, objectAux[7]);
 			_stprintf(tmp, TEXT("%d %%"), objectAux[7]);
 			SendMessage(GetDlgItem(hWnd, IDC_LABEL_O_OIL), WM_SETTEXT, 0, (LPARAM)tmp);
 
 			// O-GLUE
-			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_SETPOS, (WPARAM)objectAux[0], objectAux[8]);
+			SendMessage(GetDlgItem(hWnd, IDC_SLIDER_O_GLUE), TBM_SETPOS, (WPARAM)TRUE, objectAux[8]);
 			_stprintf(tmp, TEXT("%d %%"), objectAux[8]);
 			SendMessage(GetDlgItem(hWnd, IDC_LABEL_O_GLUE), WM_SETTEXT, 0, (LPARAM)tmp);
 
@@ -549,11 +553,46 @@ BOOL CALLBACK DialogObjects(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			{
 				
 				case IDOK:
+					// Food
+					objectAux[0] = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_FOOD), TBM_GETPOS, (WPARAM)0, 0);
+
+					// ICE
+					objectAux[1] = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_ICE), TBM_GETPOS, (WPARAM)0, 0);
 					
+					// GRANADE
+					objectAux[2] = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_GRANADE), TBM_GETPOS, (WPARAM)0, 0);
+
+					// VODKA
+					objectAux[3] = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_VODKA), TBM_GETPOS, (WPARAM)0, 0);
+
+					// OIL
+					objectAux[4] = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_OIL), TBM_GETPOS, (WPARAM)0, 0);
+
+					// GLUE
+					objectAux[5] = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_GLUE), TBM_GETPOS, (WPARAM)0, 0);
+
+					// O-VODKA
+					objectAux[6] = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_O_VODKA), TBM_GETPOS, (WPARAM)0, 0);
+
+					// O-OIL
+					objectAux[7] = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_O_OIL), TBM_GETPOS, (WPARAM)0, 0);
+
+					// O-GLUE
+					objectAux[8] = SendMessage(GetDlgItem(hWnd, IDC_SLIDER_O_GLUE), TBM_GETPOS, (WPARAM)0, 0);
+					
+					counter = 0;
+					for (int i = 0; i < 9; i++){
+						counter += objectAux[i];
+					}
+					if (counter <= 100) {
+						for (int i = 0; i < 9; i++) {
+							objects[i] = objectAux[i];
+						}
+						EndDialog(hWnd, 0);
+					}
 					break;
 
 				case IDCANCEL:
-
 					EndDialog(hWnd, 0);
 					return 1;
 			}
