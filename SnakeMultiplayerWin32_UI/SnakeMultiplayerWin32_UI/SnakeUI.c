@@ -32,6 +32,7 @@ void sendCommand(data newData);
 void createErrorMessageBox(TCHAR *message);
 void createMessageBox(TCHAR *Message);
 void bitmap(left, right, top, bot);
+void editResourceOnPaint(int resource);
 
 
 TCHAR *szProgName = TEXT("Snake Multiplayer");
@@ -571,10 +572,6 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	HDC hdcDB;
 	HBITMAP hDB;
 
-	PROCESS_INFORMATION pi;
-	STARTUPINFO si;
-	TCHAR executavel[256];
-
 	switch (messg) {
 		case WM_CREATE:
 		{
@@ -673,59 +670,31 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 		case WM_COMMAND:
 		{
 			switch (LOWORD(wParam)) {
-			case ID_FILE_EXIT:
-				closeEverything();
-				break;
+				case ID_FILE_EXIT:
+					closeEverything();
+					break;
 
-			case ID_FILE_NEWGAME:
-				DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
-				break;
+				case ID_FILE_NEWGAME:
+					DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
+					break;
 					
-			case ID_SETTINGS_CONTROLS:
-				DialogBox(hThisInst, (LPCSTR)IDD_EDIT_CONTROLS, hWnd, (DLGPROC)DialogEditControls);
-				break;
-			case ID_SETTINGS_OBJECTS:
-				DialogBox(hThisInst, (LPCSTR)IDD_OBJECTS, hWnd, (DLGPROC)DialogObjects);
-				break;
-
-			case ID_EDITBITMAP_SNAKE:
-
-				ZeroMemory(&si, sizeof(si));
-				si.cb = sizeof(si);
-				
-				// Start the child process. 
-				if ( 
-					CreateProcess(
-						TEXT("c:\\windows\\notepad.exe"),						// No module name (use command line)
-						NULL,					// Command line
-						NULL,						// Process handle not inheritable
-						NULL,						// Thread handle not inheritable
-						0,							// Set handle inheritance to FALSE
-						0,							// No creation flags
-						NULL,						// Use parent's environment block
-						NULL,						// Use parent's starting directory 
-						&si,						// Pointer to STARTUPINFO structure
-						&pi)						// Pointer to PROCESS_INFORMATION structure
-					)
-				{
-					// Wait until child process exits.
-					WaitForSingleObject(pi.hProcess, INFINITE);
-
-					// Close process and thread handles. 
-					CloseHandle(pi.hProcess);
-					CloseHandle(pi.hThread);
-				}
-				else {
-					_stprintf_s(error, 1024, TEXT("Error... (%d)\n"), GetLastError());
-					createErrorMessageBox(error);
-				}
-
-				
-
-				break;
-
-			default:
-				break;
+				case ID_SETTINGS_CONTROLS:
+					DialogBox(hThisInst, (LPCSTR)IDD_EDIT_CONTROLS, hWnd, (DLGPROC)DialogEditControls);
+					break;
+				case ID_SETTINGS_OBJECTS:
+					DialogBox(hThisInst, (LPCSTR)IDD_OBJECTS, hWnd, (DLGPROC)DialogObjects);
+					break;
+				case ID_EDITBITMAP_SNAKE:
+					editResourceOnPaint(IDB_SNAKE_YELLOW);
+					break;
+				case ID_EDITBITMAP_WALL:
+					editResourceOnPaint(IDB_WALL1);
+					break;
+				case ID_EDITBITMAP_FOOD:
+					editResourceOnPaint(IDB_APPLE);
+					break;
+				default:
+					break;
 			}
 			break;
 		}
@@ -773,6 +742,58 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	}
 	
 	return(0);
+}
+
+void editResourceOnPaint(int resource) {
+	PROCESS_INFORMATION pi;
+	STARTUPINFO si;
+	TCHAR fileToOpen[20];
+
+	switch (resource) {
+		case IDB_SNAKE_YELLOW:
+			_tcscpy(fileToOpen, TEXT(" snake__1.bmp"));
+			break;
+		case IDB_WALL1:
+			_tcscpy(fileToOpen, TEXT(" wall__1.bmp"));
+			break;
+		case IDB_APPLE:
+			_tcscpy(fileToOpen, TEXT(" apple__1.bmp"));
+			break;
+		default:
+			break;
+	}
+
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+
+	//GetModuleFileName(TEXT("mspaint.exe"), executavel, 256);
+
+	// Start the child process. 
+	if (
+		CreateProcess(
+			TEXT("C:\\WINDOWS\\system32\\mspaint.exe"),		// No module name (use command line)
+			fileToOpen,										// Command line
+			NULL,											// Process handle not inheritable
+			NULL,											// Thread handle not inheritable
+			0,												// Set handle inheritance to FALSE
+			0,												// No creation flags
+			NULL,											// Use parent's environment block
+			NULL,											// Use parent's starting directory 
+			&si,											// Pointer to STARTUPINFO structure
+			&pi)											// Pointer to PROCESS_INFORMATION structure
+		)
+	{
+		// Wait until child process exits.
+		WaitForSingleObject(pi.hProcess, INFINITE);
+
+		// Close process and thread handles. 
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+	else {
+		_stprintf_s(error, 1024, TEXT("Error... (%d)\n"), GetLastError());
+		createErrorMessageBox(error);
+	}
 }
 
 

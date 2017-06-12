@@ -160,7 +160,7 @@ void updateGameInfo();
 void initObjetcts(int objectType, int nObjects);
 void moveIndividualSnake(int id, int direction);
 void moveSnakes();
-void verifyEndGame();
+BOOL verifyEndGame();
 void sendInfoToPlayers(GameInfo gi);
 void manageCommandsReceived(data dataGame);
 

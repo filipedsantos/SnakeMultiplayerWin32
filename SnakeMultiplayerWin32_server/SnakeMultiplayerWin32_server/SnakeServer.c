@@ -319,6 +319,7 @@ Snake initSnake(int size, int rows, int columns, int id) {
 	do {
 		srand(time(NULL));
 		startX = rand() % (columns - 1) + 1;
+		srand(time(NULL));
 		startY = rand() % (rows - 1) + 1;
 	} while (!verifyPosition(size, startX, startY, orientation));
 
