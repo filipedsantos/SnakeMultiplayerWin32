@@ -90,6 +90,7 @@ LPTSTR lpszPipeRemoteName;
 
 int objects[9] = {100, 0, 0, 0, 0, 0, 0, 0, 0 };
 
+//MAIN
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow) {
 	MSG lpMsg;											// MSG é uma estrutura definida no Windows para as mensagens
 	WNDCLASSEX wcApp;									// WNDCLASSEX é uma estrutura cujos membros servem para 
@@ -195,7 +196,7 @@ HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName) {
 
 
 //----------------------------------------------------
-// EVENTS HANDLERS
+// WINDOW AND DIALOG
 //----------------------------------------------------
 
 BOOL CALLBACK DialogTypeUser(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
@@ -1012,6 +1013,21 @@ void sendCommand(data newData) {
 	
 }
 
+//--------------
+//DRAW BITMAPS
+//--------------
+void bitmap(left, right, top, bot, hbit) {
+	hdc = GetDC(hWnd);
+	HDC auxmemdc = CreateCompatibleDC(hdc);
+
+	SelectObject(auxmemdc, hbit);
+	//BitBlt(hdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
+	ReleaseDC(hWnd, hdc);
+	BitBlt(memdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
+	DeleteDC(auxmemdc);
+
+}
+
 //----------------------------------------------------
 // THREADS
 //----------------------------------------------------
@@ -1054,8 +1070,9 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 }
 
 DWORD WINAPI updateBoard(LPVOID lpParam) {
-
-	while (1) {
+	int c = 0;
+	BOOL running = TRUE;
+	while (running) {
 
 		WaitForSingleObject(eReadFromServerSHM, INFINITE);
 		
@@ -1095,21 +1112,10 @@ DWORD WINAPI updateBoard(LPVOID lpParam) {
 			ReleaseDC(hWnd, hdc);
 			ResetEvent(eReadFromServerSHM);
 			InvalidateRect(NULL, NULL, TRUE);
+			
 		}
 		
 	}
-}
-
-void bitmap(left, right, top, bot, hbit) {
-	hdc = GetDC(hWnd);
-	HDC auxmemdc = CreateCompatibleDC(hdc);
-	
-	SelectObject(auxmemdc, hbit);
-	//BitBlt(hdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
-	ReleaseDC(hWnd, hdc);
-	BitBlt(memdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
-	DeleteDC(auxmemdc);
-
 }
 
 //THREAD RESPONSABLE FOR REMOTE USERS

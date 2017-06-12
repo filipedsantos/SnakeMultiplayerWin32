@@ -20,6 +20,7 @@
 #define START_GAME		104
 #define MOVE_SNAKE		105
 #define MOVE_SNAKE2		106
+#define GAME_OVER		107
 
 
 

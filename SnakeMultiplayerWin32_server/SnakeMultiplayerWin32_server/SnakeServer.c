@@ -304,7 +304,7 @@ void startClients() {
 
 
 ////////////////////////
-//THREADS  Functions////
+//GAME  Functions////
 ////////////////////////
 
 //START BOARD GAME INITIALIZED EVERYTHING WITH '0'
@@ -567,8 +567,125 @@ void updateGameInfo() {
 
 }
 
+BOOL verifyEndGame() {
+
+	for (int i = 0; i < MAXCLIENTS; i++)
+	{
+		if (game.playerSnakes[i].alive) {
+			return;
+		}
+	}
+	game.Created = FALSE;
+	game.running = FALSE;
+
+}
+
+void sendInfoToPlayers(GameInfo gi) {
+	// Write on SHM
+	setInfoSHM(gi);
+	SetEvent(eWriteToClientSHM);
+
+	// Broadcast to NamedPipes
+	broadcastClients(gi);
+	SetEvent(eWriteToClientNP);
+
+
+}
+
+void moveSnakes() {
+	for (int i = 0; i < MAXCLIENTS; i++) {
+		if (game.playerSnakes[i].alive) {
+			game.playerSnakes[i] = move(game.playerSnakes[i]);
+		}
+	}
+
+}
+
+void manageCommandsReceived(data dataGame) {
+	switch (dataGame.op) {
+	case EXIT:
+		_tprintf(TEXT("Goodbye.."));
+
+		break;
+	case CREATE_GAME:
+		if (!game.Created)
+			initGame(dataGame);
+		else {
+			gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
+			setInfoSHM(gameInfo);
+		}
+
+		break;
+	case START_GAME:
+		if (!game.running) {
+			hGameThread = CreateThread(
+				NULL,
+				0,
+				(LPTHREAD_START_ROUTINE)gameThread,
+				NULL,
+				0,
+				0
+			);
+			if (hGameThread == NULL) {
+				_tprintf(TEXT("[ERROR] Impossible to create gameThread... (%d)"), GetLastError());
+				return -1;
+			}
+			game.running = TRUE;
+		}
+
+		break;
+	case JOIN_GAME:
+		break;
+	case SCORES:
+		break;
+	case MOVE_SNAKE:
+		moveIndividualSnake(dataGame.playerId, dataGame.direction);
+		break;
+	case MOVE_SNAKE2:
+		moveIndividualSnake(dataGame.playerId2, dataGame.direction);
+		break;
+	default:
+		break;
+	}
+}
+
+void moveIndividualSnake(int id, int direction) {
+	for (int i = 0; i < MAXCLIENTS; i++) {
+		if (game.playerSnakes[i].id == id && game.playerSnakes[i].alive) {
+
+			switch (direction) {
+			case RIGHT:
+				if (game.playerSnakes[i].direction != LEFT) {
+					game.playerSnakes[i].direction = RIGHT;
+				}
+				break;
+			case LEFT:
+				if (game.playerSnakes[i].direction != RIGHT) {
+					game.playerSnakes[i].direction = LEFT;
+				}
+				break;
+			case UP:
+				if (game.playerSnakes[i].direction != DOWN) {
+					game.playerSnakes[i].direction = UP;
+				}
+				break;
+			case DOWN:
+				if (game.playerSnakes[i].direction != UP) {
+					game.playerSnakes[i].direction = DOWN;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		//diretionToGo = 0;
+	}
+
+}
+
+
 //////////////
-//THREADS ////
+// THREADS ///
 //////////////
 
 //---------------------------------------------------------
@@ -670,91 +787,10 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 	}	
 }
 
-void manageCommandsReceived(data dataGame) {
-	switch (dataGame.op) {
-		case EXIT:
-			_tprintf(TEXT("Goodbye.."));
-
-			break;
-		case CREATE_GAME:
-			if (!game.Created)
-				initGame(dataGame);
-			else {
-				gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
-				setInfoSHM(gameInfo);
-			}
-
-			break;
-		case START_GAME:
-			if (!game.running) {
-				hGameThread = CreateThread(
-					NULL,
-					0,
-					(LPTHREAD_START_ROUTINE)gameThread,
-					NULL,
-					0,
-					0
-				);
-				if (hGameThread == NULL) {
-					_tprintf(TEXT("[ERROR] Impossible to create gameThread... (%d)"), GetLastError());
-					return -1;
-				}
-				game.running = TRUE;
-			}
-
-			break;
-		case JOIN_GAME:
-			break;
-		case SCORES:
-			break;
-		case MOVE_SNAKE:
-			moveIndividualSnake(dataGame.playerId, dataGame.direction);
-			break;
-		case MOVE_SNAKE2:
-			moveIndividualSnake(dataGame.playerId2, dataGame.direction);
-			break;
-		default:
-			break;
-	}
-}
-
-void moveIndividualSnake(int id, int direction) {
-	for (int i = 0; i < MAXCLIENTS; i++) {
-		if (game.playerSnakes[i].id == id && game.playerSnakes[i].alive) {
-
-				switch (direction) {
-					case RIGHT:
-						if (game.playerSnakes[i].direction != LEFT) {
-							game.playerSnakes[i].direction = RIGHT;
-						}
-						break;
-					case LEFT:
-						if (game.playerSnakes[i].direction != RIGHT) {
-							game.playerSnakes[i].direction = LEFT;
-						}
-						break;
-					case UP:
-						if (game.playerSnakes[i].direction != DOWN) {
-							game.playerSnakes[i].direction = UP;
-						}
-						break;
-					case DOWN:
-						if (game.playerSnakes[i].direction != UP) {
-							game.playerSnakes[i].direction = DOWN;
-						}
-						break;
-					default:
-						break;
-				}
-		}
-		//diretionToGo = 0;
-	}
-
-}
-
 //---------------------------------------------------
 // GAMING THREAD
 //---------------------------------------------------
+
 DWORD WINAPI gameThread(LPVOID params) {
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
@@ -768,51 +804,18 @@ DWORD WINAPI gameThread(LPVOID params) {
 			}
 			_tprintf(TEXT("\n"));
 		}*/
+
 		
 		updateGameInfo();
 		sendInfoToPlayers(gameInfo);
 		
 		verifyEndGame();
+
 		Sleep(0.5 * 1000);
 
 	}
 
 	_tprintf(TEXT("\nThread terminou..\n"));
 }
-
-void verifyEndGame(){
-
-	for (int i = 0; i < MAXCLIENTS; i++)
-	{
-		if (game.playerSnakes[i].alive) {
-			return;
-		}
-	}
-	game.running = FALSE;
-	game.Created = FALSE;
-
-}
-
-void sendInfoToPlayers(GameInfo gi) {
-	// Write on SHM
-	setInfoSHM(gi);
-	SetEvent(eWriteToClientSHM);
-
-	// Broadcast to NamedPipes
-	broadcastClients(gi);
-	SetEvent(eWriteToClientNP);
-
-
-}
-
-void moveSnakes() {
-	for (int i = 0; i < MAXCLIENTS; i++) {
-		if (game.playerSnakes[i].alive) {
-			game.playerSnakes[i] = move(game.playerSnakes[i]);
-		}
-	}
-
-}
-
 
 
