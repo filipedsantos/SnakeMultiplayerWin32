@@ -599,24 +599,24 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 	}
 	addClient(hPipe);
 
-	while(1){
+	while (1) {
 
 		ZeroMemory(&overLapped, sizeof(overLapped));
 		ResetEvent(ReadFromClient);
 		overLapped.hEvent = ReadFromClient;
 
 		//READ FROM CLIENT
-		success = ReadFile (
-					hPipe,				//READ CHANNEL
-					&dataGame,				//BUFFER OF READING DATA
-					DataStructSize,    //SIZE OF STRUCT
-					&cbBytesRead,
-					&overLapped);
+		success = ReadFile(
+			hPipe,				//READ CHANNEL
+			&dataGame,				//BUFFER OF READING DATA
+			DataStructSize,    //SIZE OF STRUCT
+			&cbBytesRead,
+			&overLapped);
 
 		WaitForSingleObject(ReadFromClient, INFINITE);
 
 		GetOverlappedResult(hPipe, &overLapped, &cbBytesRead, FALSE);
-		if(cbBytesRead < DataStructSize){
+		if (cbBytesRead < DataStructSize) {
 			_tprintf(TEXT("\n[THREAD] ReadFile does not read all - %d"), GetLastError());
 		}
 
@@ -627,54 +627,9 @@ DWORD WINAPI listenClientNamedPipes (LPVOID param){
 		_tcscpy(reply.command, request.command);
 		broadcastClients(reply);*/
 
-		switch (dataGame.op) {
-			case EXIT:
-				_tprintf(TEXT("Goodbye.."));
-
-				break;
-			case CREATE_GAME:
-				if (!game.Created)
-					initGame(dataGame);
-				else {
-					gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
-					setInfoSHM(gameInfo);
-				}
-
-				break;
-			case START_GAME:
-				if (!game.running) {
-					hGameThread = CreateThread(
-						NULL,
-						0,
-						(LPTHREAD_START_ROUTINE)gameThread,
-						NULL,
-						0,
-						0
-					);
-					if (hGameThread == NULL) {
-						_tprintf(TEXT("[ERROR] Impossible to create gameThread... (%d)"), GetLastError());
-						return -1;
-					}
-					game.running = TRUE;
-				}
-
-				break;
-			case JOIN_GAME:
-				break;
-			case SCORES:
-				break;
-			case MOVE_SNAKE:
-				moveIndividualSnake(dataGame.playerId, dataGame.direction);
-				break;
-			case MOVE_SNAKE2:
-				moveIndividualSnake(dataGame.playerId2, dataGame.direction);
-				break;
-			default:
-				break;
-		}
-
-
+		manageCommandsReceived(dataGame);
 	}
+
 
 	removeClients(hPipe);
 
@@ -710,54 +665,57 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 			return;
 		}
 		dataGame = getDataSHM();
-
-		switch (dataGame.op) {
-			case EXIT:
-				_tprintf(TEXT("Goodbye.."));
-
-				break;
-			case CREATE_GAME:
-				if (!game.Created)
-					initGame(dataGame);
-				else{
-					gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
-					setInfoSHM(gameInfo);
-				}
-					
-				break;
-			case START_GAME:
-				if(!game.running) {
-					hGameThread = CreateThread(
-						NULL,
-						0,
-						(LPTHREAD_START_ROUTINE)gameThread,
-						NULL,
-						0,
-						0
-					);
-					if (hGameThread == NULL) {
-						_tprintf(TEXT("[ERROR] Impossible to create gameThread... (%d)"), GetLastError());
-						return -1;
-					}
-					game.running = TRUE;
-				}
-				
-				break;
-			case JOIN_GAME:
-				break;
-			case SCORES:
-				break;
-			case MOVE_SNAKE:
-				moveIndividualSnake(dataGame.playerId, dataGame.direction);
-				break;
-			case MOVE_SNAKE2:
-				moveIndividualSnake(dataGame.playerId2, dataGame.direction);
-				break;
-			default:
-				break;
-		}
+		manageCommandsReceived(dataGame);
 		ResetEvent(eReadFromClientSHM);
 	}	
+}
+
+void manageCommandsReceived(data dataGame) {
+	switch (dataGame.op) {
+		case EXIT:
+			_tprintf(TEXT("Goodbye.."));
+
+			break;
+		case CREATE_GAME:
+			if (!game.Created)
+				initGame(dataGame);
+			else {
+				gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
+				setInfoSHM(gameInfo);
+			}
+
+			break;
+		case START_GAME:
+			if (!game.running) {
+				hGameThread = CreateThread(
+					NULL,
+					0,
+					(LPTHREAD_START_ROUTINE)gameThread,
+					NULL,
+					0,
+					0
+				);
+				if (hGameThread == NULL) {
+					_tprintf(TEXT("[ERROR] Impossible to create gameThread... (%d)"), GetLastError());
+					return -1;
+				}
+				game.running = TRUE;
+			}
+
+			break;
+		case JOIN_GAME:
+			break;
+		case SCORES:
+			break;
+		case MOVE_SNAKE:
+			moveIndividualSnake(dataGame.playerId, dataGame.direction);
+			break;
+		case MOVE_SNAKE2:
+			moveIndividualSnake(dataGame.playerId2, dataGame.direction);
+			break;
+		default:
+			break;
+	}
 }
 
 void moveIndividualSnake(int id, int direction) {

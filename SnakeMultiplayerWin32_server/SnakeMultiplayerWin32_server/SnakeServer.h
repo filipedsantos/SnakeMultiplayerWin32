@@ -161,6 +161,7 @@ void moveIndividualSnake(int id, int direction);
 void moveSnakes();
 void verifyEndGame();
 void sendInfoToPlayers(GameInfo gi);
+void manageCommandsReceived(data dataGame);
 
 // Threads
 DWORD WINAPI listenClientNamedPipes(LPVOID params);
