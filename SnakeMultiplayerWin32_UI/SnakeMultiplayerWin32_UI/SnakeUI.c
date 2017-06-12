@@ -101,6 +101,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	// create an id for user
 	srand(time(NULL));
 	myId = rand() % 1000 + 1999;
+	myId2 = rand() % 1000 + 1999;
 	// "hbrBackground" = handler para "brush" de pintura do fundo da janela. Devolvido por  // "GetStockObject".Neste caso o fundo será branco
 	// ============================================================================
 	// 2. Registar a classe "wcApp" no Windows
@@ -305,8 +306,7 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 						_tcscpy(newData.nicknamePlayer2, getText);
 
 						// create an id for 2 user
-						srand(time(NULL));
-						myId2 = rand() % 1000 + 1999;
+						
 					}
 
 					// GAME OBJECTS
@@ -623,8 +623,6 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 		case WM_KEYDOWN:
 		{
-			
-			
 			data.op = MOVE_SNAKE;
 			switch (wParam) {
 				
@@ -960,9 +958,8 @@ void sendCommand(data newData) {
 	void(*setDataSHM)(data);
 
 	newData.playerId = myId;
-	if (newData.numLocalPlayers == 2) {
-		newData.playerId2 = myId2;
-	}
+	newData.playerId2 = myId2;
+	
 
 	if (typeClient == LOCALCLIENT) {
 		// GET DLL FUNCTION - setSHM
