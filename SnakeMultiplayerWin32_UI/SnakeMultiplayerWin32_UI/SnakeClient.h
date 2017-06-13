@@ -22,8 +22,11 @@
 #define START_GAME		104
 #define MOVE_SNAKE		105
 #define MOVE_SNAKE2		106
+#define GAME_OVER		107
+#define REFRESH_BOARD	108
 
-#define ERROR_CANNOT_CREATE_GAME 106
+#define ERROR_CANNOT_CREATE_GAME	99
+#define ERROR_CANNOT_JOIN_GAME		98
 
 #define BLOCK_EMPTY			0
 #define BLOCK_WALL			1
@@ -103,6 +106,25 @@ BOOL created;
 BOOL runningThread = FALSE;
 HANDLE hMovementThread;
 int move = RIGHT;
+
+// Functions
+
+LRESULT CALLBACK MainWindow(HWND, UINT, WPARAM, LPARAM);
+ATOM registerClass(HINSTANCE hInst, TCHAR * szWinName);
+HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName);
+BOOL CALLBACK DialogTypeUser(HWND, UINT, WPARAM, LPARAM);
+BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam);
+
+void closeEverything();
+void startMainWindow();
+void startLocal();
+void startRemote();
+void sendCommand(data newData);
+void createErrorMessageBox(TCHAR *message);
+void createMessageBox(TCHAR *Message);
+void bitmap(left, right, top, bot);
+void editResourceOnPaint(int resource);
+void manageCommandsReceived(GameInfo gameInfo);
 
 // Threads
 

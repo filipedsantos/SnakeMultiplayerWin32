@@ -21,12 +21,11 @@
 #define MOVE_SNAKE		105
 #define MOVE_SNAKE2		106
 #define GAME_OVER		107
-
-
-
+#define REFRESH_BOARD	108
 
 //errors
-#define ERROR_CANNOT_CREATE_GAME 506
+#define ERROR_CANNOT_CREATE_GAME	99
+#define ERROR_CANNOT_JOIN_GAME		98
 
 //messages
 #define SHM_ALL 600
@@ -141,6 +140,8 @@ typedef struct Game {
 	int nRows, nColumns;
 	Snake playerSnakes[MAXCLIENTS];
 
+	int snakeInitialSize;
+
 } Game, *pGame;
 
 // END STRUCTS
@@ -158,13 +159,14 @@ void initGame(data dataGame);
 void putSnakeIntoBoard(int delX, int delY, Snake snake);
 Snake move(Snake snake);
 Snake initSnake(int startX, int startY, int size, int id);
-void updateGameInfo();
+void updateGameInfoBoard();
 void initObjetcts(int objectType, int nObjects);
 void moveIndividualSnake(int id, int direction);
 void moveSnakes();
 BOOL verifyEndGame();
 void sendInfoToPlayers(GameInfo gi);
 void manageCommandsReceived(data dataGame);
+void resetGameInfo();
 
 // Threads
 DWORD WINAPI listenClientNamedPipes(LPVOID params);

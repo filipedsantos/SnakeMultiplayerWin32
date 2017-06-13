@@ -17,24 +17,6 @@ TCHAR	username[20],
 pass[20],
 domain[20];
 
-
-LRESULT CALLBACK MainWindow(HWND, UINT, WPARAM, LPARAM);
-ATOM registerClass(HINSTANCE hInst, TCHAR * szWinName);
-HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName);
-BOOL CALLBACK DialogTypeUser(HWND, UINT, WPARAM, LPARAM);
-BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam);
-
-void closeEverything();
-void startMainWindow();
-void startLocal();
-void startRemote();
-void sendCommand(data newData);
-void createErrorMessageBox(TCHAR *message);
-void createMessageBox(TCHAR *Message);
-void bitmap(left, right, top, bot);
-void editResourceOnPaint(int resource);
-
-
 TCHAR *szProgName = TEXT("Snake Multiplayer");
 TCHAR *WindowName = TEXT("Snake Multiplayer");
 TCHAR error[1024];
@@ -88,6 +70,7 @@ DWORD dwThreadId = 0;
 LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\SnakeMultiplayerPipe");
 LPTSTR lpszPipeRemoteName;
 
+BOOL running = TRUE;	// updateBoard while loop controler
 
 int objects[9] = {41, 10, 10, 10, 10, 10, 3, 3, 3 };
 
@@ -271,7 +254,10 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 		case WM_COMMAND:
 			switch (LOWORD(wParam)) {
-				
+				case WM_DESTROY:
+					EndDialog(hWnd, 0);
+					return 1;
+
 				case ID_CANCEL_GAME:
 					EndDialog(hWnd, 0);
 					return 1;
@@ -348,13 +334,13 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 						newData.op = START_GAME;
 						sendCommand(newData);
 
-						hMovementThread = CreateThread(
+						/*hMovementThread = CreateThread(
 							NULL,
 							0,
 							updateBoard,
 							NULL,
 							0,
-							0);
+							0);*/
 					}
 					else {
 						createErrorMessageBox(TEXT("Game already created.."));
@@ -386,6 +372,81 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 	}
 	
+
+	return 0;
+}
+
+BOOL CALLBACK DialogJoinGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
+{
+	data newData;
+	TCHAR getText[1024];
+	int nPlayers;
+
+	switch (messg) {
+	case WM_DESTROY:
+		EndDialog(hWnd, 0);
+		return 0;
+
+	case WM_INITDIALOG:
+		//COMBO BOX
+		SendDlgItemMessage(hWnd, IDC_CB_PLAYERS2, CB_ADDSTRING, 0, TEXT("1"));
+		SendDlgItemMessage(hWnd, IDC_CB_PLAYERS2, CB_ADDSTRING, 0, TEXT("2"));
+		SendDlgItemMessage(hWnd, IDC_CB_PLAYERS2, CB_SETCURSEL, 0, 0);
+		break;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDJOIN:
+			// NUM LOCAL PLAYERS
+			GetDlgItemText(hWnd, IDC_CB_PLAYERS, getText, TCHAR_SIZE);
+			if (_tcscmp(getText, TEXT("1")) == 0) {
+				nPlayers = 1;
+			}
+			else {
+				nPlayers = 2;
+			}
+			newData.numLocalPlayers = nPlayers;
+
+			// NCKNAME1
+			GetDlgItemText(hWnd, IDC_EDIT_PLAYER1, getText, TCHAR_SIZE);
+			_tcscpy(newData.nicknamePlayer1, getText);
+
+			// NCKNAME2
+			if (newData.numLocalPlayers == 2) {
+				GetDlgItemText(hWnd, IDC_EDIT_PLAYER2, getText, TCHAR_SIZE);
+				_tcscpy(newData.nicknamePlayer2, getText);
+			}
+
+			sendCommand(newData);
+			EndDialog(hWnd, 0);
+			MessageBox(hWnd, TEXT("Waiting for game start.."),TEXT("Join Game"), MB_ICONINFORMATION);
+			return 1;
+		case IDCANCEL:
+			EndDialog(hWnd, 0);
+			return 0;
+
+		}
+
+		//COMBOBOX
+	case IDC_CB_PLAYERS:
+		if (HIWORD(wParam) == CBN_SELENDOK) {
+
+			GetDlgItemText(hWnd, IDC_CB_PLAYERS2, getText, 2);
+
+			//SELECTION 2 MAKE 2ND TEXT BOX - ABOUT NICKNAME - APPEAR
+			if (_tcscmp(getText, TEXT("2")) == 0) {
+				ShowWindow(GetDlgItem(hWnd, IDC_EDIT_PLAYER2), SW_SHOWNORMAL);
+				ShowWindow(GetDlgItem(hWnd, IDC_STATIC_PLAYER2), SW_SHOWNORMAL);
+			}
+			else {
+				ShowWindow(GetDlgItem(hWnd, IDC_EDIT_PLAYER2), SW_HIDE);
+				ShowWindow(GetDlgItem(hWnd, IDC_STATIC_PLAYER2), SW_HIDE);
+			}
+		}
+		return 1;
+
+	}
 
 	return 0;
 }
@@ -646,7 +707,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			hbitGround = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GRASS));
 			hbitSnake = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_YELLOW));
 			hbitSnake2 = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_GRAY));
-			hbitSnakeEnemy = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_RED));
+			hbitSnakeEnemy = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_PURPLE));
 			hbitApple = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_APPLE));
 			hbitwall = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_WALL1));
 			break;
@@ -715,6 +776,13 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 				case ID_FILE_NEWGAME:
 					DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_NEW_GAME, hWnd, (DLGPROC)DialogNewGame);
+					break;
+
+				case ID_FILE_JOINGAME:
+					//DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_JOIN_GAME, hWnd, (DLGPROC)DialogJoinGame);
+
+					data.op = JOIN_GAME;
+					sendCommand(data);
 					break;
 					
 				case ID_SETTINGS_CONTROLS:
@@ -1111,16 +1179,8 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 		}
 		
 		gameInfo = getInfoSHM();
-
-		if (gameInfo.playerId == 1000 || gameInfo.playerId == myId) {
-			switch (gameInfo.commandId) {
-				case ERROR_CANNOT_CREATE_GAME:
-					cannotCreate = TRUE;
-					break;
-			}
-		}
-		
-		
+		// Receive Command from server
+		manageCommandsReceived(gameInfo);
 
 		ResetEvent(eReadFromServerSHM);
 
@@ -1131,7 +1191,8 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 
 DWORD WINAPI updateBoard(LPVOID lpParam) {
 	int c = 0;
-	BOOL running = TRUE;
+
+	running = TRUE;
 	while (running) {
 
 		WaitForSingleObject(eReadFromServerSHM, INFINITE);
@@ -1181,8 +1242,6 @@ DWORD WINAPI updateBoard(LPVOID lpParam) {
 //THREAD RESPONSABLE FOR REMOTE USERS
 DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 	data fromServer;
-
-	GameInfo gameInfo;
 
 	DWORD cbBytesRead = 0;
 	BOOL fSuccess = FALSE;
@@ -1237,46 +1296,76 @@ DWORD WINAPI ThreadClientReader(LPVOID PARAMS) {
 		}
 
 		// Receive Command from server
-		if (gameInfo.playerId == 1000 || gameInfo.playerId == myId) {
-			hdc = GetDC(hWnd);
-			int x = 0, y = 0;
-			for (int l = 0; l < gameInfo.nRows; l++) {
-				for (int c = 0; c < gameInfo.nColumns; c++) {
+		manageCommandsReceived(gameInfo);
 
-					switch (gameInfo.boardGame[l][c]) {
-					case BLOCK_EMPTY:
-						bitmap(x, x + 20, y, y + 20, hbitGround);
-						break;
-					case BLOCK_FOOD:
-						bitmap(x, x + 20, y, y + 20, hbitApple);
-						break;
-					case BLOCK_WALL:
-						bitmap(x, x + 20, y, y + 20, hbitwall);
-						break;
-					}
-
-					if (gameInfo.boardGame[l][c] > 1999) {
-						bitmap(x, x + 20, y, y + 20, hbitSnakeEnemy);
-					}
-					if (gameInfo.boardGame[l][c] == myId) {
-						bitmap(x, x + 20, y, y + 20, hbitSnake);
-					}
-					if (gameInfo.boardGame[l][c] == myId2) {
-						bitmap(x, x + 20, y, y + 20, hbitSnake2);
-					}
-
-					x += 20;
-				}
-				x = 0;
-				y += 20;
-			}
-			ReleaseDC(hWnd, hdc);
-			InvalidateRect(NULL, NULL, TRUE);
-		}
+		
 
 	}
 
 	readerAlive = 0;
 	//_tprintf(TEXT("Thread Reader ending\n"));
 	return 1;
+}
+
+void manageCommandsReceived(GameInfo gameInfo) {
+	
+	if (gameInfo.playerId == 1000 || gameInfo.playerId == myId || gameInfo.playerId == myId2) {
+		switch (gameInfo.commandId) {
+			case GAME_OVER:
+				running = FALSE;
+				createMessageBox(TEXT("Game over.."));
+				break;
+			case REFRESH_BOARD:
+				hdc = GetDC(hWnd);
+				int x = 0, y = 0;
+				for (int l = 0; l < gameInfo.nRows; l++) {
+					for (int c = 0; c < gameInfo.nColumns; c++) {
+
+						switch (gameInfo.boardGame[l][c]) {
+						case BLOCK_EMPTY:
+							bitmap(x, x + 20, y, y + 20, hbitGround);
+							break;
+						case BLOCK_FOOD:
+							bitmap(x, x + 20, y, y + 20, hbitApple);
+							break;
+						case BLOCK_WALL:
+							bitmap(x, x + 20, y, y + 20, hbitwall);
+							break;
+						}
+
+						if (gameInfo.boardGame[l][c] > 1999) {
+							bitmap(x, x + 20, y, y + 20, hbitSnakeEnemy);
+						}
+						if (gameInfo.boardGame[l][c] == myId) {
+							bitmap(x, x + 20, y, y + 20, hbitSnake);
+						}
+						if (gameInfo.boardGame[l][c] == myId2) {
+							bitmap(x, x + 20, y, y + 20, hbitSnake2);
+						}
+
+						x += 20;
+					}
+					x = 0;
+					y += 20;
+				}
+				ReleaseDC(hWnd, hdc);
+				ResetEvent(eReadFromServerSHM);
+				InvalidateRect(NULL, NULL, TRUE);
+				break;
+			case JOIN_GAME:
+				DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_JOIN_GAME, hWnd, (DLGPROC)DialogJoinGame);
+				break;
+			case ERROR_CANNOT_CREATE_GAME:
+				cannotCreate = TRUE;
+				break;
+			case ERROR_CANNOT_JOIN_GAME:
+				createErrorMessageBox(TEXT("Cannot join game.."));
+				break;
+			default:
+				break;
+			}	
+
+	}
+
+	
 }

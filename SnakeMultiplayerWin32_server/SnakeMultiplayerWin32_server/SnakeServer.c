@@ -366,12 +366,33 @@ BOOL verifyPosition(int size, int rows, int columns, int orientation) {
 	return TRUE;
 }
 
+void joinGame(data dataGame) {
+
+	// Initialize the Player and the Snake
+	_tcscpy(game.playerSnakes[game.nPlayers].nickname, dataGame.nicknamePlayer1);
+	game.playerSnakes[game.nPlayers] = initSnake(game.snakeInitialSize, game.nRows, game.nColumns, dataGame.playerId);
+	game.nPlayers++;
+
+	if (dataGame.numLocalPlayers == 2) {
+		_tcscpy(game.playerSnakes[game.nPlayers].nickname, dataGame.nicknamePlayer2);
+		game.playerSnakes[game.nPlayers] = initSnake(game.snakeInitialSize, game.nRows, game.nColumns, dataGame.playerId2);
+		game.nPlayers++;
+	}
+
+	gameInfo.commandId = JOIN_GAME;		// Put the id to send gameInfo
+	gameInfo.playerId = dataGame.playerId;
+	sendInfoToPlayers(gameInfo);
+
+	
+}
+
 void initGame(data dataGame) {
 
 	game.nRows = dataGame.nRows;
 	game.nColumns = dataGame.nColumns;
 	game.Created = TRUE;
 	game.running = FALSE;
+	game.snakeInitialSize = dataGame.serpentInitialSize;
 	game.nPlayers = 0;
 
 
@@ -402,7 +423,7 @@ void initGame(data dataGame) {
 	}
 
 	// Initialize some objets
-	initObjetcts(dataGame.gameObjects, dataGame.objects);
+	initObjetcts(dataGame.gameObjects, BLOCK_FOOD);
 
 	_tprintf(TEXT("\n\n"));
 	for (int i = 0; i < game.nRows; i++) {
@@ -412,10 +433,14 @@ void initGame(data dataGame) {
 		_tprintf(TEXT("\n"));
 	}
 	_tprintf(TEXT("end objects\n"));
+
+	gameInfo.commandId = START_GAME;
 }
 
-void initObjetcts(int nObjects, int objectsArr[]) {
+void initObjetcts(int nObjects, int objectsArr) {
 	int x, y;
+	int percent;
+
 	for (int i = 0; i < nObjects; i++)
 	{
 		do {
@@ -423,7 +448,7 @@ void initObjetcts(int nObjects, int objectsArr[]) {
 			y = rand() % game.nRows;
 		} while (game.boardGame[x][y] != 0);
 
-		game.boardGame[x][y] = 1;
+		game.boardGame[x][y] = 2;
 	}
 }
 
@@ -555,8 +580,9 @@ Snake move(Snake snake) {
 	return snake;
 }
 
-void updateGameInfo() {
-	gameInfo.playerId = game.playerSnakes[0].id;
+void updateGameInfoBoard() {
+	gameInfo.commandId = REFRESH_BOARD;
+	gameInfo.playerId = 1000;	// For all players see
 	gameInfo.nRows = game.nRows;
 	gameInfo.nColumns = game.nColumns;
 
@@ -590,7 +616,14 @@ void sendInfoToPlayers(GameInfo gi) {
 	broadcastClients(gi);
 	SetEvent(eWriteToClientNP);
 
+	resetGameInfo();
 
+}
+
+void resetGameInfo() {
+	gameInfo.playerId = -1;														
+	gameInfo.commandId = -1;
+	// falta limpar o reston nao sei se e necesario
 }
 
 void moveSnakes() {
@@ -609,11 +642,13 @@ void manageCommandsReceived(data dataGame) {
 
 		break;
 	case CREATE_GAME:
-		if (!game.Created)
+		if (!game.Created) {
 			initGame(dataGame);
+		}
 		else {
 			gameInfo.commandId = ERROR_CANNOT_CREATE_GAME;
-			setInfoSHM(gameInfo);
+			gameInfo.playerId = dataGame.playerId;
+			sendInfoToPlayers(gameInfo);
 		}
 
 		break;
@@ -636,6 +671,14 @@ void manageCommandsReceived(data dataGame) {
 
 		break;
 	case JOIN_GAME:
+		if (game.Created) {
+			joinGame(dataGame);
+		}
+		else {
+			gameInfo.commandId = ERROR_CANNOT_JOIN_GAME;
+			gameInfo.playerId = dataGame.playerId;
+			sendInfoToPlayers(gameInfo);
+		}
 		break;
 	case SCORES:
 		break;
@@ -807,7 +850,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 		}*/
 
 		
-		updateGameInfo();
+		updateGameInfoBoard();
 		sendInfoToPlayers(gameInfo);
 		
 		verifyEndGame();
@@ -815,6 +858,10 @@ DWORD WINAPI gameThread(LPVOID params) {
 		Sleep(0.5 * 1000);
 
 	}
+
+	// send info to termiante thread
+	gameInfo.commandId = GAME_OVER;
+	sendInfoToPlayers(gameInfo);
 
 	_tprintf(TEXT("\nThread terminou..\n"));
 }
