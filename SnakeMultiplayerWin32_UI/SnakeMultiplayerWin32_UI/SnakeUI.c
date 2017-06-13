@@ -45,6 +45,16 @@ HBITMAP hbitSnakeEnemy;
 HBITMAP hbitApple;
 HBITMAP hbitwall;
 
+HBITMAP hbitIce;
+HBITMAP hbitGranade;
+HBITMAP hbitOil;
+HBITMAP hbitVodka;
+HBITMAP hbitGlue;
+HBITMAP hbitOOil;
+HBITMAP hbitOVodka;
+HBITMAP hbitOGlue;
+
+
 GameInfo gameInfo;
 
 TCHAR keyLeft  = TEXT('A');
@@ -247,8 +257,8 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 
 			// ROWS AND COLUMNS
-			SendDlgItemMessage(hWnd, IDC_EDIT_ROWS, EM_REPLACESEL, 0, TEXT("20"));
-			SendDlgItemMessage(hWnd, IDC_EDIT_COLUMNS, EM_REPLACESEL, 0, TEXT("20"));
+			SendDlgItemMessage(hWnd, IDC_EDIT_ROWS, EM_REPLACESEL, 0, TEXT("30"));
+			SendDlgItemMessage(hWnd, IDC_EDIT_COLUMNS, EM_REPLACESEL, 0, TEXT("30"));
 
 			SendDlgItemMessage(hWnd, IDC_NICKNAME1, EM_REPLACESEL, 0, TEXT("MARIO"));
 
@@ -698,6 +708,32 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			// Create wall
 			hbitwall = CreateCompatibleBitmap(hdc, 800, 650);
 			SelectObject(memdc, hbitwall);
+			
+			// Create Ice
+			hbitIce = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitIce);
+			// Create Granade
+			hbitGranade = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitGranade);
+			// Create Oil
+			hbitOil = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitOil);
+			// Create Vodka
+			hbitVodka = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitVodka);
+			// Create Glue
+			hbitGlue = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitGlue);
+			// Create O-Oil
+			hbitOOil = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitOOil);
+			// Create O-Vodka
+			hbitOVodka = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitOVodka);
+			// Create O-GLue
+			hbitOGlue = CreateCompatibleBitmap(hdc, 800, 650);
+			SelectObject(memdc, hbitOGlue);
+
 			hbrush = GetStockObject(WHITE_BRUSH);				
 			SelectObject(memdc, hbrush);
 			PatBlt(memdc, 0, 0, 800, 650, PATCOPY);
@@ -710,6 +746,15 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			hbitSnakeEnemy = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_PURPLE));
 			hbitApple = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_APPLE));
 			hbitwall = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_WALL1));
+
+			hbitIce = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_ICE));
+			hbitGranade = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_PINK));
+			hbitOil = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_OIL));
+			hbitVodka = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_VODKA));
+			hbitGlue = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GLUE));
+			hbitOOil = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_OIL2));
+			hbitOVodka = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_VODKA2));
+			hbitOGlue = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GLUE));
 			break;
 		}
 
@@ -839,6 +884,9 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 		{
 			break;
 		}
+
+		case WM_ERASEBKGND:
+			break;
 			
 		default:
 		{
@@ -1316,6 +1364,7 @@ void manageCommandsReceived(GameInfo gameInfo) {
 				createMessageBox(TEXT("Game over.."));
 				break;
 			case REFRESH_BOARD:
+			{
 				hdc = GetDC(hWnd);
 				int x = 0, y = 0;
 				for (int l = 0; l < gameInfo.nRows; l++) {
@@ -1330,6 +1379,30 @@ void manageCommandsReceived(GameInfo gameInfo) {
 							break;
 						case BLOCK_WALL:
 							bitmap(x, x + 20, y, y + 20, hbitwall);
+							break;
+						case BLOCK_ICE:
+							bitmap(x, x + 20, y, y + 20, hbitIce);
+							break;
+						case BLOCK_GRANADE:
+							bitmap(x, x + 20, y, y + 20, hbitGranade);
+							break;
+						case BLOCK_OIL:
+							bitmap(x, x + 20, y, y + 20, hbitOil);
+							break;
+						case BLOCK_VODKA:
+							bitmap(x, x + 20, y, y + 20, hbitVodka);
+							break;
+						case BLOCK_GLUE:
+							bitmap(x, x + 20, y, y + 20, hbitGlue);
+							break;
+						case BLOCK_O_OIL:
+							bitmap(x, x + 20, y, y + 20, hbitOOil);
+							break;
+						case BLOCK_O_VODKA:
+							bitmap(x, x + 20, y, y + 20, hbitOVodka);
+							break;
+						case BLOCK_O_GLUE:
+							bitmap(x, x + 20, y, y + 20, hbitOGlue);
 							break;
 						}
 
@@ -1349,9 +1422,9 @@ void manageCommandsReceived(GameInfo gameInfo) {
 					y += 20;
 				}
 				ReleaseDC(hWnd, hdc);
-				ResetEvent(eReadFromServerSHM);
 				InvalidateRect(NULL, NULL, TRUE);
 				break;
+			}
 			case JOIN_GAME:
 				DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_JOIN_GAME, hWnd, (DLGPROC)DialogJoinGame);
 				break;

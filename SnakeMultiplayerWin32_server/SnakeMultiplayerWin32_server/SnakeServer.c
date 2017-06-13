@@ -423,7 +423,7 @@ void initGame(data dataGame) {
 	}
 
 	// Initialize some objets
-	initObjetcts(dataGame.gameObjects, BLOCK_FOOD);
+	initObjetcts(dataGame.gameObjects, dataGame.objects);
 
 	_tprintf(TEXT("\n\n"));
 	for (int i = 0; i < game.nRows; i++) {
@@ -437,9 +437,20 @@ void initGame(data dataGame) {
 	gameInfo.commandId = START_GAME;
 }
 
-void initObjetcts(int nObjects, int objectsArr) {
+void initObjetcts(int nObjects, int objectsArr[10]) {
 	int x, y;
-	int percent;
+
+	int perc = 0;
+	int nGenerated;
+	int percFood = objectsArr[0];
+	int percIce = objectsArr[1];
+	int percGranade = objectsArr[2];
+	int percVodka = objectsArr[3];
+	int percOil = objectsArr[4];
+	int percGlue = objectsArr[5];
+	int percOvodka = objectsArr[6];
+	int percOoil = objectsArr[7];
+	int percOglue = objectsArr[8];
 
 	for (int i = 0; i < nObjects; i++)
 	{
@@ -448,7 +459,48 @@ void initObjetcts(int nObjects, int objectsArr) {
 			y = rand() % game.nRows;
 		} while (game.boardGame[x][y] != 0);
 
-		game.boardGame[x][y] = 2;
+		nGenerated = rand() % 100 + 1;
+		perc = 0;
+	/*	int percFood =  (perc = perc + objectsArr[0]);
+		int percIce = (perc = perc + objectsArr[1]);
+		int percGranade = (perc = perc + objectsArr[2]);
+		int percVodka = (perc = perc + objectsArr[3]);
+		int percOil = (perc = perc + objectsArr[4]);
+		int percGlue = (perc = perc + objectsArr[5]);
+		int percOvodka = (perc = perc + objectsArr[6]);
+		int percOoil = (perc = perc + objectsArr[7]);
+		int percOglue = (perc = perc + objectsArr[8]);*/
+
+		if (nGenerated < (perc = perc + objectsArr[0])) {				// Food
+			game.boardGame[x][y] = BLOCK_FOOD;
+		}
+		else if (nGenerated < (perc = perc + objectsArr[1])) {			// Ice
+			game.boardGame[x][y] = BLOCK_ICE;
+		}
+		else if (nGenerated < (perc = perc + objectsArr[2])) {			// Granade
+			game.boardGame[x][y] = BLOCK_GRANADE;
+		}
+		else if (nGenerated < (perc = perc + objectsArr[3])) {			// Vodka
+			game.boardGame[x][y] = BLOCK_VODKA;
+		}
+		else if (nGenerated < (perc = perc + objectsArr[4])) {			// Oil
+			game.boardGame[x][y] = BLOCK_OIL;
+		}
+		else if (nGenerated < (perc = perc + objectsArr[5])) {			// Glue
+			game.boardGame[x][y] = BLOCK_GLUE;
+		}
+		else if (nGenerated < (perc = perc + objectsArr[6])) {			// O-Vodka
+			game.boardGame[x][y] = BLOCK_O_VODKA;
+		}
+		else if (nGenerated < (perc = perc + objectsArr[7])) {			// O-Oil
+			game.boardGame[x][y] = BLOCK_O_OIL;
+		}
+		else if (nGenerated < (perc = perc + objectsArr[8])) {			// O-Glue
+			game.boardGame[x][y] = BLOCK_O_GLUE;
+		}
+		else {
+			game.boardGame[x][y] = BLOCK_EMPTY;
+		}
 	}
 }
 
