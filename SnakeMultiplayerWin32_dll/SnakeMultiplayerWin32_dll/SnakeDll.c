@@ -64,8 +64,6 @@ BOOL createFileMapping() {
 	}
 
 	createNewCircularBuffer();
-	mServer = startSyncMutex();
-	semaphoreRead = startSyncSemaphore(TRUE);
 
 	return TRUE;
 }
@@ -116,7 +114,7 @@ BOOL openFileMapping() {
 
 
 	mClient = startSyncMutex();
-	semaphoreWrite = startSyncSemaphore(FALSE);
+	semaphoreWrite = startSyncSemaphore(SIZECIRCULARBUFFER);
 	return TRUE;
 }
 
@@ -149,30 +147,27 @@ void createNewCircularBuffer() {
 //SYNCHRONIZED FUCTION USED TO WRITE ON SHARED MEMORY
 void setDataSHM(data data) {
 
-	//WaitForSingleObject(mClient, INFINITE);
-	//WaitForSingleObject(semaphoreWrite, INFINITE);
+	WaitForSingleObject(semaphoreWrite, INFINITE);
+	WaitForSingleObject(mClient, INFINITE);
+
 
 	// Write on SHM
 	circularBufferPointer->circularBuffer[circularBufferPointer->push] = data;
 
-	// INC PUSH
+	// INCREMENT PUSH
 	circularBufferPointer->push = (circularBufferPointer->push + 1) % SIZECIRCULARBUFFER;
-
-	releaseSyncHandles(mClient, semaphoreWrite);
 }
 
 //SYNCHRONIZED FUCTION USED TO GETDATA FROM SHARED MEMORY
  data getDataSHM() {
 	 data getData;
 
-	// WaitForSingleObject(mServer, INFINITE);
-	// WaitForSingleObject(semaphoreRead, INFINITE);
-
 	 getData = circularBufferPointer->circularBuffer[circularBufferPointer->pull];
 
 	 circularBufferPointer->pull = (circularBufferPointer->pull + 1) % SIZECIRCULARBUFFER;
+	
+	 releaseSyncHandles(NULL, semaphoreWrite);
 
-	 releaseSyncHandles(mServer, semaphoreRead);
 
 	 return getData;
 }
@@ -207,18 +202,12 @@ HANDLE startSyncMutex() {
  }
 
  //STARTING SYNCHRONIZATION
-HANDLE startSyncSemaphore(BOOL writer) {
-
+HANDLE startSyncSemaphore(int sizeOfSemaphore) {
 	HANDLE semaphore;
-	int startSize = SIZECIRCULARBUFFER;
-
-	if (!writer) {
-		startSize = 0;
-	}
 
 	semaphore = CreateSemaphore(
 		 NULL,
-		 startSize,
+		 sizeOfSemaphore,
 		 SIZECIRCULARBUFFER,
 		 NULL);
 

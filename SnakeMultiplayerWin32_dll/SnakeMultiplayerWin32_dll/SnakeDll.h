@@ -90,7 +90,7 @@ _declspec(dllexport) void setInfoSHM(GameInfo gi);
 
 _declspec(dllexport) GameInfo getInfoSHM();
 
-_declspec(dllexport) HANDLE startSyncSemaphore(BOOL writer);
+_declspec(dllexport) HANDLE startSyncSemaphore(int sizeOfSemaphore);
 
 _declspec(dllexport) HANDLE startSyncMutex();
 
