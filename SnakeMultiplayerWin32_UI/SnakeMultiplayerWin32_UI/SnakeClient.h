@@ -114,6 +114,7 @@ ATOM registerClass(HINSTANCE hInst, TCHAR * szWinName);
 HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName);
 BOOL CALLBACK DialogTypeUser(HWND, UINT, WPARAM, LPARAM);
 BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam);
+BOOL CALLBACK DialogAuthenticate(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam);
 
 void closeEverything();
 void startMainWindow();

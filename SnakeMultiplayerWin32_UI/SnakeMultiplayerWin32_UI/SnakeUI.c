@@ -14,8 +14,8 @@ HANDLE hUserToken = NULL;
 BOOL log;
 int ret;
 TCHAR	username[20],
-pass[20],
-domain[20];
+		pass[20],
+		domain[20] = TEXT(".");
 
 TCHAR *szProgName = TEXT("Snake Multiplayer");
 TCHAR *WindowName = TEXT("Snake Multiplayer");
@@ -78,7 +78,7 @@ DWORD dwMode;
 HANDLE hThread;
 DWORD dwThreadId = 0;
 LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\SnakeMultiplayerPipe");
-LPTSTR lpszPipeRemoteName;
+TCHAR lpszPipeRemoteName[255];
 
 BOOL running = TRUE;	// updateBoard while loop controler
 
@@ -193,12 +193,48 @@ HWND CreateMainWindow(HINSTANCE hInst, TCHAR * szWinName) {
 // WINDOW AND DIALOG
 //----------------------------------------------------
 
+BOOL CALLBACK DialogAuthenticate(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
+{
+	switch (messg) {
+	
+	case WM_DESTROY:
+		EndDialog(hWnd, 0);
+		return 0;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDC_LOGIN:
+
+			GetDlgItemText(hWnd, IDC_USERNAME, username, 20);
+			GetDlgItemText(hWnd, IDC_PASSWORD, pass, 20);
+			log = LogonUser(username, TEXT("."), pass, LOGON32_LOGON_NEW_CREDENTIALS, LOGON32_PROVIDER_DEFAULT, &hUserToken);
+
+			log = ImpersonateLoggedOnUser(hUserToken);
+			EndDialog(hWnd, 0);
+			startRemote();
+			break;
+		case ID_CANCEL_LOGIN:
+			EndDialog(hWnd, 0);
+			DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_USER_TYPE, hWnd, (DLGPROC)DialogTypeUser);
+			break;
+
+		default:
+			break;
+		}
+
+	}
+
+	return 0;
+}
+
 BOOL CALLBACK DialogTypeUser(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 {
 	switch (messg) {
 		
-		case WM_INITDIALOG:
-			break;
+		case WM_DESTROY:
+			EndDialog(hWnd, 0);
+			return 0;
 
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
@@ -212,16 +248,13 @@ BOOL CALLBACK DialogTypeUser(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam
 				case ID_BUTTON_REMOTE:
 					startMainWindow(hWnd);
 					typeClient = REMOTECLIENT;
-					startRemote();
+					EndDialog(hWnd,0);
+					DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_AUTHENTICATE, hWnd, (DLGPROC)DialogAuthenticate);
 					break;
 
 				default:
 					break;
 			}
-
-		case WM_DESTROY:
-			EndDialog(hWnd, 0);
-			return 0;
 	}
 	
 	return 0;
@@ -1111,12 +1144,6 @@ void startRemote() {
 
 	while (1) {
 
-		/*_tcscpy(lpszPipeRemoteName, TEXT("\\\\"));
-		_tcscat(lpszPipeRemoteName, domain);
-		_tcscat(lpszPipeRemoteName, lpszPipename);
-
-		log = ImpersonateLoggedOnUser(hUserToken);*/
-
 		// Open pipe with flag - File_Flag_OVERLAPPED
 		hPipe = CreateFile(
 			lpszPipename,								// name of pipe
@@ -1172,6 +1199,7 @@ void startRemote() {
 }
 
 //SEND COMMANDS THROUGH SHAREDMEMORY
+
 void sendCommand(data newData) {
 	HANDLE eWriteToServerNP;	// HANDLE para o evento leitura
 	OVERLAPPED overLapped = { 0 };
@@ -1237,6 +1265,7 @@ void sendCommand(data newData) {
 //----------------------------------------------------
 // DRAW BITMAPS
 //----------------------------------------------------
+
 void bitmap(left, right, top, bot, hbit) {
 	hdc = GetDC(hWnd);
 	HDC auxmemdc = CreateCompatibleDC(hdc);

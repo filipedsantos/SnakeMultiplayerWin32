@@ -167,12 +167,19 @@ void initializeNamedPipes() {
 
 	//////CREATE NAMEDPIPE THEN CREATE THREAD FOR USER
 
-	SECURITY_ATTRIBUTES sa;
-	TCHAR *szSD = TEXT("(A;OICI;GA;;;AU)");
+	SECURITY_ATTRIBUTES sa, *pSa;
+	TCHAR *szSD = TEXT("D:")
+		TEXT("(A;OICI;GA;;;BG)")
+		TEXT("(A;OICI;GA;;;AN)")
+		TEXT("(A;OICI;GA;;;AU)")
+		TEXT("(A;OICI;GA;;;BA)");
+
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 	sa.bInheritHandle = FALSE;
 
-	//ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(sa->lpSecurityDescriptor), NULL);
+	pSa = &sa;
+
+	ConvertStringSecurityDescriptorToSecurityDescriptor(szSD, SDDL_REVISION_1, &(pSa->lpSecurityDescriptor), NULL);
 
 	while (1) {
 		hPipe = CreateNamedPipe(
@@ -186,7 +193,7 @@ void initializeNamedPipes() {
 			BUFFSIZE,
 			BUFFSIZE,
 			5000,					 //TIMEOUT
-			NULL);	//&sa					 //DEFAULT SECURITY	
+			&sa);	//&sa					 //DEFAULT SECURITY	
 
 
 		if (hPipe == INVALID_HANDLE_VALUE) {

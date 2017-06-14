@@ -1,2 +1,29 @@
-﻿  SnakeMultiplayerWin32_server.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.exe
+﻿  SnakeServer.c
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(101): warning C4101: 'getCircularBufferPointerSHM': unreferenced local variable
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(159): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(201): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(221): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(324): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(328): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(330): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(332): warning C4013: 'verifyPosition' undefined; assuming extern returning int
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(382): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(387): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(427): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(432): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\corecrt_wstring.h(121): note: see declaration of 'wcscpy'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(558): warning C4018: '<': signed/unsigned mismatch
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(807): warning C4033: 'verifyEndGame' must return a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(872): warning C4098: 'manageCommandsReceived': 'void' function returning a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(1039): warning C4129: 's': unrecognized character escape sequence
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(1040): warning C4129: 's': unrecognized character escape sequence
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(1050): warning C4047: '=': 'data (__cdecl *)()' differs in levels of indirection from 'pData (__cdecl *)()'
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(1053): warning C4033: 'listenClientSharedMemory' must return a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(813): warning C4716: 'verifyEndGame': must return a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(1097): warning C4716: 'gameThread': must return a value
+c:\users\filipe\documents\github\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(1059): warning C4716: 'listenClientSharedMemory': must return a value
+  SnakeMultiplayerWin32_server.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.exe
   SnakeMultiplayerWin32_server.vcxproj -> C:\Users\Filipe\Documents\GitHub\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Debug\SnakeMultiplayerWin32_server.pdb (Full PDB)
