@@ -102,6 +102,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	// 2. Registar a classe "wcApp" no Windows
 	// ============================================================================
 
+	loadKeysFromRegistry();
 
 	if (!registerClass(hThisInst, WindowName))
 		return 0;
@@ -513,6 +514,7 @@ BOOL CALLBACK DialogEditControls(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lP
 				keyRight = _toupper(str[0]);
 				GetDlgItemText(hWnd, IDC_P2_DOWN, str, 2);
 				keyDown = _toupper(str[0]);
+				saveKeysOnRegistry();
 				EndDialog(hWnd, 0);
 				return 1;
 			case IDCANCEL:
@@ -1275,6 +1277,115 @@ void bitmap(left, right, top, bot, hbit) {
 	ReleaseDC(hWnd, hdc);
 	BitBlt(memdc, left, top, right, bot, auxmemdc, 0, 0, SRCCOPY);
 	DeleteDC(auxmemdc);
+
+}
+
+void loadKeysFromRegistry() {
+	HKEY regKey;
+	DWORD regEvent;
+	TCHAR str[20];
+	int tam;
+
+	if (RegCreateKeyEx(
+		HKEY_CURRENT_USER,
+		TEXT("Software\\SnakeMultiplayer\\Keys"),
+		0,
+		NULL,
+		REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS,
+		NULL,
+		&regKey,
+		&regEvent) != ERROR_SUCCESS) {
+		return -1;
+	}
+	else {
+		if (regEvent == REG_CREATED_NEW_KEY) {
+			// UP
+			_stprintf(str, TEXT("%c"), keyUp);
+			RegSetValueEx(regKey, TEXT("keyUp"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+			// DOWN
+			_stprintf(str, TEXT("%c"), keyDown);
+			RegSetValueEx(regKey, TEXT("keyDown"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+			// LEFT
+			_stprintf(str, TEXT("%c"), keyLeft);
+			RegSetValueEx(regKey, TEXT("keyLeft"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+			// RIGHT
+			_stprintf(str, TEXT("%c"), keyRight);
+			RegSetValueEx(regKey, TEXT("keyRight"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+		}
+		else if (regEvent == REG_OPENED_EXISTING_KEY) {
+
+			// UP
+			tam = 20;
+			RegQueryValueEx(regKey, TEXT("keyUp"), NULL, NULL, (LPBYTE)str, &tam);
+			keyUp = str[0];
+			// DOWN
+			tam = 20;
+			RegQueryValueEx(regKey, TEXT("keyDown"), NULL, NULL, (LPBYTE)str, &tam);
+			keyDown = str[0];
+			// LEFT
+			tam = 20;
+			RegQueryValueEx(regKey, TEXT("keyLeft"), NULL, NULL, (LPBYTE)str, &tam);
+			keyLeft = str[0];
+			// RIGHT
+			tam = 20;
+			RegQueryValueEx(regKey, TEXT("keyRight"), NULL, NULL, (LPBYTE)str, &tam);
+			keyRight = str[0];
+		}
+		RegCloseKey(regKey);
+	}
+}
+
+void saveKeysOnRegistry() {
+
+	HKEY regKey;
+	DWORD regEvent;
+	TCHAR str[2];
+
+	if (RegCreateKeyEx(
+		HKEY_CURRENT_USER,
+		TEXT("Software\\SnakeMultiplayer\\Keys"),
+		0,
+		NULL,
+		REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS,
+		NULL,
+		&regKey,
+		&regEvent) != ERROR_SUCCESS) {
+		return -1;
+	}
+	else {
+		if (regEvent == REG_CREATED_NEW_KEY) {
+			// UP
+			_stprintf(str, TEXT("%c"), keyUp);
+			RegSetValueEx(regKey, TEXT("keyUp"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+			// DOWN
+			_stprintf(str, TEXT("%c"), keyDown);
+			RegSetValueEx(regKey, TEXT("keyDown"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+			// LEFT
+			_stprintf(str, TEXT("%c"), keyLeft);
+			RegSetValueEx(regKey, TEXT("keyLeft"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+			// RIGHT
+			_stprintf(str, TEXT("%c"), keyRight);
+			RegSetValueEx(regKey, TEXT("keyRight"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+		}
+		else if (regEvent == REG_OPENED_EXISTING_KEY) {
+
+			// UP
+			_stprintf(str, TEXT("%c"), keyUp);
+			RegSetValueEx(regKey, TEXT("keyUp"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+			// DOWN
+			_stprintf(str, TEXT("%c"), keyDown);
+			RegSetValueEx(regKey, TEXT("keyDown"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+			// LEFT
+			_stprintf(str, TEXT("%c"), keyLeft);
+			RegSetValueEx(regKey, TEXT("keyLeft"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+			// RIGHT
+			_stprintf(str, TEXT("%c"), keyRight);
+			RegSetValueEx(regKey, TEXT("keyRight"), 0, REG_SZ, (LPBYTE)str, _tcslen(str) * sizeof(TCHAR));
+		}
+		RegCloseKey(regKey);
+	}
 
 }
 

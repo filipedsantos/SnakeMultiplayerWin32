@@ -193,6 +193,8 @@ void sendInfoToPlayers(GameInfo gi);
 void manageCommandsReceived(data dataGame);
 void resetGameInfo();
 void manageObjects();
+void loadTopFromRegystry();
+void saveTopOnRegistry();
 
 
 // Threads

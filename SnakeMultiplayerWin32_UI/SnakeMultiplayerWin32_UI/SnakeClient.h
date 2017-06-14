@@ -126,6 +126,8 @@ void createMessageBox(TCHAR *Message);
 void bitmap(left, right, top, bot);
 void editResourceOnPaint(int resource);
 void manageCommandsReceived(GameInfo gameInfo);
+void loadKeysFromRegistry();
+void saveKeysOnRegistry();
 
 // Threads
 

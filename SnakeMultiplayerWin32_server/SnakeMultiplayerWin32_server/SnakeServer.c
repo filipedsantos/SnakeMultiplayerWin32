@@ -954,6 +954,47 @@ void moveIndividualSnake(int id, int direction) {
 
 }
 
+void saveTopOnRegistry() {
+}
+
+void loadTopFromRegystry() {
+	HKEY regKey;
+	DWORD regEvent;
+	TCHAR topPlayerName[20];
+	DWORD topPlayerScore;
+	int tam;
+
+	if (RegCreateKeyEx(
+		HKEY_CURRENT_USER,
+		TEXT("Software\\SnakeMultiplayer\\Scores"),
+		0,
+		NULL,
+		REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS,
+		NULL,
+		&regKey,
+		&regEvent) != ERROR_SUCCESS) {
+		return -1;
+	}
+	else {
+		if (regEvent == REG_CREATED_NEW_KEY) {
+
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P1"), 0, REG_SZ, (LPBYTE)TEXT("Miguel"), _tcslen(TEXT("Miguel")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P1"), 0, REG_DWORD, (LPBYTE)20, sizeof(DWORD));
+
+		}
+		else if (regEvent == REG_OPENED_EXISTING_KEY) {
+
+			tam = 20;
+			RegQueryValueEx(regKey, TEXT("TopPlayerName_P1"), NULL, NULL, (LPBYTE)topPlayerName, &tam);
+			topPlayerName[tam / sizeof(TCHAR)] = '\0';
+			tam = sizeof(topPlayerScore);
+			RegQueryValueEx(regKey, TEXT("TopPlayerScore_P1"), NULL, NULL, (LPBYTE)&topPlayerScore, &tam);
+			_stprintf_s(scores[0].playerName, TCHARSIZE, TEXT("%s"), topPlayerName);
+		}
+		RegCloseKey(regKey);
+	}
+}
 
 //////////////
 // THREADS ///
@@ -1091,6 +1132,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 	
 	// send info to termiante thread
 	gameInfo.commandId = GAME_OVER;
+	gameInfo.playerId = 1000;
 	sendInfoToPlayers(gameInfo);
 
 	_tprintf(TEXT("\nThread terminou..\n"));
