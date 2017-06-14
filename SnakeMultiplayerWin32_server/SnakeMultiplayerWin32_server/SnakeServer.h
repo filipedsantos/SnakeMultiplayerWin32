@@ -36,8 +36,6 @@
 #define UP    3
 #define DOWN  4
 
-
-
 // STRUCTS
 typedef struct data {
 	TCHAR who[WHO];
@@ -113,6 +111,16 @@ typedef struct Coords {
 	int posY;
 } Coords, *pCoords;
 
+
+#define NO_EFFECT    0
+#define EFFECT_SPEED 1
+#define EFFECT_DRUNK 2
+
+#define NORMAL_SPEED 100
+#define RACE_SPEED   0
+#define SLOW_SPEED   500
+
+
 typedef struct Snake {
 	
 	//PLAYER
@@ -124,6 +132,9 @@ typedef struct Snake {
 	Coords *coords;
 	int size;
 	BOOL alive;
+	int effect;
+	int timeEffect;
+	int speed;
 	int direction;
 	int print;		// save the id of the snake/player to print ; when snake die this print = 0 and not change the original id
 
@@ -136,6 +147,7 @@ typedef struct Game {
 	int  **boardGame;
 	BOOL Created;
 	BOOL running;
+	int objectsDuration;
 	int nPlayers;
 	int nRows, nColumns;
 	Snake playerSnakes[MAXCLIENTS];
@@ -160,9 +172,10 @@ void putSnakeIntoBoard(int delX, int delY, Snake snake);
 Snake move(Snake snake);
 Snake initSnake(int startX, int startY, int size, int id);
 void updateGameInfoBoard();
-void initObjetcts(int objectType, int nObjects);
+void initObjetcts(int objectType, int nObjects[10]);
 void moveIndividualSnake(int id, int direction);
 void moveSnakes();
+Snake verifyEffect(Snake snake);
 BOOL verifyEndGame();
 void sendInfoToPlayers(GameInfo gi);
 void manageCommandsReceived(data dataGame);

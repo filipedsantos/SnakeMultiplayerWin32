@@ -342,6 +342,8 @@ Snake initSnake(int size, int rows, int columns, int id) {
 
 	snake.id = id;
 	snake.print = id;
+	snake.speed = NORMAL_SPEED;
+	snake.effect = NO_EFFECT;
 	
 
 	putSnakeIntoBoard(-1, -1, snake);
@@ -394,6 +396,7 @@ void initGame(data dataGame) {
 	game.running = FALSE;
 	game.snakeInitialSize = dataGame.serpentInitialSize;
 	game.nPlayers = 0;
+	game.objectsDuration = dataGame.objectsDuration;
 
 
 	// Initialize board
@@ -504,6 +507,40 @@ void initObjetcts(int nObjects, int objectsArr[10]) {
 	}
 }
 
+Snake verifyEffect(Snake snake) {
+
+	if (snake.effect != NO_EFFECT) {
+		if (snake.effect == EFFECT_DRUNK) {
+			switch (snake.direction)
+			{
+			case RIGHT:
+				snake.direction = LEFT;
+				break;
+			case LEFT:
+				snake.direction = RIGHT;
+				break;
+			case UP:
+				snake.direction = DOWN;
+				break;
+			case DOWN:
+				snake.direction = UP;
+				break;
+			default:
+				break;
+			}
+
+		}
+		
+		snake.timeEffect--;
+		if (snake.timeEffect == 0) {
+			snake.effect = NO_EFFECT;
+			snake.speed  = NORMAL_SPEED;
+		}
+	}
+
+	return snake;
+}
+
 void putSnakeIntoBoard(int delX, int delY, Snake snake) {
 
 	
@@ -521,7 +558,7 @@ Snake move(Snake snake) {
 	Coords toMove = snake.coords[0];
 	int delX=-1, delY=-1;
 
-	
+	snake = verifyEffect(snake);
 
 	switch (snake.direction) {
 		case RIGHT:
@@ -556,6 +593,7 @@ Snake move(Snake snake) {
 			snake.print = 0;
 			delX = delY = -1;
 			break;
+
 		case BLOCK_FOOD:
 			// Grow the snake
 			snake.size++;
@@ -567,14 +605,37 @@ Snake move(Snake snake) {
 			snake.coords = toEat;
 			break;
 		case BLOCK_ICE:
+			for (int i = 0; i < snake.size; i++){
+				game.boardGame[snake.coords[i].posY][snake.coords[i].posX] = 0;
+			}
+
+			snake.size--;
+			toEat = malloc(sizeof(Coords) * snake.size);
+			toEat[0] = toMove;
+			for (int i = 1; i < snake.size; i++) {
+				toEat[i] = snake.coords[i - 1];
+			}
+			snake.coords = toEat;
 			break;
 		case BLOCK_GRANADE:
+			// kill the snake
+			snake.alive = FALSE;
+			snake.print = 0;
+			delX = delY = -1;
 			break;
 		case BLOCK_VODKA:
+			snake.effect = EFFECT_DRUNK;
+			snake.timeEffect = game.objectsDuration;
 			break;
 		case BLOCK_OIL:
+			snake.speed = RACE_SPEED;
+			snake.effect = EFFECT_SPEED;
+			snake.timeEffect = game.objectsDuration;
 			break;
 		case BLOCK_GLUE:
+			snake.speed = SLOW_SPEED;
+			snake.effect = EFFECT_SPEED;
+			snake.timeEffect = game.objectsDuration;
 			break;
 		case BLOCK_O_VODKA:
 			break;
@@ -625,7 +686,8 @@ Snake move(Snake snake) {
 				break;
 		}
 	}
-
+	
+	Sleep(snake.speed);
 	// Draw the snake on the map
 	putSnakeIntoBoard(delX, delY, snake);
 
@@ -907,7 +969,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 		
 		verifyEndGame();
 
-		Sleep(0.5 * 1000);
+		Sleep(400);
 
 	}
 
