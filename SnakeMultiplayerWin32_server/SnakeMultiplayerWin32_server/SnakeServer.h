@@ -140,21 +140,32 @@ typedef struct Snake {
 
 } Snake, *pSnake;
 
+
+typedef struct Objects {
+	int x, y;
+	int duration;
+	int block;
+}Objects, *pObjects;
+
 typedef struct Game {
 
 	//int commandId;						
-	Scores scores[SIZECIRCULARBUFFER];
+	Scores scores[SIZECIRCULARBUFFER];	
 	int  **boardGame;
 	BOOL Created;
 	BOOL running;
 	int objectsDuration;
+	int nObjects;
 	int nPlayers;
 	int nRows, nColumns;
+	int objectPercentages[9];
 	Snake playerSnakes[MAXCLIENTS];
+	Objects *object;
 
 	int snakeInitialSize;
 
 } Game, *pGame;
+
 
 // END STRUCTS
 
@@ -172,7 +183,8 @@ void putSnakeIntoBoard(int delX, int delY, Snake snake);
 Snake move(Snake snake);
 Snake initSnake(int startX, int startY, int size, int id);
 void updateGameInfoBoard();
-void initObjetcts(int objectType, int nObjects[10]);
+void initObjetcts();
+Objects initRandomObject();
 void moveIndividualSnake(int id, int direction);
 void moveSnakes();
 Snake verifyEffect(Snake snake);
@@ -180,6 +192,7 @@ BOOL verifyEndGame();
 void sendInfoToPlayers(GameInfo gi);
 void manageCommandsReceived(data dataGame);
 void resetGameInfo();
+
 
 // Threads
 DWORD WINAPI listenClientNamedPipes(LPVOID params);

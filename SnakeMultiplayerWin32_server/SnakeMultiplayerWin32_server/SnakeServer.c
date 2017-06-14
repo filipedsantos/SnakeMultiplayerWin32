@@ -31,6 +31,7 @@ GameInfo gameInfo;
 Game game;
 
 int IDcounter = MINIDPLAYER;
+int gameCount;
 
 HANDLE hGameThread;
 
@@ -397,6 +398,7 @@ void initGame(data dataGame) {
 	game.snakeInitialSize = dataGame.serpentInitialSize;
 	game.nPlayers = 0;
 	game.objectsDuration = dataGame.objectsDuration;
+	game.nObjects = dataGame.gameObjects;
 
 
 	// Initialize board
@@ -426,7 +428,14 @@ void initGame(data dataGame) {
 	}
 
 	// Initialize some objets
-	initObjetcts(dataGame.gameObjects, dataGame.objects);
+	game.object = malloc(sizeof(Objects) * dataGame.gameObjects);
+
+	for (int i = 0; i < 9; i++) {
+		game.objectPercentages[i] = dataGame.objects[i];
+	}
+
+	initObjetcts();
+	
 
 	_tprintf(TEXT("\n\n"));
 	for (int i = 0; i < game.nRows; i++) {
@@ -437,100 +446,97 @@ void initGame(data dataGame) {
 	}
 	_tprintf(TEXT("end objects\n"));
 
+	
+
 	gameInfo.commandId = START_GAME;
 }
 
-void initObjetcts(int nObjects, int objectsArr[10]) {
+void initObjetcts() {
+	
+	for (int i = 0; i < game.nObjects; i++)
+	{
+		game.object[i] = initRandomObject();
+	}
+}
+
+Objects initRandomObject() {
 	int x, y;
+	Objects randomizedObject;
 
 	int perc = 0;
 	int nGenerated;
-	int percFood = objectsArr[0];
-	int percIce = objectsArr[1];
-	int percGranade = objectsArr[2];
-	int percVodka = objectsArr[3];
-	int percOil = objectsArr[4];
-	int percGlue = objectsArr[5];
-	int percOvodka = objectsArr[6];
-	int percOoil = objectsArr[7];
-	int percOglue = objectsArr[8];
+	int percFood = game.objectPercentages[0];
+	int percIce = game.objectPercentages[1];
+	int percGranade = game.objectPercentages[2];
+	int percVodka = game.objectPercentages[3];
+	int percOil = game.objectPercentages[4];
+	int percGlue = game.objectPercentages[5];
+	int percOvodka = game.objectPercentages[6];
+	int percOoil = game.objectPercentages[7];
+	int percOglue = game.objectPercentages[8];
 
-	for (int i = 0; i < nObjects; i++)
-	{
-		do {
-			x = rand() % game.nColumns;
-			y = rand() % game.nRows;
-		} while (game.boardGame[x][y] != 0);
+	do {
+		x = rand() % game.nColumns;
+		y = rand() % game.nRows;
+	} while (game.boardGame[x][y] != 0);
 
-		nGenerated = rand() % 100 + 1;
-		perc = 0;
-	/*	int percFood =  (perc = perc + objectsArr[0]);
-		int percIce = (perc = perc + objectsArr[1]);
-		int percGranade = (perc = perc + objectsArr[2]);
-		int percVodka = (perc = perc + objectsArr[3]);
-		int percOil = (perc = perc + objectsArr[4]);
-		int percGlue = (perc = perc + objectsArr[5]);
-		int percOvodka = (perc = perc + objectsArr[6]);
-		int percOoil = (perc = perc + objectsArr[7]);
-		int percOglue = (perc = perc + objectsArr[8]);*/
+	randomizedObject.x = x;
+	randomizedObject.y = y;
+	randomizedObject.duration = game.objectsDuration;
 
-		if (nGenerated < (perc = perc + objectsArr[0])) {				// Food
-			game.boardGame[x][y] = BLOCK_FOOD;
-		}
-		else if (nGenerated < (perc = perc + objectsArr[1])) {			// Ice
-			game.boardGame[x][y] = BLOCK_ICE;
-		}
-		else if (nGenerated < (perc = perc + objectsArr[2])) {			// Granade
-			game.boardGame[x][y] = BLOCK_GRANADE;
-		}
-		else if (nGenerated < (perc = perc + objectsArr[3])) {			// Vodka
-			game.boardGame[x][y] = BLOCK_VODKA;
-		}
-		else if (nGenerated < (perc = perc + objectsArr[4])) {			// Oil
-			game.boardGame[x][y] = BLOCK_OIL;
-		}
-		else if (nGenerated < (perc = perc + objectsArr[5])) {			// Glue
-			game.boardGame[x][y] = BLOCK_GLUE;
-		}
-		else if (nGenerated < (perc = perc + objectsArr[6])) {			// O-Vodka
-			game.boardGame[x][y] = BLOCK_O_VODKA;
-		}
-		else if (nGenerated < (perc = perc + objectsArr[7])) {			// O-Oil
-			game.boardGame[x][y] = BLOCK_O_OIL;
-		}
-		else if (nGenerated < (perc = perc + objectsArr[8])) {			// O-Glue
-			game.boardGame[x][y] = BLOCK_O_GLUE;
-		}
-		else {
-			game.boardGame[x][y] = BLOCK_EMPTY;
-		}
+	nGenerated = rand() % 100 + 1;
+	perc = 0;
+
+	if (nGenerated < (perc = perc + game.objectPercentages[0])) {				// Food
+		game.boardGame[x][y] = BLOCK_FOOD;
+		randomizedObject.block = BLOCK_FOOD;
+		randomizedObject.duration = 0;
+
 	}
+	else if (nGenerated < (perc = perc + game.objectPercentages[1])) {			// Ice
+		game.boardGame[x][y] = BLOCK_ICE;
+		randomizedObject.block = BLOCK_ICE;
+		randomizedObject.duration = 0;
+	}
+	else if (nGenerated < (perc = perc + game.objectPercentages[2])) {			// Granade
+		game.boardGame[x][y] = BLOCK_GRANADE;
+		randomizedObject.block = BLOCK_GRANADE;
+		randomizedObject.duration = 0;
+	}
+	else if (nGenerated < (perc = perc + game.objectPercentages[3])) {			// Vodka
+		game.boardGame[x][y] = BLOCK_VODKA;
+		randomizedObject.block = BLOCK_VODKA;
+	}
+	else if (nGenerated < (perc = perc + game.objectPercentages[4])) {			// Oil
+		game.boardGame[x][y] = BLOCK_OIL;
+		randomizedObject.block = BLOCK_OIL;
+	}
+	else if (nGenerated < (perc = perc + game.objectPercentages[5])) {			// Glue
+		game.boardGame[x][y] = BLOCK_GLUE;
+		randomizedObject.block = BLOCK_GLUE;
+	}
+	else if (nGenerated < (perc = perc + game.objectPercentages[6])) {			// O-Vodka
+		game.boardGame[x][y] = BLOCK_O_VODKA;
+		randomizedObject.block = BLOCK_O_VODKA;
+	}
+	else if (nGenerated < (perc = perc + game.objectPercentages[7])) {			// O-Oil
+		game.boardGame[x][y] = BLOCK_O_OIL;
+		randomizedObject.block = BLOCK_O_OIL;
+	}
+	else if (nGenerated < (perc = perc + game.objectPercentages[8])) {			// O-Glue
+		game.boardGame[x][y] = BLOCK_O_GLUE;
+		randomizedObject.block = BLOCK_O_GLUE;
+	}
+	else {
+		game.boardGame[x][y] = BLOCK_EMPTY;
+	}
+
+	return randomizedObject;
 }
 
 Snake verifyEffect(Snake snake) {
 
 	if (snake.effect != NO_EFFECT) {
-		if (snake.effect == EFFECT_DRUNK) {
-			switch (snake.direction)
-			{
-			case RIGHT:
-				snake.direction = LEFT;
-				break;
-			case LEFT:
-				snake.direction = RIGHT;
-				break;
-			case UP:
-				snake.direction = DOWN;
-				break;
-			case DOWN:
-				snake.direction = UP;
-				break;
-			default:
-				break;
-			}
-
-		}
-		
 		snake.timeEffect--;
 		if (snake.timeEffect == 0) {
 			snake.effect = NO_EFFECT;
@@ -539,6 +545,32 @@ Snake verifyEffect(Snake snake) {
 	}
 
 	return snake;
+}
+
+void oEffect(int block) {
+	for (size_t i = 0; i < game.nPlayers; i++){
+		switch (block)
+		{
+		case BLOCK_O_GLUE:
+			game.playerSnakes[i].speed = SLOW_SPEED;
+			game.playerSnakes[i].effect = EFFECT_SPEED;
+			game.playerSnakes[i].timeEffect = game.objectsDuration;
+			break;
+		case BLOCK_O_OIL:
+			game.playerSnakes[i].speed = RACE_SPEED;
+			game.playerSnakes[i].effect = EFFECT_SPEED;
+			game.playerSnakes[i].timeEffect = game.objectsDuration;
+			break;
+		case BLOCK_O_VODKA:
+			game.playerSnakes[i].effect = EFFECT_DRUNK;
+			game.playerSnakes[i].timeEffect = game.objectsDuration;
+			break;
+		default:
+			break;
+		}
+	}
+	
+
 }
 
 void putSnakeIntoBoard(int delX, int delY, Snake snake) {
@@ -638,10 +670,13 @@ Snake move(Snake snake) {
 			snake.timeEffect = game.objectsDuration;
 			break;
 		case BLOCK_O_VODKA:
+			oEffect(BLOCK_O_VODKA);
 			break;
 		case BLOCK_O_OIL:
+			oEffect(BLOCK_O_OIL);
 			break;
 		case BLOCK_O_GLUE:
+			oEffect(BLOCK_O_GLUE);
 			break;
 		default:
 			break;
@@ -811,24 +846,46 @@ void moveIndividualSnake(int id, int direction) {
 	for (int i = 0; i < MAXCLIENTS; i++) {
 		if (game.playerSnakes[i].id == id && game.playerSnakes[i].alive) {
 
+			if (game.playerSnakes[i].effect == EFFECT_DRUNK) {
+				switch (direction)
+				{
+				case RIGHT:
+					direction = LEFT;
+					break;
+				case LEFT:
+					direction = RIGHT;
+					break;
+				case UP:
+					direction = DOWN;
+					break;
+				case DOWN:
+					direction = UP;
+					break;
+				default:
+					break;
+				}
+
+			}
+
+
 			switch (direction) {
 			case RIGHT:
-				if (game.playerSnakes[i].direction != LEFT) {
+				if (game.playerSnakes[i].direction != LEFT && game.playerSnakes[i].direction != RIGHT) {
 					game.playerSnakes[i].direction = RIGHT;
 				}
 				break;
 			case LEFT:
-				if (game.playerSnakes[i].direction != RIGHT) {
+				if (game.playerSnakes[i].direction != RIGHT  && game.playerSnakes[i].direction != LEFT) {
 					game.playerSnakes[i].direction = LEFT;
 				}
 				break;
 			case UP:
-				if (game.playerSnakes[i].direction != DOWN) {
+				if (game.playerSnakes[i].direction != DOWN  && game.playerSnakes[i].direction != DOWN) {
 					game.playerSnakes[i].direction = UP;
 				}
 				break;
 			case DOWN:
-				if (game.playerSnakes[i].direction != UP) {
+				if (game.playerSnakes[i].direction != UP  && game.playerSnakes[i].direction != UP) {
 					game.playerSnakes[i].direction = DOWN;
 				}
 				break;
@@ -952,7 +1009,10 @@ DWORD WINAPI listenClientSharedMemory(LPVOID params) {
 DWORD WINAPI gameThread(LPVOID params) {
 	_tprintf(TEXT("\n-----GAMETHREAD----\n"));
 
+	gameCount = 0;
+
 	while (game.running) {
+		gameCount++;
 		moveSnakes();
 
 		/*_tprintf(TEXT("\n\n"));
@@ -963,13 +1023,12 @@ DWORD WINAPI gameThread(LPVOID params) {
 			_tprintf(TEXT("\n"));
 		}*/
 
-		
 		updateGameInfoBoard();
 		sendInfoToPlayers(gameInfo);
 		
 		verifyEndGame();
 
-		Sleep(400);
+		Sleep(450);
 
 	}
 
