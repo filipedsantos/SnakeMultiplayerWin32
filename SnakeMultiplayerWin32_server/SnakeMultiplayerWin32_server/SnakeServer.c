@@ -659,7 +659,6 @@ Snake move(Snake snake) {
 			}
 			snake.coords = toEat;
 			
-	
 			// kill the snake
 			snake.alive = FALSE;
 			snake.print = 0;
@@ -690,6 +689,23 @@ Snake move(Snake snake) {
 			break;
 		default:
 			break;
+	}
+
+	//COLISION WITH ANOTHER SNAKE AND SET SCORE +10 TO ANOTHER SNAKE
+
+	if (positionToCheck > 1000) {
+		// kill the snake
+		snake.alive = FALSE;
+		snake.print = 0;
+		delX = delY = -1;
+
+		for (int i = 0; i < game.nPlayers; i++){
+			if (positionToCheck == game.playerSnakes[i].id) {
+
+				game.playerSnakes[i].score += 10;
+
+			}
+		}
 	}
 
 	if (positionToCheck == snake.id) {
