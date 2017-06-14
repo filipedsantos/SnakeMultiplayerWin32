@@ -156,6 +156,7 @@
     <Image Include="apple2.bmp" />
     <Image Include="apple__1.bmp" />
     <Image Include="glue__1.bmp" />
+    <Image Include="granade__1.bmp" />
     <Image Include="grass.bmp" />
     <Image Include="gray.bmp" />
     <Image Include="ice__1.bmp" />

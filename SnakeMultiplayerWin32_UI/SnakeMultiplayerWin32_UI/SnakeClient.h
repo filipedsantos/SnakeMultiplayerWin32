@@ -131,7 +131,6 @@ void manageCommandsReceived(GameInfo gameInfo);
 //DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
 
 DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS);
-DWORD WINAPI updateBoard(LPVOID lpParam);
 DWORD WINAPI ThreadClientReader(LPVOID PARAMS);
 
 int mayContinue = 1;

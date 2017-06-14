@@ -90,5 +90,8 @@
     <Image Include="vodka__2.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="granade__1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

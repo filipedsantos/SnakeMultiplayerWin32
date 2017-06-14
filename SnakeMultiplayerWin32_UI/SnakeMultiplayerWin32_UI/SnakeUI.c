@@ -343,14 +343,6 @@ BOOL CALLBACK DialogNewGame(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 						newData.op = START_GAME;
 						sendCommand(newData);
-
-						/*hMovementThread = CreateThread(
-							NULL,
-							0,
-							updateBoard,
-							NULL,
-							0,
-							0);*/
 					}
 					else {
 						createErrorMessageBox(TEXT("Game already created.."));
@@ -680,7 +672,7 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 	
 	// Double Buffer
 	HDC hdcDB;
-	HBITMAP hDB;
+	HBITMAP hdDB;
 
 	switch (messg) {
 		case WM_CREATE:
@@ -746,9 +738,8 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 			hbitSnakeEnemy = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_PURPLE));
 			hbitApple = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_APPLE));
 			hbitwall = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_WALL1));
-
 			hbitIce = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_ICE));
-			hbitGranade = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_PINK));
+			hbitGranade = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GRANADE));
 			hbitOil = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_OIL));
 			hbitVodka = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_VODKA));
 			hbitGlue = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GLUE));
@@ -864,14 +855,68 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 			hdc = BeginPaint(hWnd, &ps);
 
-			// Double Buffer
-			/*if (hdcDB == NULL) {
-				hdcDB = CreateCompatibleDC(hdc);
-				hdcDB = CreateCompatibleBitmap(hdc, 800, 650);
-				SelectObject(hdcDB, hDB);
-			}
-			BitBlt(hdcDB, 0, 0, 800, 650, hbitGround, 0, 0, SRCCOPY);
-			BitBlt(hdc, 0, 0, 800, 650, hdcDB, 0, 0, SRCCOPY);*/
+			//// Double Buffer
+			//if (hdcDB == NULL) {
+			//	hdcDB = CreateCompatibleDC(hdc);
+			//	hdDB = CreateCompatibleBitmap(hdc, 800, 650);
+			//}
+
+			//int x = 0, y = 0;
+			//for (int l = 0; l < gameInfo.nRows; l++) {
+			//	for (int c = 0; c < gameInfo.nColumns; c++) {
+
+			//		switch (gameInfo.boardGame[l][c]) {
+			//		case BLOCK_EMPTY:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitGround, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_FOOD:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitApple, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_WALL:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitwall, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_ICE:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitIce, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_GRANADE:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitGranade, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_OIL:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitOil, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_VODKA:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitVodka, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_GLUE:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitGlue, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_O_OIL:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitOOil, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_O_VODKA:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitOVodka, 0, 0, SRCCOPY);
+			//			break;
+			//		case BLOCK_O_GLUE:
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitOGlue, 0, 0, SRCCOPY);
+			//			break;
+			//		}
+
+			//		if (gameInfo.boardGame[l][c] > 1999) {
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitSnakeEnemy, 0, 0, SRCCOPY);
+			//		}
+			//		if (gameInfo.boardGame[l][c] == myId) {
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitSnake, 0, 0, SRCCOPY);
+			//		}
+			//		if (gameInfo.boardGame[l][c] == myId2) {
+			//			BitBlt(memdc, x, y, x + 20, y + 20, hbitSnake2, 0, 0, SRCCOPY);
+			//		}
+
+			//		x += 20;
+			//	}
+			//	x = 0;
+			//	y += 20;
+			//}
+			//BitBlt(hdc, 0, 0, 800, 650, memdc, 0, 0, SRCCOPY);
 
 			
 			BitBlt(hdc, 0, 0, 800, 650, memdc, 0, 0, SRCCOPY);
@@ -1189,9 +1234,10 @@ void sendCommand(data newData) {
 	
 }
 
-//--------------
-//DRAW BITMAPS
-//--------------
+
+//----------------------------------------------------
+// DRAW BITMAPS
+//----------------------------------------------------
 void bitmap(left, right, top, bot, hbit) {
 	hdc = GetDC(hWnd);
 	HDC auxmemdc = CreateCompatibleDC(hdc);
@@ -1235,56 +1281,6 @@ DWORD WINAPI ThreadClientReaderSHM(LPVOID PARAMS) {
 	}
 
 	return 1;
-}
-
-DWORD WINAPI updateBoard(LPVOID lpParam) {
-	int c = 0;
-
-	running = TRUE;
-	while (running) {
-
-		WaitForSingleObject(eReadFromServerSHM, INFINITE);
-		
-		if (gameInfo.playerId == 1000 || gameInfo.playerId == myId) {
-			hdc = GetDC(hWnd);
-			int x = 0, y = 0;
-			for (int l = 0; l < gameInfo.nRows; l++) {
-				for (int c = 0; c < gameInfo.nColumns; c++) {
-
-					switch (gameInfo.boardGame[l][c]) {
-					case BLOCK_EMPTY:
-						bitmap(x, x + 20, y, y + 20, hbitGround);
-						break;
-					case BLOCK_FOOD:
-						bitmap(x, x + 20, y, y + 20, hbitApple);
-						break;
-					case BLOCK_WALL:
-						bitmap(x, x + 20, y, y + 20, hbitwall);
-						break;
-					}
-
-					if (gameInfo.boardGame[l][c] > 1999) {
-						bitmap(x, x + 20, y, y + 20, hbitSnakeEnemy);
-					}
-					if (gameInfo.boardGame[l][c] == myId) {
-						bitmap(x, x + 20, y, y + 20, hbitSnake);
-					}
-					if (gameInfo.boardGame[l][c] == myId2) {
-						bitmap(x, x + 20, y, y + 20, hbitSnake2);
-					}
-
-					x += 20;
-				}
-				x = 0;
-				y += 20;
-			}
-			ReleaseDC(hWnd, hdc);
-			ResetEvent(eReadFromServerSHM);
-			InvalidateRect(NULL, NULL, TRUE);
-			
-		}
-		
-	}
 }
 
 //THREAD RESPONSABLE FOR REMOTE USERS
