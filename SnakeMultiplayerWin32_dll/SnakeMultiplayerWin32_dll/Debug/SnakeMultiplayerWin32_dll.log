@@ -1,4 +1,6 @@
 ﻿  SnakeDll.c
-d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(139): warning C4047: '=': 'TCHAR' differs in levels of indirection from 'unsigned short [6]'
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_dll\snakemultiplayerwin32_dll\snakedll.c(137): warning C4047: '=': 'TCHAR' differs in levels of indirection from 'unsigned short [6]'
+  LINK : D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.dll not found or not built by the last incremental link; performing full link
+     Creating library D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.lib and object D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.exp
   SnakeMultiplayerWin32_dll.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.dll
   SnakeMultiplayerWin32_dll.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_dll\Debug\SnakeMultiplayerWin32_dll.pdb (Full PDB)
