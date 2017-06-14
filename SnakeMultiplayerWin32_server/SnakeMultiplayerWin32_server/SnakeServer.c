@@ -428,7 +428,7 @@ void initGame(data dataGame) {
 	}
 
 	// Initialize some objets
-	game.object = malloc(sizeof(Objects) * dataGame.gameObjects);
+	game.object = malloc(sizeof(Objects) * game.nObjects);
 
 	for (int i = 0; i < 9; i++) {
 		game.objectPercentages[i] = dataGame.objects[i];
@@ -490,18 +490,18 @@ Objects initRandomObject() {
 	if (nGenerated < (perc = perc + game.objectPercentages[0])) {				// Food
 		game.boardGame[x][y] = BLOCK_FOOD;
 		randomizedObject.block = BLOCK_FOOD;
-		randomizedObject.duration = 0;
+		randomizedObject.duration = -1;
 
 	}
 	else if (nGenerated < (perc = perc + game.objectPercentages[1])) {			// Ice
 		game.boardGame[x][y] = BLOCK_ICE;
 		randomizedObject.block = BLOCK_ICE;
-		randomizedObject.duration = 0;
+		randomizedObject.duration = -1;
 	}
 	else if (nGenerated < (perc = perc + game.objectPercentages[2])) {			// Granade
 		game.boardGame[x][y] = BLOCK_GRANADE;
 		randomizedObject.block = BLOCK_GRANADE;
-		randomizedObject.duration = 0;
+		randomizedObject.duration = -1;
 	}
 	else if (nGenerated < (perc = perc + game.objectPercentages[3])) {			// Vodka
 		game.boardGame[x][y] = BLOCK_VODKA;
@@ -575,13 +575,24 @@ void oEffect(int block) {
 
 void putSnakeIntoBoard(int delX, int delY, Snake snake) {
 
-	
 	for (int i = 0; i < snake.size; i++) {
 		game.boardGame[snake.coords[i].posY][snake.coords[i].posX] = snake.print;
 	}
 	if (delX >= 0 && delY >= 0) {
 		game.boardGame[delY][delX] = 0;
 	}
+	
+}
+
+void removeObject(int posX, int posY) {
+	for (int i = 0; i < game.nObjects; i++)
+	{
+		if (game.object[i].x == posY && game.object[i].y == posX) {
+			game.object[i] = initRandomObject();
+			game.boardGame[game.object[i].x][game.object[i].y] = game.object[i].block;
+		}
+	}
+
 	
 }
 
@@ -624,6 +635,8 @@ Snake move(Snake snake) {
 			snake.alive = FALSE;
 			snake.print = 0;
 			delX = delY = -1;
+
+			
 			break;
 
 		case BLOCK_FOOD:
@@ -635,6 +648,8 @@ Snake move(Snake snake) {
 				toEat[i] = snake.coords[i - 1];
 			}
 			snake.coords = toEat;
+
+			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_ICE:
 			for (int i = 0; i < snake.size; i++){
@@ -648,6 +663,7 @@ Snake move(Snake snake) {
 				toEat[i] = snake.coords[i - 1];
 			}
 			snake.coords = toEat;
+			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_GRANADE:
 			delX = snake.coords[snake.size - 1].posX;
@@ -662,30 +678,36 @@ Snake move(Snake snake) {
 			// kill the snake
 			snake.alive = FALSE;
 			snake.print = 0;
-	
+			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_VODKA:
 			snake.effect = EFFECT_DRUNK;
 			snake.timeEffect = game.objectsDuration;
+			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_OIL:
 			snake.speed = RACE_SPEED;
 			snake.effect = EFFECT_SPEED;
 			snake.timeEffect = game.objectsDuration;
+			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_GLUE:
 			snake.speed = SLOW_SPEED;
 			snake.effect = EFFECT_SPEED;
 			snake.timeEffect = game.objectsDuration;
+			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_O_VODKA:
 			oEffect(BLOCK_O_VODKA);
+			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_O_OIL:
 			oEffect(BLOCK_O_OIL);
+			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_O_GLUE:
 			oEffect(BLOCK_O_GLUE);
+			removeObject(toMove.posX, toMove.posY);
 			break;
 		default:
 			break;
@@ -749,10 +771,10 @@ Snake move(Snake snake) {
 		}
 	}
 	
-	Sleep(snake.speed);
+	
 	// Draw the snake on the map
 	putSnakeIntoBoard(delX, delY, snake);
-
+	Sleep(snake.speed);
 	return snake;
 }
 
@@ -1041,6 +1063,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 	while (game.running) {
 		gameCount++;
 		moveSnakes();
+		manageObjects();
 
 		/*_tprintf(TEXT("\n\n"));
 		for (int i = 0; i < game.nRows; i++) {
@@ -1058,7 +1081,7 @@ DWORD WINAPI gameThread(LPVOID params) {
 		Sleep(450);
 
 	}
-
+	
 	// send info to termiante thread
 	gameInfo.commandId = GAME_OVER;
 	sendInfoToPlayers(gameInfo);
@@ -1067,3 +1090,17 @@ DWORD WINAPI gameThread(LPVOID params) {
 }
 
 
+void manageObjects() {
+	for (int i = 0; i < game.nObjects; i++)
+	{
+		if (game.object[i].duration > 0) {
+			game.object[i].duration--;
+
+			if (game.object[i].duration == 0) {
+				game.boardGame[game.object[i].x][game.object[i].y] = BLOCK_EMPTY;
+				removeObject(game.object[i].y, game.object[i].x);
+				
+			}
+		}
+	}
+}

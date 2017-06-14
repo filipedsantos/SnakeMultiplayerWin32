@@ -192,6 +192,7 @@ BOOL verifyEndGame();
 void sendInfoToPlayers(GameInfo gi);
 void manageCommandsReceived(data dataGame);
 void resetGameInfo();
+void manageObjects();
 
 
 // Threads
