@@ -650,10 +650,20 @@ Snake move(Snake snake) {
 			snake.coords = toEat;
 			break;
 		case BLOCK_GRANADE:
+			delX = snake.coords[snake.size - 1].posX;
+			delY = snake.coords[snake.size - 1].posY;
+			toEat = malloc(sizeof(Coords) * snake.size);
+			toEat[0] = toMove;
+			for (int i = 1; i < snake.size; i++) {
+				toEat[i] = snake.coords[i - 1];
+			}
+			snake.coords = toEat;
+			
+	
 			// kill the snake
 			snake.alive = FALSE;
 			snake.print = 0;
-			delX = delY = -1;
+	
 			break;
 		case BLOCK_VODKA:
 			snake.effect = EFFECT_DRUNK;
@@ -688,8 +698,9 @@ Snake move(Snake snake) {
 		snake.print = 0;
 		delX = delY = -1;
 	}
-	
-	if (snake.alive && positionToCheck != BLOCK_FOOD) {
+
+	if (snake.alive && positionToCheck != BLOCK_FOOD && positionToCheck != BLOCK_GRANADE ){
+		//&& positionToCheck != BLOCK_ICE && positionToCheck != BLOCK_GRANADE && positionToCheck != BLOCK_VODKA && positionToCheck != BLOCK_OIL && positionToCheck != BLOCK_GLUE && positionToCheck != BLOCK_O_VODKA && positionToCheck != BLOCK_O_OIL && positionToCheck != BLOCK_O_GLUE) {
 
 		// Get position to delete in case of move
 		delX = snake.coords[snake.size - 1].posX;
