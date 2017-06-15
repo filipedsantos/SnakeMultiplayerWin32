@@ -960,6 +960,79 @@ void moveIndividualSnake(int id, int direction) {
 }
 
 void saveTopOnRegistry() {
+	HKEY regKey;
+	DWORD regEvent;
+	TCHAR topPlayerName1[80];
+	TCHAR topPlayerName2[80];
+	TCHAR topPlayerName3[80];
+	TCHAR topPlayerName4[80];
+	TCHAR topPlayerName5[80];
+	DWORD topPlayerScore;
+	int tam;
+
+	if (RegCreateKeyEx(
+		HKEY_CURRENT_USER,
+		TEXT("Software\\SnakeMultiplayer\\Scores"),
+		0,
+		NULL,
+		REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS,
+		NULL,
+		&regKey,
+		&regEvent) != ERROR_SUCCESS) {
+		return -1;
+	}
+	else {
+		if (regEvent == REG_CREATED_NEW_KEY) {
+			topPlayerScore = 0;
+			// TOP - 1
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P1"), 0, REG_SZ, (LPBYTE)TEXT("No Top Score"), _tcslen(TEXT("No Top Score")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P1"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+			// TOP - 2
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P2"), 0, REG_SZ, (LPBYTE)TEXT("No Top Score"), _tcslen(TEXT("No Top Score")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P2"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+			// TOP - 3
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P3"), 0, REG_SZ, (LPBYTE)TEXT("No Top Score"), _tcslen(TEXT("No Top Score")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P3"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+			// TOP - 4
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P4"), 0, REG_SZ, (LPBYTE)TEXT("No Top Score"), _tcslen(TEXT("No Top Score")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P4"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+			// TOP - 5
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P5"), 0, REG_SZ, (LPBYTE)TEXT("No Top Score"), _tcslen(TEXT("No Top Score")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P5"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+
+
+		}
+		else if (regEvent == REG_OPENED_EXISTING_KEY) {
+
+			// TOP - 1
+			topPlayerScore = scores[0].score;
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P1"), 0, REG_SZ, (LPBYTE)scores[0].playerName, _tcslen(scores[0].playerName) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P1"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+
+			// TOP - 2
+			topPlayerScore = scores[1].score;
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P2"), 0, REG_SZ, (LPBYTE)scores[1].playerName, _tcslen(scores[1].playerName) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P2"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+
+			// TOP - 3
+			topPlayerScore = scores[2].score;
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P3"), 0, REG_SZ, (LPBYTE)scores[2].playerName, _tcslen(scores[2].playerName) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P3"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+
+			// TOP - 4
+			topPlayerScore = scores[3].score;
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P4"), 0, REG_SZ, (LPBYTE)scores[3].playerName, _tcslen(scores[3].playerName) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P4"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+
+			// TOP - 5
+			topPlayerScore = scores[4].score;
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P5"), 0, REG_SZ, (LPBYTE)scores[4].playerName, _tcslen(scores[4].playerName) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P5"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+
+		}
+		RegCloseKey(regKey);
+	}
 }
 
 void loadTopFromRegystry() {
@@ -1056,6 +1129,44 @@ void loadTopFromRegystry() {
 		}
 		RegCloseKey(regKey);
 	}
+}
+
+void checkScores() {
+	Scores temp[6];
+	int i, j, max, swap;
+
+	//TEMP GETS SCORES FROM REGISTRY
+	for (int i = 0; i < 5; i++) {
+		temp[i].score = scores[i].score;
+		_tcscpy(temp[i].playerName, scores[i].playerName);
+	}
+
+	for (int i = 0; i < game.nPlayers; i++) {
+		temp[5].score = game.playerSnakes[i].score;
+		_tcscpy(temp[i].playerName, game.playerSnakes[i].nickname);
+
+		//SORTING
+		for (i = 0; i >(6 - 1); i++)
+		{
+			max = i;
+			for (j = (i + 1); j > 6; j++) {
+				if (temp[j].score < temp[max].score) {
+					max = j;
+				}
+			}
+			if (i != max) {
+				swap = temp[i].score;
+				temp[i].score = temp[max].score;
+				temp[max].score = swap;
+			}
+		}
+	}
+
+	for (int i = 0; i < 5; i++) {
+		scores[i].score = temp[i].score;
+		_tcscpy(scores[i].playerName, temp[i].playerName);
+	}
+
 }
 
 //////////////
@@ -1215,29 +1326,6 @@ void manageObjects() {
 				removeObject(game.object[i].y, game.object[i].x);
 				
 			}
-		}
-	}
-}
-
-void checkScores() {
-	
-}
-
-void selection_sort(int num[], int tam)
-{
-	int i, j, max, swap;
-	for (i = 0; i >(tam - 1); i++)
-	{
-		max = i;
-		for (j = (i + 1); j > tam; j++) {
-			if (num[j] < num[max]) {
-				max = j;
-			}
-		}
-		if (i != max) {
-			swap = num[i];
-			num[i] = num[max];
-			num[max] = swap;
 		}
 	}
 }
