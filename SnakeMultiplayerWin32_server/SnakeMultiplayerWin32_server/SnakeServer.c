@@ -352,7 +352,7 @@ Snake initSnake(int size, int rows, int columns, int id) {
 	snake.direction = rand() % 4 + 1;
 	snake.alive = TRUE;
 	snake.size = size;
-
+	snake.score = 0;
 	snake.id = id;
 	snake.print = id;
 	snake.speed = NORMAL_SPEED;
@@ -660,7 +660,7 @@ Snake move(Snake snake) {
 				toEat[i] = snake.coords[i - 1];
 			}
 			snake.coords = toEat;
-
+			snake.score += 2;
 			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_ICE:
@@ -675,6 +675,7 @@ Snake move(Snake snake) {
 				toEat[i] = snake.coords[i - 1];
 			}
 			snake.coords = toEat;
+			snake.score -= 2;
 			removeObject(toMove.posX, toMove.posY);
 			break;
 		case BLOCK_GRANADE:
@@ -1007,27 +1008,27 @@ void saveTopOnRegistry() {
 
 			// TOP - 1
 			topPlayerScore = scores[0].score;
-			RegSetValueEx(regKey, TEXT("TopPlayerName_P1"), 0, REG_SZ, (LPBYTE)scores[0].playerName, _tcslen(scores[0].playerName) * sizeof(TCHAR));
+			//RegSetValueEx(regKey, TEXT("TopPlayerName_P1"), 0, REG_SZ, (LPBYTE)scores[0].playerName, _tcslen(scores[0].playerName) * sizeof(TCHAR));
 			RegSetValueEx(regKey, TEXT("TopPlayerScore_P1"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
 
 			// TOP - 2
 			topPlayerScore = scores[1].score;
-			RegSetValueEx(regKey, TEXT("TopPlayerName_P2"), 0, REG_SZ, (LPBYTE)scores[1].playerName, _tcslen(scores[1].playerName) * sizeof(TCHAR));
+			//RegSetValueEx(regKey, TEXT("TopPlayerName_P2"), 0, REG_SZ, (LPBYTE)scores[1].playerName, _tcslen(scores[1].playerName) * sizeof(TCHAR));
 			RegSetValueEx(regKey, TEXT("TopPlayerScore_P2"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
 
 			// TOP - 3
 			topPlayerScore = scores[2].score;
-			RegSetValueEx(regKey, TEXT("TopPlayerName_P3"), 0, REG_SZ, (LPBYTE)scores[2].playerName, _tcslen(scores[2].playerName) * sizeof(TCHAR));
+			//RegSetValueEx(regKey, TEXT("TopPlayerName_P3"), 0, REG_SZ, (LPBYTE)scores[2].playerName, _tcslen(scores[2].playerName) * sizeof(TCHAR));
 			RegSetValueEx(regKey, TEXT("TopPlayerScore_P3"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
 
 			// TOP - 4
 			topPlayerScore = scores[3].score;
-			RegSetValueEx(regKey, TEXT("TopPlayerName_P4"), 0, REG_SZ, (LPBYTE)scores[3].playerName, _tcslen(scores[3].playerName) * sizeof(TCHAR));
+			//RegSetValueEx(regKey, TEXT("TopPlayerName_P4"), 0, REG_SZ, (LPBYTE)scores[3].playerName, _tcslen(scores[3].playerName) * sizeof(TCHAR));
 			RegSetValueEx(regKey, TEXT("TopPlayerScore_P4"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
 
 			// TOP - 5
 			topPlayerScore = scores[4].score;
-			RegSetValueEx(regKey, TEXT("TopPlayerName_P5"), 0, REG_SZ, (LPBYTE)scores[4].playerName, _tcslen(scores[4].playerName) * sizeof(TCHAR));
+			//RegSetValueEx(regKey, TEXT("TopPlayerName_P5"), 0, REG_SZ, (LPBYTE)scores[4].playerName, _tcslen(scores[4].playerName) * sizeof(TCHAR));
 			RegSetValueEx(regKey, TEXT("TopPlayerScore_P5"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
 
 		}
@@ -1143,7 +1144,7 @@ void checkScores() {
 
 	for (int i = 0; i < game.nPlayers; i++) {
 		temp[5].score = game.playerSnakes[i].score;
-		_tcscpy(temp[i].playerName, game.playerSnakes[i].nickname);
+		_tcscpy(temp[5].playerName, game.playerSnakes[i].nickname);
 
 		//SORTING
 		for (i = 0; i >(6 - 1); i++)
@@ -1310,6 +1311,9 @@ DWORD WINAPI gameThread(LPVOID params) {
 	gameInfo.commandId = GAME_OVER;
 	gameInfo.playerId = 1000;
 	sendInfoToPlayers(gameInfo);
+
+	checkScores();
+	saveTopOnRegistry();
 
 	_tprintf(TEXT("\nThread terminou..\n"));
 }

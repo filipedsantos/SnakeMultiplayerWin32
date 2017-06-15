@@ -1,0 +1,40 @@
+﻿  SnakeServer.c
+SnakeServer.c(106): warning C4101: 'getCircularBufferPointerSHM': unreferenced local variable
+SnakeServer.c(164): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+SnakeServer.c(206): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+SnakeServer.c(226): warning C4098: 'initializeNamedPipes': 'void' function returning a value
+SnakeServer.c(329): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+SnakeServer.c(333): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+SnakeServer.c(335): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+SnakeServer.c(337): warning C4013: 'verifyPosition' undefined; assuming extern returning int
+SnakeServer.c(387): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+SnakeServer.c(392): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+SnakeServer.c(432): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+SnakeServer.c(437): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+SnakeServer.c(563): warning C4018: '<': signed/unsigned mismatch
+SnakeServer.c(813): warning C4033: 'verifyEndGame' must return a value
+SnakeServer.c(878): warning C4098: 'manageCommandsReceived': 'void' function returning a value
+SnakeServer.c(984): warning C4098: 'saveTopOnRegistry': 'void' function returning a value
+SnakeServer.c(970): warning C4101: 'topPlayerName5': unreferenced local variable
+SnakeServer.c(967): warning C4101: 'topPlayerName2': unreferenced local variable
+SnakeServer.c(972): warning C4101: 'tam': unreferenced local variable
+SnakeServer.c(968): warning C4101: 'topPlayerName3': unreferenced local variable
+SnakeServer.c(969): warning C4101: 'topPlayerName4': unreferenced local variable
+SnakeServer.c(966): warning C4101: 'topPlayerName1': unreferenced local variable
+SnakeServer.c(1060): warning C4098: 'loadTopFromRegystry': 'void' function returning a value
+SnakeServer.c(1142): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+SnakeServer.c(1147): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+SnakeServer.c(1168): warning C4996: 'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+SnakeServer.c(1137): warning C4101: 'i': unreferenced local variable
+SnakeServer.c(1254): warning C4129: 's': unrecognized character escape sequence
+SnakeServer.c(1255): warning C4129: 's': unrecognized character escape sequence
+SnakeServer.c(1265): warning C4047: '=': 'data (__cdecl *)()' differs in levels of indirection from 'pData (__cdecl *)()'
+SnakeServer.c(1268): warning C4033: 'listenClientSharedMemory' must return a value
+  Generating code
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(819): warning C4716: 'verifyEndGame': must return a value
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(1319): warning C4716: 'gameThread': must return a value
+d:\isec\so2\snakemultiplayerwin32\snakemultiplayerwin32_server\snakemultiplayerwin32_server\snakeserver.c(1274): warning C4716: 'listenClientSharedMemory': must return a value
+  All 40 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  SnakeMultiplayerWin32_server.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Release\SnakeMultiplayerWin32_server.exe
+  SnakeMultiplayerWin32_server.vcxproj -> D:\ISEC\SO2\SnakeMultiplayerWin32\SnakeMultiplayerWin32_server\Release\SnakeMultiplayerWin32_server.pdb (Full PDB)
