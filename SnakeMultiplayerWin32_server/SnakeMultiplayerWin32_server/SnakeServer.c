@@ -35,6 +35,8 @@ int gameCount;
 
 HANDLE hGameThread;
 
+Scores scores[5];
+
 //MAIN 
 int _tmain(void){
 
@@ -58,6 +60,9 @@ int _tmain(void){
 
 
 void initializeServer() {
+
+	// Load scores from reg
+	loadTopFromRegystry();
 
 	int(*ptr)();
 
@@ -960,7 +965,11 @@ void saveTopOnRegistry() {
 void loadTopFromRegystry() {
 	HKEY regKey;
 	DWORD regEvent;
-	TCHAR topPlayerName[20];
+	TCHAR topPlayerName1[80];
+	TCHAR topPlayerName2[80];
+	TCHAR topPlayerName3[80];
+	TCHAR topPlayerName4[80];
+	TCHAR topPlayerName5[80];
 	DWORD topPlayerScore;
 	int tam;
 
@@ -978,19 +987,72 @@ void loadTopFromRegystry() {
 	}
 	else {
 		if (regEvent == REG_CREATED_NEW_KEY) {
+			topPlayerScore = 0;
+			// TOP - 1
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P1"), 0, REG_SZ, (LPBYTE)TEXT("Filipe"), _tcslen(TEXT("Filipe")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P1"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+			// TOP - 2
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P2"), 0, REG_SZ, (LPBYTE)TEXT("No Top Score"), _tcslen(TEXT("No Top Score")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P2"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+			// TOP - 3
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P3"), 0, REG_SZ, (LPBYTE)TEXT("No Top Score"), _tcslen(TEXT("No Top Score")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P3"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+			// TOP - 4
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P4"), 0, REG_SZ, (LPBYTE)TEXT("No Top Score"), _tcslen(TEXT("No Top Score")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P4"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
+			// TOP - 5
+			RegSetValueEx(regKey, TEXT("TopPlayerName_P5"), 0, REG_SZ, (LPBYTE)TEXT("No Top Score"), _tcslen(TEXT("No Top Score")) * sizeof(TCHAR));
+			RegSetValueEx(regKey, TEXT("TopPlayerScore_P5"), 0, REG_DWORD, (LPBYTE)&topPlayerScore, sizeof(DWORD));
 
-			RegSetValueEx(regKey, TEXT("TopPlayerName_P1"), 0, REG_SZ, (LPBYTE)TEXT("Miguel"), _tcslen(TEXT("Miguel")) * sizeof(TCHAR));
-			RegSetValueEx(regKey, TEXT("TopPlayerScore_P1"), 0, REG_DWORD, (LPBYTE)20, sizeof(DWORD));
 
 		}
 		else if (regEvent == REG_OPENED_EXISTING_KEY) {
 
-			tam = 20;
-			RegQueryValueEx(regKey, TEXT("TopPlayerName_P1"), NULL, NULL, (LPBYTE)topPlayerName, &tam);
-			topPlayerName[tam / sizeof(TCHAR)] = '\0';
+			// TOP - 1
+			tam = 80;
+			RegQueryValueEx(regKey, TEXT("TopPlayerName_P1"), NULL, NULL, (LPBYTE)topPlayerName1, &tam);
+			topPlayerName1[tam / sizeof(TCHAR)] = '\0';
 			tam = sizeof(topPlayerScore);
 			RegQueryValueEx(regKey, TEXT("TopPlayerScore_P1"), NULL, NULL, (LPBYTE)&topPlayerScore, &tam);
-			_stprintf_s(scores[0].playerName, TCHARSIZE, TEXT("%s"), topPlayerName);
+			_stprintf_s(scores[0].playerName, TCHARSIZE, TEXT("%s"), topPlayerName1);
+			scores[0].score = topPlayerScore;
+
+			// TOP - 2
+			tam = 80;
+			RegQueryValueEx(regKey, TEXT("TopPlayerName_P2"), NULL, NULL, (LPBYTE)topPlayerName2, &tam);
+			topPlayerName2[tam / sizeof(TCHAR)] = '\0';
+			tam = sizeof(topPlayerScore);
+			RegQueryValueEx(regKey, TEXT("TopPlayerScore_P2"), NULL, NULL, (LPBYTE)&topPlayerScore, &tam);
+			_stprintf_s(scores[1].playerName, TCHARSIZE, TEXT("%s"), topPlayerName2);
+			scores[1].score = topPlayerScore;
+
+			// TOP - 3
+			tam = 80;
+			RegQueryValueEx(regKey, TEXT("TopPlayerName_P3"), NULL, NULL, (LPBYTE)topPlayerName3, &tam);
+			topPlayerName3[tam / sizeof(TCHAR)] = '\0';
+			tam = sizeof(topPlayerScore);
+			RegQueryValueEx(regKey, TEXT("TopPlayerScore_P3"), NULL, NULL, (LPBYTE)&topPlayerScore, &tam);
+			_stprintf_s(scores[2].playerName, TCHARSIZE, TEXT("%s"), topPlayerName3);
+			scores[2].score = topPlayerScore;
+
+			// TOP - 4
+			tam = 80;
+			RegQueryValueEx(regKey, TEXT("TopPlayerName_P4"), NULL, NULL, (LPBYTE)topPlayerName4, &tam);
+			topPlayerName4[tam / sizeof(TCHAR)] = '\0';
+			tam = sizeof(topPlayerScore);
+			RegQueryValueEx(regKey, TEXT("TopPlayerScore_P4"), NULL, NULL, (LPBYTE)&topPlayerScore, &tam);
+			_stprintf_s(scores[3].playerName, TCHARSIZE, TEXT("%s"), topPlayerName4);
+			scores[3].score = topPlayerScore;
+
+			// TOP - 5
+			tam = 80;
+			RegQueryValueEx(regKey, TEXT("TopPlayerName_P5"), NULL, NULL, (LPBYTE)topPlayerName5, &tam);
+			topPlayerName5[tam / sizeof(TCHAR)] = '\0';
+			tam = sizeof(topPlayerScore);
+			RegQueryValueEx(regKey, TEXT("TopPlayerScore_P5"), NULL, NULL, (LPBYTE)&topPlayerScore, &tam);
+			_stprintf_s(scores[4].playerName, TCHARSIZE, TEXT("%s"), topPlayerName5);
+			scores[4].score = topPlayerScore;
+
 		}
 		RegCloseKey(regKey);
 	}
@@ -1129,6 +1191,9 @@ DWORD WINAPI gameThread(LPVOID params) {
 		Sleep(450);
 
 	}
+
+	// Check scores when game ends
+	//checkScores();
 	
 	// send info to termiante thread
 	gameInfo.commandId = GAME_OVER;
@@ -1150,6 +1215,29 @@ void manageObjects() {
 				removeObject(game.object[i].y, game.object[i].x);
 				
 			}
+		}
+	}
+}
+
+void checkScores() {
+	
+}
+
+void selection_sort(int num[], int tam)
+{
+	int i, j, max, swap;
+	for (i = 0; i >(tam - 1); i++)
+	{
+		max = i;
+		for (j = (i + 1); j > tam; j++) {
+			if (num[j] < num[max]) {
+				max = j;
+			}
+		}
+		if (i != max) {
+			swap = num[i];
+			num[i] = num[max];
+			num[max] = swap;
 		}
 	}
 }

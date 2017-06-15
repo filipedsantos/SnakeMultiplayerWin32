@@ -93,16 +93,17 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
 	windowMode = nCmdShow;
 	hThisInst = hInst;
 
+	loadKeysFromRegistry();
+
 	// create an id for user
 	srand(time(NULL));
 	myId = rand() % 1000 + 1999;
 	myId2 = rand() % 1000 + 1999;
+
 	// "hbrBackground" = handler para "brush" de pintura do fundo da janela. Devolvido por  // "GetStockObject".Neste caso o fundo será branco
 	// ============================================================================
 	// 2. Registar a classe "wcApp" no Windows
 	// ============================================================================
-
-	loadKeysFromRegistry();
 
 	if (!registerClass(hThisInst, WindowName))
 		return 0;
@@ -233,21 +234,15 @@ BOOL CALLBACK DialogTypeUser(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam
 {
 	switch (messg) {
 		
-		case WM_DESTROY:
-			EndDialog(hWnd, 0);
-			return 0;
-
 		case WM_COMMAND:
 			switch (LOWORD(wParam))
 			{
 				case ID_BUTTON_LOCAL:
-					startMainWindow(hWnd);
 					typeClient = LOCALCLIENT;
 					startLocal();
 					break;
 
 				case ID_BUTTON_REMOTE:
-					startMainWindow(hWnd);
 					typeClient = REMOTECLIENT;
 					EndDialog(hWnd,0);
 					DialogBox(hThisInst, (LPCSTR)IDD_DIALOG_AUTHENTICATE, hWnd, (DLGPROC)DialogAuthenticate);
@@ -256,6 +251,9 @@ BOOL CALLBACK DialogTypeUser(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam
 				default:
 					break;
 			}
+		case WM_DESTROY:
+			EndDialog(hWnd, 0);
+			return 0;
 	}
 	
 	return 0;
@@ -769,8 +767,8 @@ LRESULT CALLBACK MainWindow(HWND hWnd, UINT messg, WPARAM wParam, LPARAM lParam)
 
 			hbitGround = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_GRASS));
 			hbitSnake = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_YELLOW));
-			hbitSnake2 = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_GRAY));
-			hbitSnakeEnemy = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_PURPLE));
+			hbitSnake2 = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_PINK));
+			hbitSnakeEnemy = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_SNAKE_GRAY));
 			hbitApple = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_APPLE));
 			hbitwall = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_WALL1));
 			hbitIce = LoadBitmap(hThisInst, MAKEINTRESOURCE(IDB_ICE));
@@ -1075,6 +1073,8 @@ void startMainWindow() {
 void startLocal(){
 	data dataGame;
 
+	startMainWindow(hWnd);
+
 	//EVENT TO INFORM SERVER THAT SOMETHING WAS CHANGED
 	eWriteToServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM"));
 	eReadFromServerSHM = CreateEvent(NULL, TRUE, FALSE, TEXT("Global\snakeMultiplayerSHM_eWriteToClientSHM"));
@@ -1138,11 +1138,11 @@ void startLocal(){
 		createErrorMessageBox(error);
 		return;
 	}
-
 }
 
 //USER is type --> REMOTE
 void startRemote() {
+	startMainWindow(hWnd);
 
 	while (1) {
 
@@ -1160,7 +1160,7 @@ void startRemote() {
 			break;
 
 		if (GetLastError() != ERROR_PIPE_BUSY) {
-			_stprintf_s(error, 1024, TEXT("Create file error and not BUSY...(%d)\n"), GetLastError());
+			_stprintf_s(error, 1024, TEXT("Server offline...(%d)\n"), GetLastError());
 			createErrorMessageBox(error);
 			return -1;
 		}

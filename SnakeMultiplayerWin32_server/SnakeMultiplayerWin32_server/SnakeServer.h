@@ -195,6 +195,7 @@ void resetGameInfo();
 void manageObjects();
 void loadTopFromRegystry();
 void saveTopOnRegistry();
+void checkScores();
 
 
 // Threads
